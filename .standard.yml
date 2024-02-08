@@ -1,0 +1,7 @@
+parallel: true
+ruby_version: 3.2
+ignore:
+  - 'vendor/**/*'
+plugins:
+  - standard-performance
+  - standard-sorbet
