@@ -1,0 +1,4 @@
+gem:
+  exclude:
+  - rdoc
+  workers: 5
