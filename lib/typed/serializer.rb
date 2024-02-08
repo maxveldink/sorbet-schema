@@ -1,10 +1,18 @@
 # typed: strict
 
 module Typed
-  module Serializer
+  class Serializer
     extend T::Sig
     extend T::Helpers
-    interface!
+    abstract!
+
+    sig { returns(Schema) }
+    attr_reader :schema
+
+    sig { params(schema: Schema).void }
+    def initialize(schema:)
+      @schema = schema
+    end
 
     sig { abstract.params(source: String).returns(T::Struct) }
     def deserialize(source)

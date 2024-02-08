@@ -18,4 +18,6 @@ group :development, :test do
   gem "minitest"
 
   gem "debug"
+
+  gem "sorbet-struct-comparable"
 end

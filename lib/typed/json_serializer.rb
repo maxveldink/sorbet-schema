@@ -1,19 +1,19 @@
 # typed: strict
 
-module Typed
-  class JSONSerializer
-    extend T::Sig
+require "json"
 
-    include Serializer
+module Typed
+  class JSONSerializer < Serializer
+    extend T::Sig
 
     sig { override.params(source: String).returns(T::Struct) }
     def deserialize(source)
-      raise NotImplementedError
+      schema.target.from_hash(JSON.parse(source))
     end
 
     sig { override.params(struct: T::Struct).returns(String) }
     def serialize(struct)
-      raise NotImplementedError
+      JSON.generate(struct.serialize)
     end
   end
 end
