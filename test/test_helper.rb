@@ -6,3 +6,5 @@ require "minitest/autorun"
 require "debug"
 
 require "sorbet-schema"
+
+require_relative "support/structs/person"
