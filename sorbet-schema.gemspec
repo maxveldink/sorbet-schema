@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Serialization and deserialization library into Sorbet structs."
   spec.homepage = "https://github.com/maxveldink/sorbet-schema"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.2"
+  spec.required_ruby_version = ">= 3.1"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
   spec.metadata["rubygems_mfa_required"] = "true"
