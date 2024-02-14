@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require_relative "lib/sorbet-schema/version"
+
 Gem::Specification.new do |spec|
   spec.name = "sorbet-schema"
-  spec.version = "0.1.0"
+  spec.version = SorbetSchema::VERSION
   spec.authors = ["Max VelDink"]
   spec.email = ["maxveldink@gmail.com"]
 
