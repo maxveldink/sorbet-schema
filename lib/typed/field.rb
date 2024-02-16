@@ -22,7 +22,7 @@ module Typed
 
     sig { params(value: T.untyped).returns(ValidationResult) }
     def validate(value)
-      validate_required(value)
+      validate_required(value).and_then { |value| validate_type(value) }
     end
 
     private
@@ -33,6 +33,17 @@ module Typed
         Failure.new(RequiredFieldError.new(field_name: name))
       else
         Success.new(value)
+      end
+    end
+
+    sig { params(value: T.untyped).returns(ValidationResult) }
+    def validate_type(value)
+      if type == value.class
+        Success.new(value)
+      elsif optional? && value.nil?
+        Success.new(value)
+      else
+        Failure.new(TypeMismatchError.new(field_name: name, field_type: type, given_type: value.class))
       end
     end
   end

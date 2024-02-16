@@ -45,4 +45,18 @@ class FieldTest < Minitest::Test
     assert_predicate(result, :success?)
     assert_equal("testing", result.payload)
   end
+
+  def test_validate_correct_type
+    result = @required_field.validate("testing")
+
+    assert_predicate(result, :success?)
+    assert_equal("testing", result.payload)
+  end
+
+  def test_validate_incorrect_type
+    result = @required_field.validate(1)
+
+    assert_predicate(result, :failure?)
+    assert_equal(Typed::TypeMismatchError.new(field_name: :im_required, field_type: String, given_type: Integer), result.error)
+  end
 end
