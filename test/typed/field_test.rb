@@ -17,46 +17,4 @@ class FieldTest < Minitest::Test
     assert_predicate(@optional_field, :optional?)
     refute_predicate(@optional_field, :required?)
   end
-
-  def test_validate_nil_value_for_required_field
-    result = @required_field.validate(nil)
-
-    assert_predicate(result, :failure?)
-    assert_equal(Typed::RequiredFieldError.new(field_name: :im_required), result.error)
-  end
-
-  def test_validate_present_value_for_required_field
-    result = @required_field.validate("testing")
-
-    assert_predicate(result, :success?)
-    assert_equal("testing", result.payload)
-  end
-
-  def test_validate_nil_value_for_optional_field
-    result = @optional_field.validate(nil)
-
-    assert_predicate(result, :success?)
-    assert_nil(result.payload)
-  end
-
-  def test_validate_present_value_for_optional_field
-    result = @optional_field.validate("testing")
-
-    assert_predicate(result, :success?)
-    assert_equal("testing", result.payload)
-  end
-
-  def test_validate_correct_type
-    result = @required_field.validate("testing")
-
-    assert_predicate(result, :success?)
-    assert_equal("testing", result.payload)
-  end
-
-  def test_validate_incorrect_type
-    result = @required_field.validate(1)
-
-    assert_predicate(result, :failure?)
-    assert_equal(Typed::TypeMismatchError.new(field_name: :im_required, field_type: String, given_type: Integer), result.error)
-  end
 end

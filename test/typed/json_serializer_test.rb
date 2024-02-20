@@ -41,7 +41,7 @@ class JSONSerializerTest < Minitest::Test
     result = @serializer.deserialize(max_json)
 
     assert_predicate(result, :failure?)
-    assert_equal(Typed::RequiredFieldError.new(field_name: :age), result.error)
+    assert_equal(Typed::Validations::RequiredFieldError.new(field_name: :age), result.error)
   end
 
   def test_it_reports_multiple_validation_errors_on_deserialize
@@ -50,6 +50,14 @@ class JSONSerializerTest < Minitest::Test
     result = @serializer.deserialize(max_json)
 
     assert_predicate(result, :failure?)
-    assert_equal(Typed::MultipleValidationError.new(errors: [Typed::RequiredFieldError.new(field_name: :name), Typed::RequiredFieldError.new(field_name: :age)]), result.error)
+    assert_equal(
+      Typed::Validations::MultipleValidationError.new(
+        errors: [
+          Typed::Validations::RequiredFieldError.new(field_name: :name),
+          Typed::Validations::RequiredFieldError.new(field_name: :age)
+        ]
+      ),
+      result.error
+    )
   end
 end
