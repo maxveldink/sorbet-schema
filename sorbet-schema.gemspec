@@ -31,7 +31,8 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency "sorbet-result", "~> 1.0"
+  spec.add_runtime_dependency "sorbet-result", "~> 1.1"
   spec.add_runtime_dependency "sorbet-runtime", "~> 0.5"
+  spec.add_runtime_dependency "sorbet-struct-comparable", "~> 1.3"
   spec.add_runtime_dependency "zeitwerk", "~> 2.6"
 end

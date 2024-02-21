@@ -22,8 +22,8 @@ class JSONSerializerTest < Minitest::Test
 
     result = @serializer.deserialize(max_json)
 
-    assert_predicate(result, :success?)
-    assert_equal(PersonSchema.target.new(name: "Max", age: 29), result.payload)
+    assert_success(result)
+    assert_payload(PersonSchema.target.new(name: "Max", age: 29), result)
   end
 
   def test_it_reports_on_parse_errors_on_deserialize
@@ -31,8 +31,8 @@ class JSONSerializerTest < Minitest::Test
 
     result = @serializer.deserialize(max_json)
 
-    assert_predicate(result, :failure?)
-    assert_equal(Typed::ParseError.new(format: :json), result.error)
+    assert_failure(result)
+    assert_error(Typed::ParseError.new(format: :json), result)
   end
 
   def test_it_reports_validation_errors_on_deserialize
@@ -40,8 +40,8 @@ class JSONSerializerTest < Minitest::Test
 
     result = @serializer.deserialize(max_json)
 
-    assert_predicate(result, :failure?)
-    assert_equal(Typed::RequiredFieldError.new(field_name: :age), result.error)
+    assert_failure(result)
+    assert_error(Typed::Validations::RequiredFieldError.new(field_name: :age), result)
   end
 
   def test_it_reports_multiple_validation_errors_on_deserialize
@@ -49,7 +49,15 @@ class JSONSerializerTest < Minitest::Test
 
     result = @serializer.deserialize(max_json)
 
-    assert_predicate(result, :failure?)
-    assert_equal(Typed::MultipleValidationError.new(errors: [Typed::RequiredFieldError.new(field_name: :name), Typed::RequiredFieldError.new(field_name: :age)]), result.error)
+    assert_failure(result)
+    assert_error(
+      Typed::Validations::MultipleValidationError.new(
+        errors: [
+          Typed::Validations::RequiredFieldError.new(field_name: :name),
+          Typed::Validations::RequiredFieldError.new(field_name: :age)
+        ]
+      ),
+      result
+    )
   end
 end

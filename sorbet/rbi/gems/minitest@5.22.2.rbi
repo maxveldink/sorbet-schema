@@ -268,6 +268,12 @@ module Minitest::Assertions
   # source://minitest//lib/minitest/assertions.rb#221
   def assert_equal(exp, act, msg = T.unsafe(nil)); end
 
+  # source://sorbet-result/1.1.0/lib/minitest/result_assertions.rb#24
+  def assert_error(exp, result); end
+
+  # source://sorbet-result/1.1.0/lib/minitest/result_assertions.rb#14
+  def assert_failure(result); end
+
   # For comparing Floats.  Fails unless +exp+ and +act+ are within +delta+
   # of each other.
   #
@@ -356,6 +362,9 @@ module Minitest::Assertions
   # source://minitest//lib/minitest/assertions.rb#376
   def assert_pattern; end
 
+  # source://sorbet-result/1.1.0/lib/minitest/result_assertions.rb#19
+  def assert_payload(exp, result); end
+
   # For testing with predicates. Eg:
   #
   #   assert_predicate str, :empty?
@@ -415,6 +424,9 @@ module Minitest::Assertions
   #
   # source://minitest//lib/minitest/assertions.rb#493
   def assert_silent; end
+
+  # source://sorbet-result/1.1.0/lib/minitest/result_assertions.rb#9
+  def assert_success(result); end
 
   # Fails unless the block throws +sym+
   #
@@ -526,6 +538,12 @@ module Minitest::Assertions
   # source://minitest//lib/minitest/assertions.rb#676
   def refute_equal(exp, act, msg = T.unsafe(nil)); end
 
+  # source://sorbet-result/1.1.0/lib/minitest/result_assertions.rb#44
+  def refute_error(exp, result); end
+
+  # source://sorbet-result/1.1.0/lib/minitest/result_assertions.rb#34
+  def refute_failure(result); end
+
   # For comparing Floats.  Fails if +exp+ is within +delta+ of +act+.
   #
   #   refute_in_delta Math::PI, (22.0 / 7.0)
@@ -593,6 +611,9 @@ module Minitest::Assertions
   # source://minitest//lib/minitest/assertions.rb#763
   def refute_pattern; end
 
+  # source://sorbet-result/1.1.0/lib/minitest/result_assertions.rb#39
+  def refute_payload(exp, result); end
+
   # For testing with predicates.
   #
   #   refute_predicate str, :empty?
@@ -614,6 +635,9 @@ module Minitest::Assertions
   #
   # source://minitest//lib/minitest/assertions.rb#822
   def refute_same(exp, act, msg = T.unsafe(nil)); end
+
+  # source://sorbet-result/1.1.0/lib/minitest/result_assertions.rb#29
+  def refute_success(result); end
 
   # Skips the current run. If run in verbose-mode, the skipped run
   # gets listed at the end of the run but doesn't cause a failure

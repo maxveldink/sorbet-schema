@@ -14,11 +14,15 @@ module Typed
         hsh[field.name] = parsed_json[field.name.to_s]
       end
 
-      ApplyValidators
-        .new(schema:)
-        .call(creation_params)
-        .and_then do |validated_params|
-          Success.new(schema.target.new(**validated_params))
+      results = creation_params.map do |name, value|
+        schema.field(name:)&.validate(value)
+      end.compact
+
+      Validations::ValidationResults
+        .new(results:)
+        .combine
+        .and_then do
+          Success.new(schema.target.new(**creation_params))
         end
     rescue JSON::ParserError
       Failure.new(ParseError.new(format: :json))
