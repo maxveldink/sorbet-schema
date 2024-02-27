@@ -4,6 +4,8 @@ module Typed
   class Schema < T::Struct
     extend T::Sig
 
+    include T::Struct::ActsAsComparable
+
     const :fields, T::Array[Field], default: []
     const :target, T.class_of(T::Struct)
 
