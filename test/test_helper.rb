@@ -10,5 +10,6 @@ require "minitest/result_assertions"
 require "debug"
 
 require "sorbet-schema"
+require "sorbet-schema/struct_ext"
 
 require_relative "support/schemas/person_schema"

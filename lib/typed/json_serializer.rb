@@ -4,9 +4,10 @@ require "json"
 
 module Typed
   class JSONSerializer < Serializer
-    extend T::Sig
+    Input = type_member { {fixed: String} }
+    Output = type_member { {fixed: String} }
 
-    sig { override.params(source: String).returns(Result[T::Struct, DeserializeError]) }
+    sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
     def deserialize(source)
       parsed_json = JSON.parse(source)
 
@@ -14,21 +15,12 @@ module Typed
         hsh[field.name] = parsed_json[field.name.to_s]
       end
 
-      results = creation_params.map do |name, value|
-        schema.field(name:)&.validate(value)
-      end.compact
-
-      Validations::ValidationResults
-        .new(results:)
-        .combine
-        .and_then do
-          Success.new(schema.target.new(**creation_params))
-        end
+      deserialize_from_creation_params(creation_params)
     rescue JSON::ParserError
       Failure.new(ParseError.new(format: :json))
     end
 
-    sig { override.params(struct: T::Struct).returns(String) }
+    sig { override.params(struct: T::Struct).returns(Output) }
     def serialize(struct)
       JSON.generate(struct.serialize)
     end
