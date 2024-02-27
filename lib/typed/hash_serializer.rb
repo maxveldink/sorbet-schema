@@ -2,8 +2,11 @@
 
 module Typed
   class HashSerializer < Serializer
-    Input = type_member { {fixed: T::Hash[T.any(Symbol, String), T.untyped]} }
-    Output = type_member { {fixed: T::Hash[Symbol, T.untyped]} }
+    InputHash = T.type_alias { T::Hash[T.any(Symbol, String), T.untyped] }
+    OutputHash = T.type_alias { Params }
+
+    Input = type_member { {fixed: InputHash} }
+    Output = type_member { {fixed: OutputHash} }
 
     sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
     def deserialize(source)
@@ -17,7 +20,7 @@ module Typed
 
     private
 
-    sig { params(hash: T::Hash[T.any(String, Symbol), T.untyped]).returns(T::Hash[Symbol, T.untyped]) }
+    sig { params(hash: InputHash).returns(OutputHash) }
     def symbolize_keys(hash)
       hash.each_with_object({}) { |(k, v), h| h[k.intern] = v }
     end
