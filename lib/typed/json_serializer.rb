@@ -4,9 +4,10 @@ require "json"
 
 module Typed
   class JSONSerializer < Serializer
-    extend T::Sig
+    Input = type_member { {fixed: String} }
+    Output = type_member { {fixed: String} }
 
-    sig { override.params(source: String).returns(Result[T::Struct, DeserializeError]) }
+    sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
     def deserialize(source)
       parsed_json = JSON.parse(source)
 
@@ -28,7 +29,7 @@ module Typed
       Failure.new(ParseError.new(format: :json))
     end
 
-    sig { override.params(struct: T::Struct).returns(String) }
+    sig { override.params(struct: T::Struct).returns(Output) }
     def serialize(struct)
       JSON.generate(struct.serialize)
     end
