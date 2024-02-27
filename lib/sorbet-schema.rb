@@ -3,6 +3,7 @@
 
 require "sorbet-runtime"
 require "sorbet-result"
+require "sorbet-struct-comparable"
 
 # We can't use `Loader.for_gem` here as we've unconventionally named the root file.
 require "zeitwerk"
