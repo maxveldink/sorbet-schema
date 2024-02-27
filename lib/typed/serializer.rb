@@ -27,5 +27,21 @@ module Typed
     sig { abstract.params(struct: T::Struct).returns(Output) }
     def serialize(struct)
     end
+
+    private
+
+    sig { params(creation_params: Params).returns(DeserializeResult) }
+    def deserialize_from_creation_params(creation_params)
+      results = schema.fields.map do |field|
+        field.validate(creation_params[field.name])
+      end
+
+      Validations::ValidationResults
+        .new(results:)
+        .combine
+        .and_then do
+          Success.new(schema.target.new(**creation_params))
+        end
+    end
   end
 end
