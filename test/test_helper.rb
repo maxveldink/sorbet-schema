@@ -12,4 +12,4 @@ require "debug"
 require "sorbet-schema"
 require "sorbet-schema/struct_ext"
 
-require_relative "support/schemas/person_schema"
+require_relative "support/structs/person"

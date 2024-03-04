@@ -2,13 +2,13 @@
 
 class HashSerializerTest < Minitest::Test
   def setup
-    @serializer = Typed::HashSerializer.new(schema: PersonSchema)
+    @serializer = Typed::HashSerializer.new(schema: Person.create_schema)
   end
 
   # Serialize Tests
 
   def test_it_can_simple_serialize
-    max = PersonSchema.target.new(name: "Max", age: 29)
+    max = Person.new(name: "Max", age: 29)
 
     assert_equal({name: "Max", age: 29}, @serializer.serialize(max))
   end
@@ -21,7 +21,7 @@ class HashSerializerTest < Minitest::Test
     result = @serializer.deserialize(max_hash)
 
     assert_success(result)
-    assert_payload(PersonSchema.target.new(name: "Max", age: 29), result)
+    assert_payload(Person.new(name: "Max", age: 29), result)
   end
 
   def test_it_can_simple_deserialize_from_string_keys
@@ -30,7 +30,7 @@ class HashSerializerTest < Minitest::Test
     result = @serializer.deserialize(max_hash)
 
     assert_success(result)
-    assert_payload(PersonSchema.target.new(name: "Max", age: 29), result)
+    assert_payload(Person.new(name: "Max", age: 29), result)
   end
 
   def test_it_reports_validation_errors_on_deserialize
