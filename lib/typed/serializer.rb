@@ -33,14 +33,28 @@ module Typed
     sig { params(creation_params: Params).returns(DeserializeResult) }
     def deserialize_from_creation_params(creation_params)
       results = schema.fields.map do |field|
-        field.validate(creation_params[field.name])
+        value = creation_params[field.name]
+
+        if value.nil?
+          field.validate(value)
+        elsif value.class != field.type
+          coercion_result = Coercion.coerce(field:, value:)
+
+          if coercion_result.success?
+            field.validate(coercion_result.payload)
+          else
+            Failure.new(Validations::ValidationError.new(coercion_result.error.message))
+          end
+        else
+          field.validate(value)
+        end
       end
 
       Validations::ValidationResults
         .new(results:)
         .combine
-        .and_then do
-          Success.new(schema.target.new(**creation_params))
+        .and_then do |validated_params|
+          Success.new(schema.target.new(**validated_params))
         end
     end
   end

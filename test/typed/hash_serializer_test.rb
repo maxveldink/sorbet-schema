@@ -13,6 +13,12 @@ class HashSerializerTest < Minitest::Test
     assert_equal({name: "Max", age: 29}, @serializer.serialize(max))
   end
 
+  def test_it_can_serialize_with_nested_struct
+    hank = Person.new(name: "Hank", age: 38, job: Job.new(title: "Software Developer", salary: 90_000_00))
+
+    assert_equal({name: "Hank", age: 38, job: {title: "Software Developer", salary: 90_000_00}}, @serializer.serialize(hank))
+  end
+
   # Deserialize Tests
 
   def test_it_can_simple_deserialize
@@ -31,6 +37,15 @@ class HashSerializerTest < Minitest::Test
 
     assert_success(result)
     assert_payload(Person.new(name: "Max", age: 29), result)
+  end
+
+  def test_it_can_deserialize_with_nested_object
+    hank_hash = {name: "Hank", age: 38, job: {title: "Software Developer", salary: 90_000_00}}
+
+    result = @serializer.deserialize(hank_hash)
+
+    assert_success(result)
+    assert_payload(Person.new(name: "Hank", age: 38, job: Job.new(title: "Software Developer", salary: 90_000_00)), result)
   end
 
   def test_it_reports_validation_errors_on_deserialize
