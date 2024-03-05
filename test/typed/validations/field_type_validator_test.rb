@@ -13,14 +13,14 @@ class FieldTypeValidatorTest < Minitest::Test
     result = @validator.validate(field: @required_field, value: "testing")
 
     assert_success(result)
-    assert_payload("testing", result)
+    assert_payload(Typed::Validations::ValidatedValue.new(name: :im_required, value: "testing"), result)
   end
 
   def test_validate_correct_type_on_optional_field
     result = @validator.validate(field: @optional_field, value: "testing")
 
     assert_success(result)
-    assert_payload("testing", result)
+    assert_payload(Typed::Validations::ValidatedValue.new(name: :im_optional, value: "testing"), result)
   end
 
   def test_validate_incorrect_type_on_required_field
@@ -48,6 +48,6 @@ class FieldTypeValidatorTest < Minitest::Test
     result = @validator.validate(field: @optional_field, value: nil)
 
     assert_success(result)
-    assert_nil(result.payload)
+    assert_payload(Typed::Validations::ValidatedValue.new(name: :im_optional, value: nil), result)
   end
 end

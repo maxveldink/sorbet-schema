@@ -5,7 +5,7 @@ class StructCoercerTest < Minitest::Test
     result = Typed::Coercion::StructCoercer.coerce(field: Typed::Field.new(name: :testing, type: Integer), value: "testing")
 
     assert_failure(result)
-    assert_error(Typed::Coercion::CoercionError.new, result)
+    assert_error(Typed::Coercion::CoercionError.new("Field type must inherit from T::Struct for Struct coercion."), result)
   end
 
   def test_when_struct_can_be_coerced_returns_success
@@ -19,6 +19,6 @@ class StructCoercerTest < Minitest::Test
     result = Typed::Coercion::StructCoercer.coerce(field: Typed::Field.new(name: :job, type: Job), value: "bad")
 
     assert_failure(result)
-    assert_error(Typed::Coercion::CoercionError.new('"bad" provided to from_hash'), result)
+    assert_error(Typed::Coercion::CoercionError.new("Value must be a Hash for Struct coercion."), result)
   end
 end
