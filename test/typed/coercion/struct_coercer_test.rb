@@ -19,6 +19,6 @@ class StructCoercerTest < Minitest::Test
     result = Typed::Coercion::StructCoercer.coerce(field: Typed::Field.new(name: :job, type: Job), value: "bad")
 
     assert_failure(result)
-    assert_error(Typed::Coercion::CoercionError.new, result)
+    assert_error(Typed::Coercion::CoercionError.new('"bad" provided to from_hash'), result)
   end
 end
