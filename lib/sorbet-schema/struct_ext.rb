@@ -9,7 +9,7 @@ module T
       Typed::Schema.new(
         target: self,
         fields: props.map do |name, properties|
-          Typed::Field.new(name:, type: properties[:type], required: !properties[:fully_optional])
+          Typed::Field.new(name: name, type: properties[:type], required: !properties[:fully_optional])
         end
       )
     end
