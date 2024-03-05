@@ -6,11 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.1.0 (2024-03-05)
 
-
-### ⚠ BREAKING CHANGES
-
-* Target Ruby 3.1 as minimum Ruby version, bump deps and add PR title lint ([#6](https://github.com/maxveldink/sorbet-schema/issues/6))
-
 ### Features
 
 * Add `Integer` and `Float` coercions ([#26](https://github.com/maxveldink/sorbet-schema/issues/26)) ([537f0fc](https://github.com/maxveldink/sorbet-schema/commit/537f0fc4613e95e1e94ac7524488a19afb4018b7))
@@ -25,6 +20,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Miscellaneous Chores
 
 * release 0.1.0 ([f365058](https://github.com/maxveldink/sorbet-schema/commit/f365058a769a59acb1fd8c505907980a2896c51c))
-* Target Ruby 3.1 as minimum Ruby version, bump deps and add PR title lint ([#6](https://github.com/maxveldink/sorbet-schema/issues/6)) ([dcf4f11](https://github.com/maxveldink/sorbet-schema/commit/dcf4f116d18c4608f12bcecefe8ca416d8426a67))
 
 ## [Unreleased]
