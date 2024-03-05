@@ -8,8 +8,10 @@ module Typed
     def self.coerce(field:, value:)
       if field.type < T::Struct
         StructCoercer.coerce(field:, value:)
+      elsif field.type == String
+        StringCoercer.coerce(field:, value:)
       else
-        NoOpCoercer.coerce(field:, value:)
+        Failure.new(CoercionNotSupportedError.new)
       end
     end
   end
