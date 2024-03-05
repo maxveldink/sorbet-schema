@@ -2,7 +2,7 @@
 
 module Typed
   class Schema < T::Struct
-    include T::Struct::ActsAsComparable
+    include ActsAsComparable
 
     const :fields, T::Array[Field], default: []
     const :target, T.class_of(T::Struct)

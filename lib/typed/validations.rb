@@ -2,7 +2,7 @@
 
 module Typed
   module Validations
-    Value = T.type_alias { T.untyped }
-    ValidationResult = T.type_alias { Result[Value, ValidationError] }
+    ValidationResult = T.type_alias { Result[ValidatedValue, ValidationError] }
+    ValidatedParams = T.type_alias { T::Hash[Symbol, Value] }
   end
 end

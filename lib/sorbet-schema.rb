@@ -16,5 +16,12 @@ loader.inflector.inflect(
 )
 loader.setup
 
+# We don't want to place this in the `Typed` module.
+# `sorbet-schema` is a directory that is not autoloaded
+# but contains extensions, so we need to manually require it.
+require_relative "sorbet-schema/hash_transformer"
+
 # Sorbet-aware namespace to super-charge your projects
-module Typed; end
+module Typed
+  Value = T.type_alias { T.untyped }
+end

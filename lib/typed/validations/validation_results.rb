@@ -7,13 +7,17 @@ module Typed
 
       const :results, T::Array[ValidationResult]
 
-      sig { returns(ValidationResult) }
+      sig { returns(Result[ValidatedParams, ValidationError]) }
       def combine
         failing_results = results.select(&:failure?)
 
         case failing_results.length
         when 0
-          Success.blank
+          Success.new(
+            results.each_with_object({}) do |result, validated_params|
+              validated_params[result.payload.name] = result.payload.value
+            end
+          )
         when 1
           Failure.new(T.must(failing_results.first).error)
         else

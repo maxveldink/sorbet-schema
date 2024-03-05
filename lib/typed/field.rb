@@ -4,7 +4,7 @@ module Typed
   class Field < T::Struct
     extend T::Sig
 
-    include T::Struct::ActsAsComparable
+    include ActsAsComparable
 
     const :name, Symbol
     const :type, T::Class[T.anything]
@@ -20,7 +20,7 @@ module Typed
       !required
     end
 
-    sig { params(value: T.untyped).returns(Validations::ValidationResult) }
+    sig { params(value: Value).returns(Validations::ValidationResult) }
     def validate(value)
       Validations::FieldTypeValidator.new.validate(field: self, value:)
     end
