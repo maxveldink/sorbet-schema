@@ -10,19 +10,12 @@ module Typed
 
     sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
     def deserialize(source)
-      deserialize_from_creation_params(symbolize_keys(source))
+      deserialize_from_creation_params(HashTransformer.new.deep_symbolize_keys(source))
     end
 
     sig { override.params(struct: T::Struct).returns(Output) }
     def serialize(struct)
-      symbolize_keys(struct.serialize)
-    end
-
-    private
-
-    sig { params(hash: InputHash).returns(OutputHash) }
-    def symbolize_keys(hash)
-      hash.each_with_object({}) { |(k, v), h| h[k.intern] = v }
+      HashTransformer.new.deep_symbolize_keys(struct.serialize)
     end
   end
 end
