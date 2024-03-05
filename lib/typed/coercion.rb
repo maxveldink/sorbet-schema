@@ -16,6 +16,8 @@ module Typed
         StringCoercer.coerce(field: field, value: value)
       elsif field.type == Integer
         IntegerCoercer.coerce(field: field, value: value)
+      elsif field.type == Float
+        FloatCoercer.coerce(field: field, value: value)
       else
         Failure.new(CoercionNotSupportedError.new)
       end

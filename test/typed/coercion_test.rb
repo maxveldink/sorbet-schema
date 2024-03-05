@@ -24,6 +24,13 @@ class CoercionTest < Minitest::Test
     assert_payload(1, result)
   end
 
+  def test_coercion_coerces_floats
+    result = Typed::Coercion.coerce(field: Typed::Field.new(name: :name, type: Float), value: "1.1")
+
+    assert_success(result)
+    assert_payload(1.1, result)
+  end
+
   def test_when_coercer_isnt_matched_returns_failure
     result = Typed::Coercion.coerce(field: Typed::Field.new(name: :testing, type: Date), value: "testing")
 
