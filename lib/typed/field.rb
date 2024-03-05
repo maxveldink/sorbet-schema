@@ -4,7 +4,7 @@ module Typed
   class Field < T::Struct
     extend T::Sig
 
-    include T::Struct::ActsAsComparable
+    include ActsAsComparable
 
     const :name, Symbol
     const :type, T::Class[T.anything]
