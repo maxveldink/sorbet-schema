@@ -38,7 +38,7 @@ module Typed
         if value.nil?
           field.validate(value)
         elsif value.class != field.type
-          coercion_result = Coercion.coerce(field:, value:)
+          coercion_result = Coercion.coerce(field: field, value: value)
 
           if coercion_result.success?
             field.validate(coercion_result.payload)
@@ -51,7 +51,7 @@ module Typed
       end
 
       Validations::ValidationResults
-        .new(results:)
+        .new(results: results)
         .combine
         .and_then do |validated_params|
           Success.new(schema.target.new(**validated_params))

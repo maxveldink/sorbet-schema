@@ -22,7 +22,7 @@ module Typed
 
     sig { params(value: Value).returns(Validations::ValidationResult) }
     def validate(value)
-      Validations::FieldTypeValidator.new.validate(field: self, value:)
+      Validations::FieldTypeValidator.new.validate(field: self, value: value)
     end
   end
 end
