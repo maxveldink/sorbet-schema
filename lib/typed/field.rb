@@ -20,7 +20,7 @@ module Typed
       !required
     end
 
-    sig { params(value: T.untyped).returns(Validations::ValidationResult) }
+    sig { params(value: Value).returns(Validations::ValidationResult) }
     def validate(value)
       Validations::FieldTypeValidator.new.validate(field: self, value:)
     end

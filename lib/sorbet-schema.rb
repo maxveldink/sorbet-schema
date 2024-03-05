@@ -17,4 +17,6 @@ loader.inflector.inflect(
 loader.setup
 
 # Sorbet-aware namespace to super-charge your projects
-module Typed; end
+module Typed
+  Value = T.type_alias { T.untyped }
+end
