@@ -12,4 +12,4 @@ require "debug"
 require "sorbet-schema"
 require "sorbet-schema/struct_ext"
 
-Dir["test/support/structs/*.rb"].each { |file| require file }
+Dir["test/support/**/*.rb"].each { |file| require file }

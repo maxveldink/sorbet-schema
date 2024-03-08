@@ -2,16 +2,18 @@
 
 module Typed
   module Coercion
-    class StringCoercer
-      extend T::Sig
+    class StringCoercer < Coercer
       extend T::Generic
 
-      extend Coercer
+      Target = type_member { {fixed: String} }
 
-      Target = type_template { {fixed: String} }
+      sig { override.params(type: T::Class[T.anything]).returns(T::Boolean) }
+      def used_for_type?(type)
+        type == String
+      end
 
       sig { override.params(field: Field, value: Value).returns(Result[Target, CoercionError]) }
-      def self.coerce(field:, value:)
+      def coerce(field:, value:)
         Success.new(String(value))
       end
     end
