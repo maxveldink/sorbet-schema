@@ -2,16 +2,14 @@
 
 module Typed
   module Coercion
-    class StructCoercer
+    class StructCoercer < Coercer
       extend T::Sig
       extend T::Generic
 
-      extend Coercer
-
-      Target = type_template { {fixed: T::Struct} }
+      Target = type_member { {fixed: T::Struct} }
 
       sig { override.params(field: Field, value: Value).returns(Result[Target, CoercionError]) }
-      def self.coerce(field:, value:)
+      def coerce(field:, value:)
         type = field.type
 
         return Failure.new(CoercionError.new("Field type must inherit from T::Struct for Struct coercion.")) unless type < T::Struct

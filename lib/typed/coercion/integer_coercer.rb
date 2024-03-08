@@ -2,16 +2,14 @@
 
 module Typed
   module Coercion
-    class IntegerCoercer
+    class IntegerCoercer < Coercer
       extend T::Sig
       extend T::Generic
 
-      extend Coercer
-
-      Target = type_template { {fixed: Integer} }
+      Target = type_member { {fixed: Integer} }
 
       sig { override.params(field: Field, value: Value).returns(Result[Target, CoercionError]) }
-      def self.coerce(field:, value:)
+      def coerce(field:, value:)
         Success.new(Integer(value))
       rescue ArgumentError, TypeError
         Failure.new(CoercionError.new("'#{value}' cannot be coerced into Integer."))

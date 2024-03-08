@@ -2,7 +2,7 @@
 
 module Typed
   module Coercion
-    module Coercer
+    class Coercer
       extend T::Sig
       extend T::Generic
 
