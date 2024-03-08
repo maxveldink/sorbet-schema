@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0](https://github.com/maxveldink/sorbet-schema/compare/v0.1.0...v0.2.0) (2024-03-08)
+
+
+### Features
+
+* adds `to_h` and `to_json` methods to Deserialize errors ([#28](https://github.com/maxveldink/sorbet-schema/issues/28)) ([bf5f770](https://github.com/maxveldink/sorbet-schema/commit/bf5f770bc3ca176f18146dd780ad7ccd7fcb05b0))
+
+
+### Bug Fixes
+
+* Add release-please config ([#30](https://github.com/maxveldink/sorbet-schema/issues/30)) ([b311c28](https://github.com/maxveldink/sorbet-schema/commit/b311c2840d4929776e0133b061e531ae9d1f453f))
+
 ## 0.1.0 (2024-03-05)
 
 ### Features
