@@ -1,6 +1,10 @@
 # typed: true
 
 class CoercerRegistryTest < Minitest::Test
+  def teardown
+    Typed::Coercion::CoercerRegistry.instance.reset!
+  end
+
   def test_register_prepends_coercer_so_it_overrides_built_in_ones
     Typed::Coercion::CoercerRegistry.instance.register(SimpleStringCoercer)
 
