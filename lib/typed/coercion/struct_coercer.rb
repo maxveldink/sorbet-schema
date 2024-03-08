@@ -8,6 +8,11 @@ module Typed
 
       Target = type_member { {fixed: T::Struct} }
 
+      sig { override.params(type: T::Class[T.anything]).returns(T::Boolean) }
+      def used_for_type?(type)
+        !!(type < T::Struct)
+      end
+
       sig { override.params(field: Field, value: Value).returns(Result[Target, CoercionError]) }
       def coerce(field:, value:)
         type = field.type
