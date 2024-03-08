@@ -1,0 +1,14 @@
+{
+  "release-type": "ruby",
+  "packages": {
+    ".": {
+      "monorepo-tags": false,
+      "include-component-in-tag": false,
+      "prerelease": false,
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true,
+      "package-name": "sorbet-schema",
+      "version-file": "lib/sorbet-schema/version.rb"
+    }
+  }
+}
