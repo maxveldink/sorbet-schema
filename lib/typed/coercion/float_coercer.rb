@@ -3,7 +3,6 @@
 module Typed
   module Coercion
     class FloatCoercer < Coercer
-      extend T::Sig
       extend T::Generic
 
       Target = type_member { {fixed: Float} }

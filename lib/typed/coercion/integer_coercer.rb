@@ -3,7 +3,6 @@
 module Typed
   module Coercion
     class IntegerCoercer < Coercer
-      extend T::Sig
       extend T::Generic
 
       Target = type_member { {fixed: Integer} }
