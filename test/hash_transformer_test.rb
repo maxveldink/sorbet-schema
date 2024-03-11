@@ -29,7 +29,7 @@ class HashTransformerTest < Minitest::Test
           value: TestEnums::EnumThree,
           boolean: false,
           date: Date.new(1776, 7, 4),
-          array: [1, TestEnums::EnumOne, {"verydeep"=>  1}]
+          array: [1, TestEnums::EnumOne, {verydeep:  1}]
         }
       }
     }

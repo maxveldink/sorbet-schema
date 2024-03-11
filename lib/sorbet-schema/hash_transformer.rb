@@ -9,14 +9,14 @@ class HashTransformer
   sig { params(hash: T::Hash[T.untyped, T.untyped]).returns(T::Hash[Symbol, T.untyped]) }
   def deep_symbolize_keys(hash)
     hash.each_with_object({}) do |(key, value), result|
-      result[key.to_sym] = value.is_a?(Hash) ? deep_symbolize_keys(value) : value
+      result[key.to_sym] = unpack_value(value)
     end
   end
 
   sig { params(hash: T::Hash[T.untyped, T.untyped]).returns(T::Hash[Symbol, T.untyped]) }
   def deep_symbolize_keys_serialize_values(hash)
     hash.each_with_object({}) do |(key, value), result|
-      result[key.to_sym] = value.is_a?(Hash) ? deep_symbolize_keys_serialize_values(value) : try_serialize(value)
+      result[key.to_sym] = unpack_value_try_serialize(value)
     end
   end
 
@@ -30,11 +30,22 @@ class HashTransformer
   private
 
   sig { params(value: T.untyped).returns(T.untyped)}
-  def try_serialize(value)
+  def unpack_value(value)
+    if value.is_a?(Hash)
+      deep_symbolize_keys(value)
+    elsif value.is_a?(Array)
+      value.map { |inner_val| unpack_value(inner_val) }
+    else
+      value
+    end
+  end
+
+  sig { params(value: T.untyped).returns(T.untyped)}
+  def unpack_value_try_serialize(value)
     if value.is_a?(Hash)
       deep_symbolize_keys_serialize_values(value)
     elsif value.is_a?(Array)
-      value.map { |inner_val| try_serialize(inner_val) }
+      value.map { |inner_val| unpack_value_try_serialize(inner_val) }
     elsif value.respond_to?(:serialize)
       value.serialize
     else
