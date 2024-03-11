@@ -24,5 +24,10 @@ module Typed
     def serialize(struct)
       JSON.generate(struct.serialize)
     end
+
+    sig { override.params(struct: T::Struct).returns(Output) }
+    def deep_serialize(struct)
+      JSON.generate(struct.serialize)
+    end
   end
 end

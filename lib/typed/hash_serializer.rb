@@ -17,5 +17,10 @@ module Typed
     def serialize(struct)
       HashTransformer.new.deep_symbolize_keys(struct.serialize)
     end
+
+    sig { override.params(struct: T::Struct).returns(Output) }
+    def deep_serialize(struct)
+      HashTransformer.new.deep_symbolize_keys_serialize_values(struct.serialize)
+    end
   end
 end
