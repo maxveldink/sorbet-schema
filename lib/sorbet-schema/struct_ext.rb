@@ -29,8 +29,8 @@ module T
       Typed::HashSerializer.new(schema: self.class.create_schema).serialize(self)
     end
 
-    sig { returns(String) }
-    def to_json
+    sig { params(_options: T::Hash[T.untyped, T.untyped]).returns(String) }
+    def to_json(_options = {})
       Typed::JSONSerializer.new(schema: self.class.create_schema).serialize(self)
     end
   end
