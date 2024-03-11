@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1](https://github.com/maxveldink/sorbet-schema/compare/v0.2.0...v0.2.1) (2024-03-11)
+
+
+### Bug Fixes
+
+* Add options argument for use by ActiveSupport serialization ([#37](https://github.com/maxveldink/sorbet-schema/issues/37)) ([4326c00](https://github.com/maxveldink/sorbet-schema/commit/4326c00d20e4f16de1c4a0562725b403fea92afd))
+
 ## [0.2.0](https://github.com/maxveldink/sorbet-schema/compare/v0.1.1...v0.2.0) (2024-03-08)
 
 
