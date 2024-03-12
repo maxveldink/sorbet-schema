@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0](https://github.com/maxveldink/sorbet-schema/compare/v0.2.2...v0.3.0) (2024-03-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* Remove struct_ext for now
+
+### Code Refactoring
+
+* Remove struct_ext for now ([4a505cb](https://github.com/maxveldink/sorbet-schema/commit/4a505cba47b7fd0ae96d76a543f97228a3cd00d7))
+
 ## [0.2.2](https://github.com/maxveldink/sorbet-schema/compare/v0.2.1...v0.2.2) (2024-03-12)
 
 
