@@ -9,8 +9,8 @@ module Typed
       {error: message}
     end
 
-    sig { returns(String) }
-    def to_json
+    sig { params(_options: T::Hash[T.untyped, T.untyped]).returns(String) }
+    def to_json(_options = {})
       JSON.generate(to_h)
     end
   end
