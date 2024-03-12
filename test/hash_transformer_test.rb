@@ -4,9 +4,9 @@ class HashTransformerTest < Minitest::Test
   def setup
     @test_hash = {
       "test" => TestEnums::EnumOne,
-      another: 1,
-      deeper: {
-        anotherhash: 2,
+      :another => 1,
+      :deeper => {
+        :anotherhash => 2,
         "deeperagain" => {
           "value" => TestEnums::EnumThree,
           "boolean" => false,
@@ -29,7 +29,7 @@ class HashTransformerTest < Minitest::Test
           value: TestEnums::EnumThree,
           boolean: false,
           date: Date.new(1776, 7, 4),
-          array: [1, TestEnums::EnumOne, {verydeep:  1}]
+          array: [1, TestEnums::EnumOne, {verydeep: 1}]
         }
       }
     }
@@ -38,6 +38,8 @@ class HashTransformerTest < Minitest::Test
   end
 
   def test_deep_symbolize_keys_serialize_values_symbolizes_all_keys_and_serializes_values
+    transformer = HashTransformer.new(should_serialize_values: true)
+
     expected_hash = {
       test: "1",
       another: 1,
@@ -52,7 +54,7 @@ class HashTransformerTest < Minitest::Test
       }
     }
 
-    assert_equal(expected_hash, @transformer.deep_symbolize_keys_serialize_values(@test_hash))
+    assert_equal(expected_hash, transformer.deep_symbolize_keys(@test_hash))
   end
 
   def test_deep_stringify_keys_stringifies_all_keys
@@ -65,11 +67,31 @@ class HashTransformerTest < Minitest::Test
           "value" => TestEnums::EnumThree,
           "boolean" => false,
           "date" => Date.new(1776, 7, 4),
-          "array" => [1, TestEnums::EnumOne, {"verydeep"=>  1}]
+          "array" => [1, TestEnums::EnumOne, {"verydeep" => 1}]
         }
       }
     }
 
     assert_equal(expected_hash, @transformer.deep_stringify_keys(@test_hash))
+  end
+
+  def test_deep_stringify_keys_serialize_values_stringifies_all_keys_and_serializes_values
+    transformer = HashTransformer.new(should_serialize_values: true)
+
+    expected_hash = {
+      "test" => "1",
+      "another" => 1,
+      "deeper" => {
+        "anotherhash" => 2,
+        "deeperagain" => {
+          "value" => "3",
+          "boolean" => false,
+          "date" => Date.new(1776, 7, 4),
+          "array" => [1, "1", {"verydeep" => 1}]
+        }
+      }
+    }
+
+    assert_equal(expected_hash, transformer.deep_stringify_keys(@test_hash))
   end
 end

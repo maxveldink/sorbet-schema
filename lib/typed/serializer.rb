@@ -28,10 +28,6 @@ module Typed
     def serialize(struct)
     end
 
-    sig { abstract.params(struct: T::Struct).returns(Output) }
-    def deep_serialize(struct)
-    end
-
     private
 
     sig { params(creation_params: Params).returns(DeserializeResult) }
