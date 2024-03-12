@@ -4,7 +4,7 @@ require "test_helper"
 
 class JSONSerializerTest < Minitest::Test
   def setup
-    @serializer = Typed::JSONSerializer.new(schema: Person.create_schema)
+    @serializer = Typed::JSONSerializer.new(schema: Typed::Schema.from_struct(Person))
   end
 
   # Serialize Tests
