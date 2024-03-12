@@ -10,6 +10,5 @@ require "minitest/result_assertions"
 require "debug"
 
 require "sorbet-schema"
-require "sorbet-schema/struct_ext"
 
 Dir["test/support/**/*.rb"].each { |file| require file }

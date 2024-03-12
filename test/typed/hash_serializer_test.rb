@@ -2,7 +2,7 @@
 
 class HashSerializerTest < Minitest::Test
   def setup
-    @serializer = Typed::HashSerializer.new(schema: Person.create_schema)
+    @serializer = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Person))
   end
 
   # Serialize Tests
