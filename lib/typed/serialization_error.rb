@@ -1,7 +1,7 @@
 # typed: strict
 
 module Typed
-  class DeserializeError < SerializationError
+  class SerializationError < StandardError
     extend T::Sig
 
     sig { returns({error: String}) }
