@@ -29,7 +29,7 @@ module Typed
 
     sig { params(value: Value).returns(T::Boolean) }
     def works_with?(value)
-      value.class == type || T.cast(type, T::Types::Base).valid?(value)
+      value.class == type || T.cast(type, T::Types::Base).valid?(value) # standard:disable Style/ClassEqualityComparison
     rescue TypeError
       false
     end
