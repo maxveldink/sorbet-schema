@@ -10,7 +10,7 @@ module Typed
 
       Target = type_member(:out)
 
-      sig { abstract.params(type: T::Class[T.anything]).returns(T::Boolean) }
+      sig { abstract.params(type: Field::Type).returns(T::Boolean) }
       def used_for_type?(type)
       end
 

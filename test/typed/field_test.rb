@@ -17,4 +17,17 @@ class FieldTest < Minitest::Test
     assert_predicate(@optional_field, :optional?)
     refute_predicate(@optional_field, :required?)
   end
+
+  def test_when_standard_type_work_with_works
+    assert(@required_field.works_with?("Max"))
+    refute(@required_field.works_with?(1))
+  end
+
+  def test_when_base_type_works_with_works
+    field = Typed::Field.new(name: :bools, type: T::Utils.coerce(T::Boolean))
+
+    assert(field.works_with?(true))
+    assert(field.works_with?(false))
+    refute(field.works_with?("Max"))
+  end
 end
