@@ -17,5 +17,15 @@ module Typed
         end
       )
     end
+
+    sig { params(hash: Typed::HashSerializer::InputHash).returns(Typed::Serializer::DeserializeResult) }
+    def from_hash(hash)
+      Typed::HashSerializer.new(schema: self).deserialize(hash)
+    end
+
+    sig { params(json: String).returns(Typed::Serializer::DeserializeResult) }
+    def from_json(json)
+      Typed::JSONSerializer.new(schema: self).deserialize(json)
+    end
   end
 end
