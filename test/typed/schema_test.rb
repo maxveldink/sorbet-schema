@@ -6,11 +6,11 @@ class SchemaTest < Minitest::Test
       fields: [
         Typed::Field.new(name: :name, type: String),
         Typed::Field.new(name: :age, type: Integer),
+        Typed::Field.new(name: :ruby_rank, type: RubyRank),
         Typed::Field.new(name: :job, type: Job, required: false)
       ],
       target: Person
     )
-    @person = Person.new(name: "Max", age: 29)
   end
 
   def test_from_struct_returns_schema
@@ -18,16 +18,16 @@ class SchemaTest < Minitest::Test
   end
 
   def test_from_hash_create_struct
-    result = @schema.from_hash({name: "Max", age: 29})
+    result = @schema.from_hash({name: "Max", age: 29, ruby_rank: RubyRank::Luminary})
 
     assert_success(result)
-    assert_payload(@person, result)
+    assert_payload(MAX_PERSON, result)
   end
 
   def test_from_json_creates_struct
-    result = @schema.from_json('{"name": "Max", "age": 29}')
+    result = @schema.from_json('{"name": "Max", "age": 29, "ruby_rank": "shiny"}')
 
     assert_success(result)
-    assert_payload(@person, result)
+    assert_payload(MAX_PERSON, result)
   end
 end

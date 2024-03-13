@@ -36,6 +36,8 @@ class HashTransformer
       send(hash_transformation_method, value)
     elsif value.is_a?(Array)
       value.map { |inner_val| transform_value(inner_val, hash_transformation_method: hash_transformation_method) }
+    elsif value.is_a?(T::Struct) && should_serialize_values
+      deep_symbolize_keys(value.serialize)
     elsif value.respond_to?(:serialize) && should_serialize_values
       value.serialize
     else

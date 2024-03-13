@@ -20,9 +20,11 @@ module Typed
       Failure.new(ParseError.new(format: :json))
     end
 
-    sig { override.params(struct: T::Struct).returns(Output) }
+    sig { override.params(struct: T::Struct).returns(Result[Output, SerializeError]) }
     def serialize(struct)
-      JSON.generate(struct.serialize)
+      return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
+
+      Success.new(JSON.generate(struct.serialize))
     end
   end
 end

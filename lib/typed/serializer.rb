@@ -20,11 +20,11 @@ module Typed
       @schema = schema
     end
 
-    sig { abstract.params(source: Output).returns(DeserializeResult) }
+    sig { abstract.params(source: Input).returns(DeserializeResult) }
     def deserialize(source)
     end
 
-    sig { abstract.params(struct: T::Struct).returns(Output) }
+    sig { abstract.params(struct: T::Struct).returns(Result[Output, SerializeError]) }
     def serialize(struct)
     end
 
