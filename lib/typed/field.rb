@@ -6,8 +6,10 @@ module Typed
 
     include ActsAsComparable
 
+    Type = T.type_alias { T.any(T::Class[T.anything], T::Types::Base) }
+
     const :name, Symbol
-    const :type, T::Class[T.anything]
+    const :type, Type
     const :required, T::Boolean, default: true
 
     sig { returns(T::Boolean) }
@@ -23,6 +25,13 @@ module Typed
     sig { params(value: Value).returns(Validations::ValidationResult) }
     def validate(value)
       Validations::FieldTypeValidator.new.validate(field: self, value: value)
+    end
+
+    sig { params(value: Value).returns(T::Boolean) }
+    def works_with?(value)
+      value.class == type || T.cast(type, T::Types::Base).valid?(value)
+    rescue TypeError
+      false
     end
   end
 end

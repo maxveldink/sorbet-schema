@@ -7,7 +7,7 @@ module Typed
 
       Target = type_member { {fixed: String} }
 
-      sig { override.params(type: T::Class[T.anything]).returns(T::Boolean) }
+      sig { override.params(type: Field::Type).returns(T::Boolean) }
       def used_for_type?(type)
         type == String
       end

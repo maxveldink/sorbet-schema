@@ -9,7 +9,7 @@ module Typed
 
       sig { override.params(field: Field, value: Value).returns(ValidationResult) }
       def validate(field:, value:)
-        if field.type == value.class
+        if field.works_with?(value)
           Success.new(ValidatedValue.new(name: field.name, value: value))
         elsif field.required? && value.nil?
           Failure.new(RequiredFieldError.new(field_name: field.name))

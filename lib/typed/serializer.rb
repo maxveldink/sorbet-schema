@@ -35,9 +35,9 @@ module Typed
       results = schema.fields.map do |field|
         value = creation_params[field.name]
 
-        if value.nil?
+        if value.nil? || field.works_with?(value)
           field.validate(value)
-        elsif value.class != field.type
+        else
           coercion_result = Coercion.coerce(field: field, value: value)
 
           if coercion_result.success?
@@ -45,8 +45,6 @@ module Typed
           else
             Failure.new(Validations::ValidationError.new(coercion_result.error.message))
           end
-        else
-          field.validate(value)
         end
       end
 
