@@ -30,6 +30,13 @@ class HashSerializerTest < Minitest::Test
     assert_payload({name: "Alex", age: 31, ruby_rank: "pretty", job: {title: "Software Developer", salary: 1_000_000_00}}, result)
   end
 
+  def test_with_boolean_it_can_serialize
+    result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(City)).serialize(NEW_YORK_CITY)
+
+    assert_success(result)
+    assert_payload({name: "New York", capital: false}, result)
+  end
+
   def test_when_struct_given_is_not_of_target_type_returns_failure
     result = @serializer.serialize(Job.new(title: "Testing", salary: 90_00))
 
@@ -51,6 +58,13 @@ class HashSerializerTest < Minitest::Test
 
     assert_success(result)
     assert_payload(MAX_PERSON, result)
+  end
+
+  def test_with_boolean_it_can_deserialize
+    result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(City)).deserialize({name: "New York", capital: false})
+
+    assert_success(result)
+    assert_payload(NEW_YORK_CITY, result)
   end
 
   def test_it_can_deserialize_with_nested_object

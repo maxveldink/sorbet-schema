@@ -23,7 +23,7 @@ module Typed
         else
           Failure.new(CoercionError.new)
         end
-      rescue TypeError => e
+      rescue TypeError
         Failure.new(CoercionError.new("Field type must be a T::Boolean."))
       end
     end

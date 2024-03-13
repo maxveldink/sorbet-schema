@@ -23,6 +23,13 @@ class JSONSerializerTest < Minitest::Test
     assert_payload('{"name":"Alex","age":31,"ruby_rank":"pretty","job":{"title":"Software Developer","salary":100000000}}', result)
   end
 
+  def test_with_boolean_it_can_serialize
+    result = Typed::JSONSerializer.new(schema: Typed::Schema.from_struct(City)).serialize(NEW_YORK_CITY)
+
+    assert_success(result)
+    assert_payload('{"name":"New York","capital":false}', result)
+  end
+
   # Deserialize Tests
 
   def test_it_can_simple_deserialize
@@ -30,6 +37,13 @@ class JSONSerializerTest < Minitest::Test
 
     assert_success(result)
     assert_payload(MAX_PERSON, result)
+  end
+
+  def test_with_boolean_it_can_deserialize
+    result = Typed::JSONSerializer.new(schema: Typed::Schema.from_struct(City)).deserialize('{"name":"New York","capital":false}')
+
+    assert_success(result)
+    assert_payload(NEW_YORK_CITY, result)
   end
 
   def test_it_can_deserialize_with_nested_object
