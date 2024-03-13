@@ -3,10 +3,8 @@
 module Typed
   class HashSerializer < Serializer
     InputHash = T.type_alias { T::Hash[T.any(Symbol, String), T.untyped] }
-    OutputHash = T.type_alias { Params }
-
     Input = type_member { {fixed: InputHash} }
-    Output = type_member { {fixed: OutputHash} }
+    Output = type_member { {fixed: Params} }
 
     sig { params(schema: Schema, should_serialize_values: T::Boolean).void }
     def initialize(schema:, should_serialize_values: false)
@@ -20,9 +18,13 @@ module Typed
       deserialize_from_creation_params(HashTransformer.new(should_serialize_values: should_serialize_values).deep_symbolize_keys(source))
     end
 
-    sig { override.params(struct: T::Struct).returns(Output) }
+    sig { override.params(struct: T::Struct).returns(Result[Output, SerializeError]) }
     def serialize(struct)
-      HashTransformer.new(should_serialize_values: should_serialize_values).deep_symbolize_keys(struct.serialize)
+      return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
+
+      hsh = schema.fields.each_with_object({}) { |field, hsh| hsh[field.name] = struct.send(field.name) }
+
+      Success.new(HashTransformer.new(should_serialize_values: should_serialize_values).deep_symbolize_keys(hsh.compact))
     end
 
     private
