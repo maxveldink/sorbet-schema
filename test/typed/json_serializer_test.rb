@@ -30,6 +30,13 @@ class JSONSerializerTest < Minitest::Test
     assert_payload('{"name":"New York","capital":false}', result)
   end
 
+  def test_with_array_it_can_serialize
+    result = Typed::JSONSerializer.new(schema: Typed::Schema.from_struct(Country)).serialize(US_COUNTRY)
+
+    assert_success(result)
+    assert_payload('{"name":"US","cities":[{"name":"New York","capital":false},{"name":"DC","capital":true}]}', result)
+  end
+
   # Deserialize Tests
 
   def test_it_can_simple_deserialize
@@ -44,6 +51,13 @@ class JSONSerializerTest < Minitest::Test
 
     assert_success(result)
     assert_payload(NEW_YORK_CITY, result)
+  end
+
+  def test_with_array_it_can_deep_deserialize
+    result = Typed::JSONSerializer.new(schema: Typed::Schema.from_struct(Country)).deserialize('{"name":"US","cities":[{"name":"New York","capital":false},{"name":"DC","capital":true}]}')
+
+    assert_success(result)
+    assert_payload(US_COUNTRY, result)
   end
 
   def test_it_can_deserialize_with_nested_object
