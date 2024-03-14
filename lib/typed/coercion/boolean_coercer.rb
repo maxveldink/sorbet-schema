@@ -14,7 +14,7 @@ module Typed
 
       sig { override.params(field: Field, value: Value).returns(Result[Target, CoercionError]) }
       def coerce(field:, value:)
-        if T.cast(field.type, T::Types::Base).valid?(value)
+        if T.cast(field.type, T::Types::Base).recursively_valid?(value)
           Success.new(value)
         elsif value == "true"
           Success.new(true)
