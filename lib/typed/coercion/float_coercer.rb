@@ -9,11 +9,11 @@ module Typed
 
       sig { override.params(type: Field::Type).returns(T::Boolean) }
       def used_for_type?(type)
-        type == Float
+        T::Utils.coerce(type) == T::Utils.coerce(Float)
       end
 
-      sig { override.params(field: Field, value: Value).returns(Result[Target, CoercionError]) }
-      def coerce(field:, value:)
+      sig { override.params(type: Field::Type, value: Value).returns(Result[Target, CoercionError]) }
+      def coerce(type:, value:)
         Success.new(Float(value))
       rescue ArgumentError, TypeError
         Failure.new(CoercionError.new("'#{value}' cannot be coerced into Float."))

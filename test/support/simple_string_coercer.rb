@@ -10,8 +10,8 @@ class SimpleStringCoercer < Typed::Coercion::Coercer
     type == String
   end
 
-  sig { override.params(field: Typed::Field, value: Typed::Value).returns(Typed::Result[Target, Typed::Coercion::CoercionError]) }
-  def coerce(field:, value:)
+  sig { override.params(type: Typed::Field::Type, value: Typed::Value).returns(Typed::Result[Target, Typed::Coercion::CoercionError]) }
+  def coerce(type:, value:)
     Typed::Success.new("always this value")
   end
 end

@@ -12,10 +12,8 @@ module Typed
         type.is_a?(Class) && !!(type < T::Enum)
       end
 
-      sig { override.params(field: Field, value: Value).returns(Result[Target, CoercionError]) }
-      def coerce(field:, value:)
-        type = field.type
-
+      sig { override.params(type: Field::Type, value: Value).returns(Result[Target, CoercionError]) }
+      def coerce(type:, value:)
         return Failure.new(CoercionError.new("Field type must inherit from T::Enum for Enum coercion.")) unless type.is_a?(Class) && !!(type < T::Enum)
 
         Success.new(type.from_serialized(value))

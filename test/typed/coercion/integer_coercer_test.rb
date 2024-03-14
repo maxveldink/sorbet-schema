@@ -3,7 +3,7 @@
 class IntegerCoercerTest < Minitest::Test
   def setup
     @coercer = Typed::Coercion::IntegerCoercer.new
-    @field = Typed::Field.new(name: :testing, type: Integer)
+    @type = Integer
   end
 
   def test_used_for_type_works
@@ -12,12 +12,12 @@ class IntegerCoercerTest < Minitest::Test
   end
 
   def test_when_coercable_returns_success
-    assert_payload(1, @coercer.coerce(field: @field, value: "1"))
-    assert_payload(1, @coercer.coerce(field: @field, value: 1.1))
+    assert_payload(1, @coercer.coerce(type: @type, value: "1"))
+    assert_payload(1, @coercer.coerce(type: @type, value: 1.1))
   end
 
   def test_when_not_coercable_returns_failure
-    assert_error(Typed::Coercion::CoercionError.new("'a' cannot be coerced into Integer."), @coercer.coerce(field: @field, value: "a"))
-    assert_error(Typed::Coercion::CoercionError.new("'true' cannot be coerced into Integer."), @coercer.coerce(field: @field, value: true))
+    assert_error(Typed::Coercion::CoercionError.new("'a' cannot be coerced into Integer."), @coercer.coerce(type: @type, value: "a"))
+    assert_error(Typed::Coercion::CoercionError.new("'true' cannot be coerced into Integer."), @coercer.coerce(type: @type, value: true))
   end
 end

@@ -12,10 +12,8 @@ module Typed
         type.is_a?(Class) && !!(type < T::Struct)
       end
 
-      sig { override.params(field: Field, value: Value).returns(Result[Target, CoercionError]) }
-      def coerce(field:, value:)
-        type = field.type
-
+      sig { override.params(type: Field::Type, value: Value).returns(Result[Target, CoercionError]) }
+      def coerce(type:, value:)
         return Failure.new(CoercionError.new("Field type must inherit from T::Struct for Struct coercion.")) unless type.is_a?(Class) && type < T::Struct
         return Failure.new(CoercionError.new("Value must be a Hash for Struct coercion.")) unless value.is_a?(Hash)
 

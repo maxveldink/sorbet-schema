@@ -3,7 +3,6 @@
 class StringCoercerTest < Minitest::Test
   def setup
     @coercer = Typed::Coercion::StringCoercer.new
-    @field = Typed::Field.new(name: :testing, type: String)
   end
 
   def test_used_for_type_works
@@ -12,7 +11,7 @@ class StringCoercerTest < Minitest::Test
   end
 
   def test_returns_success
-    assert_payload("1", @coercer.coerce(field: @field, value: 1))
-    assert_payload("[1, 2]", @coercer.coerce(field: @field, value: [1, 2]))
+    assert_payload("1", @coercer.coerce(type: String, value: 1))
+    assert_payload("[1, 2]", @coercer.coerce(type: String, value: [1, 2]))
   end
 end
