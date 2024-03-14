@@ -23,11 +23,21 @@ class FieldTest < Minitest::Test
     refute(@required_field.works_with?(1))
   end
 
-  def test_when_base_type_works_with_works
+  def test_when_simple_base_type_works_with_works
     field = Typed::Field.new(name: :bools, type: T::Utils.coerce(T::Boolean))
 
     assert(field.works_with?(true))
     assert(field.works_with?(false))
     refute(field.works_with?("Max"))
+  end
+
+  def test_when_recursive_base_type_works_with_works
+    field = Typed::Field.new(name: :typed_array, type: T::Utils.coerce(T::Array[String]))
+
+    assert(field.works_with?([]))
+    assert(field.works_with?(["Max"]))
+    refute(field.works_with?("Max"))
+    refute(field.works_with?([1]))
+    refute(field.works_with?([1, "Max"]))
   end
 end
