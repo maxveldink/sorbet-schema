@@ -11,7 +11,18 @@ module Typed
 
       Registry = T.type_alias { T::Array[T.class_of(Coercer)] }
 
-      DEFAULT_COERCERS = T.let([StringCoercer, BooleanCoercer, IntegerCoercer, FloatCoercer, EnumCoercer, StructCoercer], Registry)
+      DEFAULT_COERCERS = T.let(
+        [
+          StringCoercer,
+          BooleanCoercer,
+          IntegerCoercer,
+          FloatCoercer,
+          EnumCoercer,
+          StructCoercer,
+          TypedArrayCoercer
+        ],
+        Registry
+      )
 
       sig { void }
       def initialize
