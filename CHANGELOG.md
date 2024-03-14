@@ -4,6 +4,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0](https://github.com/maxveldink/sorbet-schema/compare/v0.3.0...v0.4.0) (2024-03-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* Have coercers take in a type instead of the full field
+* Update Field's types to a support Sorbets T::Types::Base classes
+* Changed serialize return value to a Result
+* adds SerializationError ancestor
+
+### Features
+
+* Add BooleanCoercer ([acd220f](https://github.com/maxveldink/sorbet-schema/commit/acd220f55fe0ebc823de6cc43776a1f510a4acd0))
+* Add EnumCoercer ([5c0e2b5](https://github.com/maxveldink/sorbet-schema/commit/5c0e2b51990dfb72218129b0935f881622324194))
+* Add from_hash and from_json helpers to Schemas ([#44](https://github.com/maxveldink/sorbet-schema/issues/44)) ([55c2da7](https://github.com/maxveldink/sorbet-schema/commit/55c2da77b7c2636339c684560bf15c51ff3ff4b1))
+* Add idempotency to Struct coercer ([3a42957](https://github.com/maxveldink/sorbet-schema/commit/3a42957836afee55b074fc5c8a41eac6d31ada70))
+* Add option to serialize values to HashSerializer ([710d365](https://github.com/maxveldink/sorbet-schema/commit/710d365d477bd6c6bff20929fcdcc1d1cc95bdb3))
+* Adds TypedArray coercer ([795ddd9](https://github.com/maxveldink/sorbet-schema/commit/795ddd97f05502b154d4cb165878c1f78935cb3c))
+
+
+### Code Refactoring
+
+* adds SerializationError ancestor ([f8ea753](https://github.com/maxveldink/sorbet-schema/commit/f8ea75304613cbab17f698006698a2524a44b538))
+* Changed serialize return value to a Result ([948c678](https://github.com/maxveldink/sorbet-schema/commit/948c67815dab19793dd2f321a90797d123740e0e))
+* Have coercers take in a type instead of the full field ([c06169e](https://github.com/maxveldink/sorbet-schema/commit/c06169e0fa1cf7c8f645ecabef19cc2f5facffe4))
+* Update Field's types to a support Sorbets T::Types::Base classes ([9ef1cd5](https://github.com/maxveldink/sorbet-schema/commit/9ef1cd5caf09396d8dae6a4db1feeb4f88dd25e9))
+
 ## [0.3.0](https://github.com/maxveldink/sorbet-schema/compare/v0.2.2...v0.3.0) (2024-03-12)
 
 
