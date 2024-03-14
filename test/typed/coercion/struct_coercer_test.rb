@@ -18,6 +18,22 @@ class StructCoercerTest < Minitest::Test
     assert_error(Typed::Coercion::CoercionError.new("Field type must inherit from T::Struct for Struct coercion."), result)
   end
 
+  def test_when_struct_of_correct_type_given_returns_success
+    job = Job.new(title: "Software Developer", salary: 90_000_00)
+
+    result = @coercer.coerce(type: Job, value: job)
+
+    assert_success(result)
+    assert_payload(job, result)
+  end
+
+  def test_when_struct_of_incorrect_type_given_returns_failure
+    result = @coercer.coerce(type: Job, value: Country.new(name: "Canada", cities: []))
+
+    assert_failure(result)
+    assert_error(Typed::Coercion::CoercionError.new("Value of type 'Country' cannot be coerced to Job Struct."), result)
+  end
+
   def test_when_struct_can_be_coerced_returns_success
     result = @coercer.coerce(type: Job, value: {"title" => "Software Developer", "salary" => 90_000_00})
 
@@ -29,6 +45,6 @@ class StructCoercerTest < Minitest::Test
     result = @coercer.coerce(type: Job, value: "bad")
 
     assert_failure(result)
-    assert_error(Typed::Coercion::CoercionError.new("Value must be a Hash for Struct coercion."), result)
+    assert_error(Typed::Coercion::CoercionError.new("Value of type 'String' cannot be coerced to Job Struct."), result)
   end
 end

@@ -15,7 +15,9 @@ module Typed
       sig { override.params(type: Field::Type, value: Value).returns(Result[Target, CoercionError]) }
       def coerce(type:, value:)
         return Failure.new(CoercionError.new("Field type must inherit from T::Struct for Struct coercion.")) unless type.is_a?(Class) && type < T::Struct
-        return Failure.new(CoercionError.new("Value must be a Hash for Struct coercion.")) unless value.is_a?(Hash)
+        return Success.new(value) if value.instance_of?(type)
+
+        return Failure.new(CoercionError.new("Value of type '#{value.class}' cannot be coerced to #{type} Struct.")) unless value.is_a?(Hash)
 
         Success.new(type.from_hash!(HashTransformer.new.deep_stringify_keys(value)))
       rescue ArgumentError => e
