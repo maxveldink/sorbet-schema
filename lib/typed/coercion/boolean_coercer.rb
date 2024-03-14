@@ -12,9 +12,9 @@ module Typed
         type == T::Utils.coerce(T::Boolean)
       end
 
-      sig { override.params(field: Field, value: Value).returns(Result[Target, CoercionError]) }
-      def coerce(field:, value:)
-        if T.cast(field.type, T::Types::Base).recursively_valid?(value)
+      sig { override.params(type: Field::Type, value: Value).returns(Result[Target, CoercionError]) }
+      def coerce(type:, value:)
+        if T.cast(type, T::Types::Base).recursively_valid?(value)
           Success.new(value)
         elsif value == "true"
           Success.new(true)

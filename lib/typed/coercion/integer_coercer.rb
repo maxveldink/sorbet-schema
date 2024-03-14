@@ -12,8 +12,8 @@ module Typed
         type == Integer
       end
 
-      sig { override.params(field: Field, value: Value).returns(Result[Target, CoercionError]) }
-      def coerce(field:, value:)
+      sig { override.params(type: Field::Type, value: Value).returns(Result[Target, CoercionError]) }
+      def coerce(type:, value:)
         Success.new(Integer(value))
       rescue ArgumentError, TypeError
         Failure.new(CoercionError.new("'#{value}' cannot be coerced into Integer."))

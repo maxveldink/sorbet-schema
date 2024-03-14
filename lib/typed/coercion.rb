@@ -9,13 +9,13 @@ module Typed
       CoercerRegistry.instance.register(coercer)
     end
 
-    sig { type_parameters(:U).params(field: Field, value: Value).returns(Result[Value, CoercionError]) }
-    def self.coerce(field:, value:)
-      coercer = CoercerRegistry.instance.select_coercer_by(type: field.type)
+    sig { type_parameters(:U).params(type: Field::Type, value: Value).returns(Result[Value, CoercionError]) }
+    def self.coerce(type:, value:)
+      coercer = CoercerRegistry.instance.select_coercer_by(type: type)
 
       return Failure.new(CoercionNotSupportedError.new) unless coercer
 
-      coercer.new.coerce(field: field, value: value)
+      coercer.new.coerce(type: type, value: value)
     end
   end
 end

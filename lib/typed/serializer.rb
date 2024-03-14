@@ -38,7 +38,7 @@ module Typed
         if value.nil? || field.works_with?(value)
           field.validate(value)
         else
-          coercion_result = Coercion.coerce(field: field, value: value)
+          coercion_result = Coercion.coerce(type: field.type, value: value)
 
           if coercion_result.success?
             field.validate(coercion_result.payload)

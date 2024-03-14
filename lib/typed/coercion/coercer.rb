@@ -14,8 +14,8 @@ module Typed
       def used_for_type?(type)
       end
 
-      sig { abstract.params(field: Field, value: Value).returns(Result[Target, CoercionError]) }
-      def coerce(field:, value:)
+      sig { abstract.params(type: Field::Type, value: Value).returns(Result[Target, CoercionError]) }
+      def coerce(type:, value:)
       end
     end
   end

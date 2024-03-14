@@ -14,14 +14,14 @@ class CoercionTest < Minitest::Test
   end
 
   def test_when_coercer_is_matched_coerce_coerces
-    result = Typed::Coercion.coerce(field: Typed::Field.new(name: :name, type: String), value: 1)
+    result = Typed::Coercion.coerce(type: String, value: 1)
 
     assert_success(result)
     assert_payload("1", result)
   end
 
   def test_when_coercer_isnt_matched_coerce_returns_failure
-    result = Typed::Coercion.coerce(field: Typed::Field.new(name: :testing, type: Date), value: "testing")
+    result = Typed::Coercion.coerce(type: Date, value: "testing")
 
     assert_failure(result)
     assert_error(Typed::Coercion::CoercionNotSupportedError.new, result)
