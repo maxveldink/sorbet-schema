@@ -27,14 +27,14 @@ class FieldTypeValidatorTest < Minitest::Test
     result = @validator.validate(field: @required_field, value: 1)
 
     assert_failure(result)
-    assert_error(Typed::Validations::TypeMismatchError.new(field_name: :im_required, field_type: String, given_type: Integer), result)
+    assert_error(Typed::Validations::TypeMismatchError.new(field_name: :im_required, field_type: T::Utils.coerce(String), given_type: Integer), result)
   end
 
   def test_validate_incorrect_type_on_optional_field
     result = @validator.validate(field: @optional_field, value: 1)
 
     assert_failure(result)
-    assert_error(Typed::Validations::TypeMismatchError.new(field_name: :im_optional, field_type: String, given_type: Integer), result)
+    assert_error(Typed::Validations::TypeMismatchError.new(field_name: :im_optional, field_type: T::Utils.coerce(String), given_type: Integer), result)
   end
 
   def test_validate_nil_on_required_field

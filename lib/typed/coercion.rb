@@ -9,7 +9,7 @@ module Typed
       CoercerRegistry.instance.register(coercer)
     end
 
-    sig { type_parameters(:U).params(type: Field::Type, value: Value).returns(Result[Value, CoercionError]) }
+    sig { type_parameters(:U).params(type: T::Types::Base, value: Value).returns(Result[Value, CoercionError]) }
     def self.coerce(type:, value:)
       coercer = CoercerRegistry.instance.select_coercer_by(type: type)
 

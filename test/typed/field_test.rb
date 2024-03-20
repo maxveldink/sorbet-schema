@@ -8,6 +8,15 @@ class FieldTest < Minitest::Test
     @optional_field = Typed::Field.new(name: :im_optional, type: String, required: false)
   end
 
+  def test_initialize_takes_sorbet_types_and_built_in_types
+    assert_equal(@required_field, Typed::Field.new(name: :im_required, type: T::Utils.coerce(String)))
+  end
+
+  def test_equality
+    assert_equal(@required_field, Typed::Field.new(name: :im_required, type: String))
+    refute_equal(@required_field, @optional_field)
+  end
+
   def test_required_and_optional_helpers_work_when_required
     assert_predicate(@required_field, :required?)
     refute_predicate(@required_field, :optional?)

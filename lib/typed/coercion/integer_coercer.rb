@@ -7,13 +7,15 @@ module Typed
 
       Target = type_member { {fixed: Integer} }
 
-      sig { override.params(type: Field::Type).returns(T::Boolean) }
+      sig { override.params(type: T::Types::Base).returns(T::Boolean) }
       def used_for_type?(type)
-        type == Integer
+        type == T::Utils.coerce(Integer)
       end
 
-      sig { override.params(type: Field::Type, value: Value).returns(Result[Target, CoercionError]) }
+      sig { override.params(type: T::Types::Base, value: Value).returns(Result[Target, CoercionError]) }
       def coerce(type:, value:)
+        return Failure.new(CoercionError.new("Type must be a Integer.")) unless used_for_type?(type)
+
         Success.new(Integer(value))
       rescue ArgumentError, TypeError
         Failure.new(CoercionError.new("'#{value}' cannot be coerced into Integer."))

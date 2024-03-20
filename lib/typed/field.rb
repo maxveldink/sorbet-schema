@@ -1,16 +1,31 @@
 # typed: strict
 
 module Typed
-  class Field < T::Struct
+  class Field
     extend T::Sig
 
-    include ActsAsComparable
+    sig { returns(Symbol) }
+    attr_reader :name
 
-    Type = T.type_alias { T.any(T::Class[T.anything], T::Types::Base) }
+    sig { returns(T::Types::Base) }
+    attr_reader :type
 
-    const :name, Symbol
-    const :type, Type
-    const :required, T::Boolean, default: true
+    sig { returns(T::Boolean) }
+    attr_reader :required
+
+    sig { params(name: Symbol, type: T.any(T::Class[T.anything], T::Types::Base), required: T::Boolean).void }
+    def initialize(name:, type:, required: true)
+      @name = name
+      @type = T.let(T::Utils.coerce(type), T::Types::Base)
+      @required = required
+    end
+
+    sig { params(other: Field).returns(T.nilable(T::Boolean)) }
+    def ==(other)
+      name == other.name &&
+        type == other.type &&
+        required == other.required
+    end
 
     sig { returns(T::Boolean) }
     def required?
@@ -29,9 +44,7 @@ module Typed
 
     sig { params(value: Value).returns(T::Boolean) }
     def works_with?(value)
-      value.class == type || T.cast(type, T::Types::Base).recursively_valid?(value) # standard:disable Style/ClassEqualityComparison
-    rescue TypeError
-      false
+      type.recursively_valid?(value)
     end
   end
 end
