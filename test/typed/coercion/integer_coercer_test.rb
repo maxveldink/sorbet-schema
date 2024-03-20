@@ -3,12 +3,19 @@
 class IntegerCoercerTest < Minitest::Test
   def setup
     @coercer = Typed::Coercion::IntegerCoercer.new
-    @type = Integer
+    @type = T::Utils.coerce(Integer)
   end
 
   def test_used_for_type_works
-    assert(@coercer.used_for_type?(Integer))
-    refute(@coercer.used_for_type?(Float))
+    assert(@coercer.used_for_type?(@type))
+    refute(@coercer.used_for_type?(T::Utils.coerce(Float)))
+  end
+
+  def test_when_non_integer_type_given_returns_failure
+    result = @coercer.coerce(type: T::Utils.coerce(Float), value: 1.0)
+
+    assert_failure(result)
+    assert_error(Typed::Coercion::CoercionError.new("Type must be a Integer."), result)
   end
 
   def test_when_coercable_returns_success

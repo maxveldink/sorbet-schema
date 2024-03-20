@@ -7,21 +7,23 @@ module Typed
 
       Target = type_member { {fixed: T::Struct} }
 
-      sig { override.params(type: Field::Type).returns(T::Boolean) }
+      sig { override.params(type: T::Types::Base).returns(T::Boolean) }
       def used_for_type?(type)
-        type.is_a?(Class) && !!(type < T::Struct)
+        return false unless type.respond_to?(:raw_type)
+
+        !!(T.cast(type, T::Types::Simple).raw_type < T::Struct)
       end
 
-      sig { override.params(type: Field::Type, value: Value).returns(Result[Target, CoercionError]) }
+      sig { override.params(type: T::Types::Base, value: Value).returns(Result[Target, CoercionError]) }
       def coerce(type:, value:)
-        return Failure.new(CoercionError.new("Field type must inherit from T::Struct for Struct coercion.")) unless type.is_a?(Class) && type < T::Struct
-        return Success.new(value) if value.instance_of?(type)
+        return Failure.new(CoercionError.new("Field type must inherit from T::Struct for Struct coercion.")) unless used_for_type?(type)
+        return Success.new(value) if type.recursively_valid?(value)
 
         return Failure.new(CoercionError.new("Value of type '#{value.class}' cannot be coerced to #{type} Struct.")) unless value.is_a?(Hash)
 
-        Success.new(type.from_hash!(HashTransformer.new.deep_stringify_keys(value)))
-      rescue ArgumentError => e
-        Failure.new(CoercionError.new(e.message))
+        Success.new(T.cast(type, T::Types::Simple).raw_type.from_hash!(HashTransformer.new.deep_stringify_keys(value)))
+      rescue ArgumentError, RuntimeError
+        Failure.new(CoercionError.new("Given hash could not be coerced to #{type}."))
       end
     end
   end

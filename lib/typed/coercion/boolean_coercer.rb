@@ -7,14 +7,16 @@ module Typed
 
       Target = type_member { {fixed: T::Boolean} }
 
-      sig { override.params(type: Field::Type).returns(T::Boolean) }
+      sig { override.params(type: T::Types::Base).returns(T::Boolean) }
       def used_for_type?(type)
         type == T::Utils.coerce(T::Boolean)
       end
 
-      sig { override.params(type: Field::Type, value: Value).returns(Result[Target, CoercionError]) }
+      sig { override.params(type: T::Types::Base, value: Value).returns(Result[Target, CoercionError]) }
       def coerce(type:, value:)
-        if T.cast(type, T::Types::Base).recursively_valid?(value)
+        return Failure.new(CoercionError.new("Type must be a T::Boolean.")) unless used_for_type?(type)
+
+        if type.recursively_valid?(value)
           Success.new(value)
         elsif value == "true"
           Success.new(true)
@@ -23,8 +25,6 @@ module Typed
         else
           Failure.new(CoercionError.new)
         end
-      rescue TypeError
-        Failure.new(CoercionError.new("Field type must be a T::Boolean."))
       end
     end
   end

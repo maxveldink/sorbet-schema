@@ -9,12 +9,12 @@ class TypedArrayCoercerTest < Minitest::Test
   def test_used_for_type_works
     assert(@coercer.used_for_type?(T::Utils.coerce(T::Array[City])))
     assert(@coercer.used_for_type?(T::Utils.coerce(T::Array[String])))
-    refute(@coercer.used_for_type?(Integer))
-    refute(@coercer.used_for_type?(Array))
+    assert(@coercer.used_for_type?(T::Utils.coerce(Array)))
+    refute(@coercer.used_for_type?(T::Utils.coerce(Integer)))
   end
 
   def test_when_non_array_field_given_returns_failure
-    result = @coercer.coerce(type: Integer, value: "testing")
+    result = @coercer.coerce(type: T::Utils.coerce(Integer), value: [1, 2])
 
     assert_failure(result)
     assert_error(Typed::Coercion::CoercionError.new("Field type must be a T::Array."), result)
@@ -39,6 +39,13 @@ class TypedArrayCoercerTest < Minitest::Test
 
     assert_success(result)
     assert_payload([DC_CITY, NEW_YORK_CITY], result)
+  end
+
+  def test_when_untyped_array_returns_success
+    result = @coercer.coerce(type: T::Utils.coerce(Array), value: [DC_CITY, {name: "New York", capital: false}])
+
+    assert_success(result)
+    assert_payload([DC_CITY, {name: "New York", capital: false}], result)
   end
 
   def test_when_array_cannot_be_coerced_returns_failure

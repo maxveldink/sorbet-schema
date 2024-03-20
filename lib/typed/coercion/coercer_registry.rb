@@ -39,7 +39,7 @@ module Typed
         @available = DEFAULT_COERCERS.clone
       end
 
-      sig { params(type: Field::Type).returns(T.nilable(T.class_of(Coercer))) }
+      sig { params(type: T::Types::Base).returns(T.nilable(T.class_of(Coercer))) }
       def select_coercer_by(type:)
         @available.find { |coercer| coercer.new.used_for_type?(type) }
       end
