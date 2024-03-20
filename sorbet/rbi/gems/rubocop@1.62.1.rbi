@@ -169,77 +169,83 @@ end
 class RuboCop::CLI::Command::AutoGenerateConfig < ::RuboCop::CLI::Command::Base
   # @api private
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#22
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#25
   def run; end
 
   private
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#98
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#107
   def add_formatter; end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#106
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#115
   def add_inheritance_from_auto_generated_file(config_file); end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#102
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#111
   def execute_runner; end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#127
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#136
   def existing_configuration(config_file); end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#60
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#65
   def line_length_cop(config); end
 
   # @api private
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#48
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#53
   def line_length_enabled?(config); end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#56
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#61
   def max_line_length(config); end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#31
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#34
   def maybe_run_line_length_cop; end
 
   # @api private
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#153
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#73
+  def only_exclude?; end
+
+  # @api private
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#162
   def options_config_in_root?; end
 
   # @api private
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#64
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#69
   def options_has_only_flag?; end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#144
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#153
   def relative_path_to_todo_from_options_config; end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#91
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#100
   def reset_config_and_auto_gen_file; end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#82
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#91
   def run_all_cops(line_length_contents); end
 
   # Do an initial run with only Layout/LineLength so that cops that
@@ -248,23 +254,23 @@ class RuboCop::CLI::Command::AutoGenerateConfig < ::RuboCop::CLI::Command::Base
   #
   # @api private
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#71
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#80
   def run_line_length_cop; end
 
   # @api private
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#52
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#57
   def same_max_line_length?(config1, config2); end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#43
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#48
   def skip_line_length_cop(reason); end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#133
+  # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#142
   def write_config_file(file_name, file_string, rubocop_yml_contents); end
 end
 
@@ -291,7 +297,12 @@ RuboCop::CLI::Command::AutoGenerateConfig::PHASE_1_OVERRIDDEN = T.let(T.unsafe(n
 # @api private
 #
 # source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#20
-RuboCop::CLI::Command::AutoGenerateConfig::PHASE_1_SKIPPED = T.let(T.unsafe(nil), String)
+RuboCop::CLI::Command::AutoGenerateConfig::PHASE_1_SKIPPED_ONLY_COPS = T.let(T.unsafe(nil), String)
+
+# @api private
+#
+# source://rubocop//lib/rubocop/cli/command/auto_generate_config.rb#22
+RuboCop::CLI::Command::AutoGenerateConfig::PHASE_1_SKIPPED_ONLY_EXCLUDE = T.let(T.unsafe(nil), String)
 
 # @api private
 #
@@ -752,7 +763,7 @@ class RuboCop::CommentConfig
 
   # @return [CommentConfig] a new instance of CommentConfig
   #
-  # source://standard/1.34.0/lib/standard/rubocop/ext.rb#20
+  # source://standard/1.35.1/lib/standard/rubocop/ext.rb#20
   def initialize(processed_source); end
 
   # @return [Boolean]
@@ -991,7 +1002,7 @@ class RuboCop::Config
   # source://rubocop//lib/rubocop/config.rb#237
   def base_dir_for_path_parameters; end
 
-  # source://rubocop//lib/rubocop/config.rb#262
+  # source://rubocop//lib/rubocop/config.rb#266
   def bundler_lock_file_path; end
 
   # source://rubocop//lib/rubocop/config.rb#51
@@ -1067,7 +1078,7 @@ class RuboCop::Config
   # source://rubocop//lib/rubocop/config.rb#153
   def for_department(department_name); end
 
-  # source://rubocop//lib/rubocop/config.rb#285
+  # source://rubocop//lib/rubocop/config.rb#289
   def inspect; end
 
   # True if this is a config file that is shipped with RuboCop
@@ -1100,6 +1111,9 @@ class RuboCop::Config
   # source://forwardable/1.3.3/forwardable.rb#231
   def merge(*args, **_arg1, &block); end
 
+  # source://rubocop//lib/rubocop/config.rb#247
+  def parser_engine; end
+
   # source://rubocop//lib/rubocop/config.rb#228
   def path_relative_to_config(path); end
 
@@ -1109,7 +1123,7 @@ class RuboCop::Config
   # source://rubocop//lib/rubocop/config.rb#220
   def patterns_to_include; end
 
-  # source://rubocop//lib/rubocop/config.rb#273
+  # source://rubocop//lib/rubocop/config.rb#277
   def pending_cops; end
 
   # Returns true if there's a chance that an Include pattern matches hidden
@@ -1126,10 +1140,10 @@ class RuboCop::Config
   # source://rubocop//lib/rubocop/config.rb#71
   def signature; end
 
-  # source://rubocop//lib/rubocop/config.rb#258
+  # source://rubocop//lib/rubocop/config.rb#262
   def smart_loaded_path; end
 
-  # source://rubocop//lib/rubocop/config.rb#247
+  # source://rubocop//lib/rubocop/config.rb#251
   def target_rails_version; end
 
   # source://forwardable/1.3.3/forwardable.rb#231
@@ -1155,18 +1169,18 @@ class RuboCop::Config
 
   private
 
-  # source://rubocop//lib/rubocop/config.rb#320
+  # source://rubocop//lib/rubocop/config.rb#324
   def department_of(qualified_cop_name); end
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/config.rb#308
+  # source://rubocop//lib/rubocop/config.rb#312
   def enable_cop?(qualified_cop_name, cop_options); end
 
-  # source://rubocop//lib/rubocop/config.rb#295
+  # source://rubocop//lib/rubocop/config.rb#299
   def read_rails_version_from_bundler_lock_file; end
 
-  # source://rubocop//lib/rubocop/config.rb#291
+  # source://rubocop//lib/rubocop/config.rb#295
   def target_rails_version_from_bundler_lock_file; end
 
   class << self
@@ -2907,7 +2921,7 @@ class RuboCop::Cop::Base
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#239
+  # source://rubocop//lib/rubocop/cop/base.rb#243
   def active_support_extensions_enabled?; end
 
   # Adds an offense that has no particular location.
@@ -2927,19 +2941,19 @@ class RuboCop::Cop::Base
   # @api private
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#309
+  # source://rubocop//lib/rubocop/cop/base.rb#313
   def always_autocorrect?; end
 
   # Called before any investigation
   #
   # @api private
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#295
+  # source://rubocop//lib/rubocop/cop/base.rb#299
   def begin_investigation(processed_source, offset: T.unsafe(nil), original: T.unsafe(nil)); end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#280
+  # source://rubocop//lib/rubocop/cop/base.rb#284
   def callbacks_needed; end
 
   # Returns the value of attribute config.
@@ -2956,7 +2970,7 @@ class RuboCop::Cop::Base
   # @api private
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#315
+  # source://rubocop//lib/rubocop/cop/base.rb#319
   def contextual_autocorrect?; end
 
   # Configuration Helpers
@@ -2969,7 +2983,7 @@ class RuboCop::Cop::Base
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#251
+  # source://rubocop//lib/rubocop/cop/base.rb#255
   def excluded_file?(file); end
 
   # This method should be overridden when a cop's behavior depends
@@ -2991,7 +3005,7 @@ class RuboCop::Cop::Base
   # source://rubocop//lib/rubocop/cop/base.rb#205
   def external_dependency_checksum; end
 
-  # source://rubocop//lib/rubocop/cop/base.rb#319
+  # source://rubocop//lib/rubocop/cop/base.rb#323
   def inspect; end
 
   # Gets called if no message is specified when calling `add_offense` or
@@ -3006,7 +3020,7 @@ class RuboCop::Cop::Base
 
   # @deprecated Make potential errors with previous API more obvious
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#271
+  # source://rubocop//lib/rubocop/cop/base.rb#275
   def offenses; end
 
   # Called after all on_... have been called
@@ -3029,8 +3043,11 @@ class RuboCop::Cop::Base
 
   # There should be very limited reasons for a Cop to do it's own parsing
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#256
+  # source://rubocop//lib/rubocop/cop/base.rb#260
   def parse(source, path = T.unsafe(nil)); end
+
+  # source://rubocop//lib/rubocop/cop/base.rb#235
+  def parser_engine; end
 
   # Returns the value of attribute processed_source.
   #
@@ -3041,15 +3058,15 @@ class RuboCop::Cop::Base
   #
   # @api private
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#262
+  # source://rubocop//lib/rubocop/cop/base.rb#266
   def ready; end
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#243
+  # source://rubocop//lib/rubocop/cop/base.rb#247
   def relevant_file?(file); end
 
-  # source://rubocop//lib/rubocop/cop/base.rb#235
+  # source://rubocop//lib/rubocop/cop/base.rb#239
   def target_rails_version; end
 
   # source://rubocop//lib/rubocop/cop/base.rb#231
@@ -3057,83 +3074,83 @@ class RuboCop::Cop::Base
 
   private
 
-  # source://rubocop//lib/rubocop/cop/base.rb#447
+  # source://rubocop//lib/rubocop/cop/base.rb#451
   def annotate(message); end
 
-  # source://rubocop//lib/rubocop/cop/base.rb#331
+  # source://rubocop//lib/rubocop/cop/base.rb#335
   def apply_correction(corrector); end
 
   # @return [Symbol] offense status
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#411
+  # source://rubocop//lib/rubocop/cop/base.rb#415
   def attempt_correction(range, corrector); end
 
   # Reserved for Cop::Cop
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#327
+  # source://rubocop//lib/rubocop/cop/base.rb#331
   def callback_argument(range); end
 
   # Called to complete an investigation
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#360
+  # source://rubocop//lib/rubocop/cop/base.rb#364
   def complete_investigation; end
 
   # @return [Symbol, Corrector] offense status
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#385
+  # source://rubocop//lib/rubocop/cop/base.rb#389
   def correct(range); end
 
-  # source://rubocop//lib/rubocop/cop/base.rb#345
+  # source://rubocop//lib/rubocop/cop/base.rb#349
   def current_corrector; end
 
   # Reserved for Commissioner:
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#337
+  # source://rubocop//lib/rubocop/cop/base.rb#341
   def current_offense_locations; end
 
-  # source://rubocop//lib/rubocop/cop/base.rb#349
+  # source://rubocop//lib/rubocop/cop/base.rb#353
   def current_offenses; end
 
-  # source://rubocop//lib/rubocop/cop/base.rb#341
+  # source://rubocop//lib/rubocop/cop/base.rb#345
   def currently_disabled_lines; end
 
-  # source://rubocop//lib/rubocop/cop/base.rb#475
+  # source://rubocop//lib/rubocop/cop/base.rb#479
   def custom_severity; end
 
-  # source://rubocop//lib/rubocop/cop/base.rb#471
+  # source://rubocop//lib/rubocop/cop/base.rb#475
   def default_severity; end
 
-  # source://rubocop//lib/rubocop/cop/base.rb#425
+  # source://rubocop//lib/rubocop/cop/base.rb#429
   def disable_uncorrectable(range); end
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#461
+  # source://rubocop//lib/rubocop/cop/base.rb#465
   def enabled_line?(line_number); end
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#453
+  # source://rubocop//lib/rubocop/cop/base.rb#457
   def file_name_matches_any?(file, parameter, default_result); end
 
-  # source://rubocop//lib/rubocop/cop/base.rb#443
+  # source://rubocop//lib/rubocop/cop/base.rb#447
   def find_message(range, message); end
 
-  # source://rubocop//lib/rubocop/cop/base.rb#467
+  # source://rubocop//lib/rubocop/cop/base.rb#471
   def find_severity(_range, severity); end
 
-  # source://rubocop//lib/rubocop/cop/base.rb#488
+  # source://rubocop//lib/rubocop/cop/base.rb#492
   def range_for_original(range); end
 
-  # source://rubocop//lib/rubocop/cop/base.rb#432
+  # source://rubocop//lib/rubocop/cop/base.rb#436
   def range_from_node_or_range(node_or_range); end
 
-  # source://rubocop//lib/rubocop/cop/base.rb#380
+  # source://rubocop//lib/rubocop/cop/base.rb#384
   def reset_investigation; end
 
   # @return [Symbol] offense status
   #
-  # source://rubocop//lib/rubocop/cop/base.rb#400
+  # source://rubocop//lib/rubocop/cop/base.rb#404
   def use_corrector(range, corrector); end
 
   class << self
@@ -3153,7 +3170,7 @@ class RuboCop::Cop::Base
 
     # @api private
     #
-    # source://rubocop//lib/rubocop/cop/base.rb#285
+    # source://rubocop//lib/rubocop/cop/base.rb#289
     def callbacks_needed; end
 
     # source://rubocop//lib/rubocop/cop/base.rb#93
@@ -3223,15 +3240,15 @@ class RuboCop::Cop::Base
 
     # @return [Boolean]
     #
-    # source://rubocop//lib/rubocop/cop/base.rb#371
+    # source://rubocop//lib/rubocop/cop/base.rb#375
     def builtin?; end
 
-    # source://rubocop//lib/rubocop/cop/base.rb#353
+    # source://rubocop//lib/rubocop/cop/base.rb#357
     def restrict_on_send; end
   end
 end
 
-# source://rubocop//lib/rubocop/cop/base.rb#357
+# source://rubocop//lib/rubocop/cop/base.rb#361
 RuboCop::Cop::Base::EMPTY_OFFENSES = T.let(T.unsafe(nil), Array)
 
 # Reports of an investigation.
@@ -6117,7 +6134,7 @@ class RuboCop::Cop::Gemspec::RequiredRubyVersion < ::RuboCop::Cop::Base
   # source://rubocop//lib/rubocop/cop/gemspec/required_ruby_version.rb#78
   def on_new_investigation; end
 
-  # source://rubocop//lib/rubocop/cop/gemspec/required_ruby_version.rb#82
+  # source://rubocop//lib/rubocop/cop/gemspec/required_ruby_version.rb#84
   def on_send(node); end
 
   # source://rubocop//lib/rubocop/cop/gemspec/required_ruby_version.rb#65
@@ -6127,13 +6144,13 @@ class RuboCop::Cop::Gemspec::RequiredRubyVersion < ::RuboCop::Cop::Base
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/gemspec/required_ruby_version.rb#94
+  # source://rubocop//lib/rubocop/cop/gemspec/required_ruby_version.rb#96
   def dynamic_version?(node); end
 
-  # source://rubocop//lib/rubocop/cop/gemspec/required_ruby_version.rb#100
+  # source://rubocop//lib/rubocop/cop/gemspec/required_ruby_version.rb#102
   def extract_ruby_version(required_ruby_version); end
 
-  # source://rubocop//lib/rubocop/cop/gemspec/required_ruby_version.rb#118
+  # source://rubocop//lib/rubocop/cop/gemspec/required_ruby_version.rb#120
   def not_equal_message(required_ruby_version, target_ruby_version); end
 end
 
@@ -8916,15 +8933,19 @@ class RuboCop::Cop::Layout::EmptyLineAfterMagicComment < ::RuboCop::Cop::Base
 
   private
 
+  # source://rubocop//lib/rubocop/cop/layout/empty_line_after_magic_comment.rb#61
+  def comments_before_code(source); end
+
   # Find the last magic comment in the source file.
   #
-  # Take all comments that precede the first line of code, select the
+  # Take all comments that precede the first line of code (or just take
+  # them all in the case when there is no code), select the
   # magic comments, and return the last magic comment in the file.
   #
   # @return [Parser::Source::Comment] if magic comments exist before code
   # @return [nil] otherwise
   #
-  # source://rubocop//lib/rubocop/cop/layout/empty_line_after_magic_comment.rb#54
+  # source://rubocop//lib/rubocop/cop/layout/empty_line_after_magic_comment.rb#55
   def last_magic_comment(source); end
 
   # source://rubocop//lib/rubocop/cop/layout/empty_line_after_magic_comment.rb#43
@@ -14121,17 +14142,17 @@ class RuboCop::Cop::Layout::RedundantLineBreak < ::RuboCop::Cop::Base
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#127
+  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#133
   def comment_within?(node); end
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#97
+  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#103
   def configured_to_not_be_inspected?(node); end
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#121
+  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#127
   def convertible_block?(node); end
 
   # @return [Boolean]
@@ -14141,10 +14162,10 @@ class RuboCop::Cop::Layout::RedundantLineBreak < ::RuboCop::Cop::Base
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#91
+  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#97
   def index_access_call_chained?(node); end
 
-  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#149
+  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#155
   def max_line_length; end
 
   # @return [Boolean]
@@ -14154,7 +14175,7 @@ class RuboCop::Cop::Layout::RedundantLineBreak < ::RuboCop::Cop::Base
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#104
+  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#110
   def other_cop_takes_precedence?(node); end
 
   # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#79
@@ -14162,20 +14183,25 @@ class RuboCop::Cop::Layout::RedundantLineBreak < ::RuboCop::Cop::Base
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#110
+  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#93
+  def require_backslash?(node); end
+
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#116
   def single_line_block_chain_enabled?; end
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#114
+  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#120
   def suitable_as_single_line?(node); end
 
-  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#140
+  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#146
   def to_single_line(source); end
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#135
+  # source://rubocop//lib/rubocop/cop/layout/redundant_line_break.rb#141
   def too_long?(node); end
 end
 
@@ -16900,7 +16926,7 @@ class RuboCop::Cop::Lint::AssignmentInCondition < ::RuboCop::Cop::Base
   include ::RuboCop::Cop::SafeAssignment
   extend ::RuboCop::Cop::AutoCorrector
 
-  # source://standard/1.34.0/lib/standard/rubocop/ext.rb#4
+  # source://standard/1.35.1/lib/standard/rubocop/ext.rb#4
   def message(_); end
 
   # source://rubocop//lib/rubocop/cop/lint/assignment_in_condition.rb#55
@@ -22448,15 +22474,15 @@ class RuboCop::Cop::Lint::RedundantWithIndex < ::RuboCop::Cop::Base
   # source://rubocop//lib/rubocop/cop/lint/redundant_with_index.rb#36
   def on_numblock(node); end
 
-  # source://rubocop//lib/rubocop/cop/lint/redundant_with_index.rb#56
+  # source://rubocop//lib/rubocop/cop/lint/redundant_with_index.rb#57
   def redundant_with_index?(param0 = T.unsafe(nil)); end
 
   private
 
-  # source://rubocop//lib/rubocop/cop/lint/redundant_with_index.rb#66
+  # source://rubocop//lib/rubocop/cop/lint/redundant_with_index.rb#67
   def message(node); end
 
-  # source://rubocop//lib/rubocop/cop/lint/redundant_with_index.rb#74
+  # source://rubocop//lib/rubocop/cop/lint/redundant_with_index.rb#75
   def with_index_range(send); end
 end
 
@@ -23811,12 +23837,12 @@ class RuboCop::Cop::Lint::ToEnumArguments < ::RuboCop::Cop::Base
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/lint/to_enum_arguments.rb#78
+  # source://rubocop//lib/rubocop/cop/lint/to_enum_arguments.rb#83
   def argument_match?(send_arg, def_arg); end
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/lint/to_enum_arguments.rb#63
+  # source://rubocop//lib/rubocop/cop/lint/to_enum_arguments.rb#68
   def arguments_match?(arguments, def_node); end
 end
 
@@ -36662,7 +36688,7 @@ class RuboCop::Cop::Style::For < ::RuboCop::Cop::Base
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/style/for.rb#82
+  # source://rubocop//lib/rubocop/cop/style/for.rb#84
   def suspect_enumerable?(node); end
 end
 
@@ -41247,33 +41273,33 @@ class RuboCop::Cop::Style::MultilineMethodSignature < ::RuboCop::Cop::Base
 
   private
 
-  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#60
+  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#69
   def arguments_range(node); end
 
-  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#41
+  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#42
   def autocorrect(corrector, node, begin_of_arguments); end
 
-  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#72
+  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#81
   def closing_line(node); end
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#76
+  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#85
   def correction_exceeds_max_line_length?(node); end
 
-  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#84
+  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#93
   def definition_width(node); end
 
-  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#80
+  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#89
   def indentation_width(node); end
 
-  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#56
+  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#65
   def last_line_source_of_arguments(arguments); end
 
-  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#88
+  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#97
   def max_line_length; end
 
-  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#68
+  # source://rubocop//lib/rubocop/cop/style/multiline_method_signature.rb#77
   def opening_line(node); end
 end
 
@@ -42353,17 +42379,17 @@ class RuboCop::Cop::Style::NilComparison < ::RuboCop::Cop::Base
 
   private
 
-  # source://rubocop//lib/rubocop/cop/style/nil_comparison.rb#65
+  # source://rubocop//lib/rubocop/cop/style/nil_comparison.rb#67
   def message(_node); end
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/style/nil_comparison.rb#77
+  # source://rubocop//lib/rubocop/cop/style/nil_comparison.rb#79
   def prefer_comparison?; end
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/cop/style/nil_comparison.rb#69
+  # source://rubocop//lib/rubocop/cop/style/nil_comparison.rb#71
   def style_check?(node, &block); end
 end
 
@@ -53645,171 +53671,176 @@ RuboCop::Cop::VisibilityHelp::VISIBILITY_SCOPES = T.let(T.unsafe(nil), Set)
 class RuboCop::DirectiveComment
   # @return [DirectiveComment] a new instance of DirectiveComment
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#30
+  # source://rubocop//lib/rubocop/directive_comment.rb#32
   def initialize(comment, cop_registry = T.unsafe(nil)); end
 
   # Checks if all cops specified in this directive
   #
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#80
+  # source://rubocop//lib/rubocop/directive_comment.rb#82
   def all_cops?; end
 
   # Returns the value of attribute comment.
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#28
+  # source://rubocop//lib/rubocop/directive_comment.rb#30
   def comment; end
 
   # Returns array of specified in this directive cop names
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#85
+  # source://rubocop//lib/rubocop/directive_comment.rb#87
   def cop_names; end
 
   # Returns the value of attribute cop_registry.
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#28
+  # source://rubocop//lib/rubocop/directive_comment.rb#30
   def cop_registry; end
 
   # Returns the value of attribute cops.
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#28
+  # source://rubocop//lib/rubocop/directive_comment.rb#30
   def cops; end
 
   # Returns array of specified in this directive department names
   # when all department disabled
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#91
+  # source://rubocop//lib/rubocop/directive_comment.rb#93
   def department_names; end
 
-  # source://rubocop//lib/rubocop/directive_comment.rb#105
+  # source://rubocop//lib/rubocop/directive_comment.rb#107
   def directive_count; end
 
   # Checks if this directive disables cops
   #
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#60
+  # source://rubocop//lib/rubocop/directive_comment.rb#62
   def disabled?; end
 
   # Checks if this directive disables all cops
   #
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#75
+  # source://rubocop//lib/rubocop/directive_comment.rb#77
   def disabled_all?; end
 
   # Checks if this directive enables cops
   #
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#65
+  # source://rubocop//lib/rubocop/directive_comment.rb#67
   def enabled?; end
 
   # Checks if this directive enables all cops
   #
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#70
+  # source://rubocop//lib/rubocop/directive_comment.rb#72
   def enabled_all?; end
 
   # Checks if directive departments include cop
   #
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#96
+  # source://rubocop//lib/rubocop/directive_comment.rb#98
   def in_directive_department?(cop); end
 
   # Returns line number for directive
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#110
+  # source://rubocop//lib/rubocop/directive_comment.rb#112
   def line_number; end
 
   # Checks if this directive contains all the given cop names
   #
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#42
+  # source://rubocop//lib/rubocop/directive_comment.rb#44
   def match?(cop_names); end
 
   # Returns match captures to directive comment pattern
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#55
+  # source://rubocop//lib/rubocop/directive_comment.rb#57
   def match_captures; end
 
   # Returns the value of attribute mode.
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#28
+  # source://rubocop//lib/rubocop/directive_comment.rb#30
   def mode; end
 
   # Checks if cop department has already used in directive comment
   #
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#101
+  # source://rubocop//lib/rubocop/directive_comment.rb#103
   def overridden_by_department?(cop); end
 
-  # source://rubocop//lib/rubocop/directive_comment.rb#46
+  # source://rubocop//lib/rubocop/directive_comment.rb#48
   def range; end
 
   # Checks if this directive relates to single line
   #
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#37
+  # source://rubocop//lib/rubocop/directive_comment.rb#39
   def single_line?; end
 
   private
 
-  # source://rubocop//lib/rubocop/directive_comment.rb#130
+  # source://rubocop//lib/rubocop/directive_comment.rb#133
   def all_cop_names; end
 
-  # source://rubocop//lib/rubocop/directive_comment.rb#134
+  # source://rubocop//lib/rubocop/directive_comment.rb#137
   def cop_names_for_department(department); end
 
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/directive_comment.rb#126
+  # source://rubocop//lib/rubocop/directive_comment.rb#129
   def department?(name); end
 
-  # source://rubocop//lib/rubocop/directive_comment.rb#140
-  def exclude_redundant_directive_cop(cops); end
+  # source://rubocop//lib/rubocop/directive_comment.rb#142
+  def exclude_lint_department_cops(cops); end
 
-  # source://rubocop//lib/rubocop/directive_comment.rb#120
+  # source://rubocop//lib/rubocop/directive_comment.rb#122
   def parsed_cop_names; end
 
-  # source://rubocop//lib/rubocop/directive_comment.rb#116
+  # source://rubocop//lib/rubocop/directive_comment.rb#118
   def splitted_cops_string; end
 
   class << self
-    # source://rubocop//lib/rubocop/directive_comment.rb#24
+    # source://rubocop//lib/rubocop/directive_comment.rb#26
     def before_comment(line); end
   end
 end
 
 # @api private
 #
-# source://rubocop//lib/rubocop/directive_comment.rb#17
+# source://rubocop//lib/rubocop/directive_comment.rb#19
 RuboCop::DirectiveComment::COPS_PATTERN = T.let(T.unsafe(nil), String)
 
 # @api private
 #
-# source://rubocop//lib/rubocop/directive_comment.rb#15
+# source://rubocop//lib/rubocop/directive_comment.rb#17
 RuboCop::DirectiveComment::COP_NAMES_PATTERN = T.let(T.unsafe(nil), String)
 
 # @api private
 #
-# source://rubocop//lib/rubocop/directive_comment.rb#13
+# source://rubocop//lib/rubocop/directive_comment.rb#15
 RuboCop::DirectiveComment::COP_NAME_PATTERN = T.let(T.unsafe(nil), String)
 
 # @api private
 #
-# source://rubocop//lib/rubocop/directive_comment.rb#11
-RuboCop::DirectiveComment::REDUNDANT_DIRECTIVE_COP = T.let(T.unsafe(nil), String)
+# source://rubocop//lib/rubocop/directive_comment.rb#9
+RuboCop::DirectiveComment::LINT_DEPARTMENT = T.let(T.unsafe(nil), String)
 
 # @api private
 #
-# source://rubocop//lib/rubocop/directive_comment.rb#9
-RuboCop::DirectiveComment::REDUNDANT_DIRECTIVE_COP_DEPARTMENT = T.let(T.unsafe(nil), String)
+# source://rubocop//lib/rubocop/directive_comment.rb#11
+RuboCop::DirectiveComment::LINT_REDUNDANT_DIRECTIVE_COP = T.let(T.unsafe(nil), String)
+
+# @api private
+#
+# source://rubocop//lib/rubocop/directive_comment.rb#13
+RuboCop::DirectiveComment::LINT_SYNTAX_COP = T.let(T.unsafe(nil), String)
 
 # An Error exception is different from an Offense with severity 'error'
 # When this exception is raised, it means that RuboCop is unable to perform
@@ -56773,7 +56804,7 @@ class RuboCop::Runner
   # source://rubocop//lib/rubocop/runner.rb#414
   def formatter_set; end
 
-  # source://rubocop//lib/rubocop/runner.rb#470
+  # source://rubocop//lib/rubocop/runner.rb#471
   def get_processed_source(file); end
 
   # source://rubocop//lib/rubocop/runner.rb#342
@@ -56824,7 +56855,7 @@ class RuboCop::Runner
   # otherwise dormant team that can be used for config- and option-
   # level caching in ResultCache.
   #
-  # source://rubocop//lib/rubocop/runner.rb#492
+  # source://rubocop//lib/rubocop/runner.rb#499
   def standby_team(config); end
 
   # @return [Boolean]
@@ -56921,173 +56952,180 @@ RuboCop::StringInterpreter::STRING_ESCAPES = T.let(T.unsafe(nil), Hash)
 # source://rubocop//lib/rubocop/string_interpreter.rb#12
 RuboCop::StringInterpreter::STRING_ESCAPE_REGEX = T.let(T.unsafe(nil), Regexp)
 
-# This class finds target files to inspect by scanning the directory tree
-# and picking ruby files.
+# This class finds target files to inspect by scanning the directory tree and picking ruby files.
 #
 # @api private
 #
-# source://rubocop//lib/rubocop/target_finder.rb#7
+# source://rubocop//lib/rubocop/target_finder.rb#6
 class RuboCop::TargetFinder
   # @api private
   # @return [TargetFinder] a new instance of TargetFinder
   #
-  # source://rubocop//lib/rubocop/target_finder.rb#10
+  # source://rubocop//lib/rubocop/target_finder.rb#9
   def initialize(config_store, options = T.unsafe(nil)); end
 
-  # @api private
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#149
-  def all_cops_include; end
-
-  # @api private
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#120
-  def combined_exclude_glob_patterns(base_dir); end
-
-  # @api private
-  # @return [Boolean]
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#176
-  def configured_include?(file); end
-
-  # @api private
-  # @return [Boolean]
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#19
-  def debug?; end
-
-  # @api private
-  # @return [Boolean]
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#23
-  def fail_fast?; end
-
-  # Generate a list of target files by expanding globbing patterns
-  # (if any). If args is empty, recursively find all Ruby source
-  # files under the current directory
+  # Generate a list of target files by expanding globbing patterns (if any). If args is empty,
+  # recursively find all Ruby source files under the current directory
   #
   # @api private
   # @return [Array] array of file paths
   #
-  # source://rubocop//lib/rubocop/target_finder.rb#31
+  # source://rubocop//lib/rubocop/target_finder.rb#17
   def find(args, mode); end
 
-  # Search for files recursively starting at the given base directory using
-  # the given flags that determine how the match is made. Excluded files will
-  # be removed later by the caller, but as an optimization find_files removes
-  # the top level directories that are excluded in configuration in the
-  # normal way (dir/**/*).
+  # Search for files recursively starting at the given base directory using the given flags that
+  # determine how the match is made. Excluded files will be removed later by the caller, but as an
+  # optimization find_files removes the top level directories that are excluded in configuration
+  # in the normal way (dir/**/*).
   #
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_finder.rb#83
+  # source://rubocop//lib/rubocop/target_finder.rb#58
   def find_files(base_dir, flags); end
 
-  # @api private
-  # @return [Boolean]
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#15
-  def force_exclusion?; end
-
-  # @api private
-  # @return [Boolean]
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#180
-  def included_file?(file); end
-
-  # @api private
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#184
-  def process_explicit_path(path, mode); end
-
-  # @api private
-  # @return [Boolean]
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#153
-  def ruby_executable?(file); end
-
-  # @api private
-  # @return [Boolean]
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#127
-  def ruby_extension?(file); end
-
-  # @api private
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#131
-  def ruby_extensions; end
-
-  # @api private
-  # @return [Boolean]
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#172
-  def ruby_file?(file); end
-
-  # @api private
-  # @return [Boolean]
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#138
-  def ruby_filename?(file); end
-
-  # @api private
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#142
-  def ruby_filenames; end
-
-  # @api private
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#164
-  def ruby_interpreters(file); end
-
-  # @api private
-  # @return [Boolean]
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#168
-  def stdin?; end
-
-  # @api private
-  # @return [Boolean]
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#112
-  def symlink_excluded_or_infinite_loop?(base_dir, current_dir, exclude_pattern, flags); end
-
-  # Finds all Ruby source files under the current or other supplied
-  # directory. A Ruby source file is defined as a file with the `.rb`
-  # extension or a file with no extension that has a ruby shebang line
-  # as its first line.
-  # It is possible to specify includes and excludes using the config file,
-  # so you can include other Ruby files like Rakefiles and gemspecs.
+  # Finds all Ruby source files under the current or other supplied directory. A Ruby source file
+  # is defined as a file with the `.rb` extension or a file with no extension that has a ruby
+  # shebang line as its first line.
+  # It is possible to specify includes and excludes using the config file, so you can include
+  # other Ruby files like Rakefiles and gemspecs.
   #
   # @api private
   # @param base_dir Root directory under which to search for
   #   ruby source files
   # @return [Array] Array of filenames
   #
-  # source://rubocop//lib/rubocop/target_finder.rb#56
+  # source://rubocop//lib/rubocop/target_finder.rb#41
   def target_files_in_dir(base_dir = T.unsafe(nil)); end
-
-  # @api private
-  # @return [Boolean]
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#69
-  def to_inspect?(file, hidden_files, base_dir_config); end
-
-  # @api private
-  #
-  # source://rubocop//lib/rubocop/target_finder.rb#96
-  def wanted_dir_patterns(base_dir, exclude_pattern, flags); end
 
   private
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_finder.rb#201
+  # source://rubocop//lib/rubocop/target_finder.rb#120
+  def all_cops_include; end
+
+  # @api private
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#106
+  def combined_exclude_glob_patterns(base_dir); end
+
+  # @api private
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#172
+  def configured_include?(file); end
+
+  # @api private
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#208
+  def debug?; end
+
+  # @api private
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#212
+  def fail_fast?; end
+
+  # @api private
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#200
+  def force_exclusion?; end
+
+  # @api private
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#204
+  def ignore_parent_exclusion?; end
+
+  # @api private
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#145
+  def included_file?(file); end
+
+  # @api private
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#191
   def order; end
+
+  # @api private
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#124
+  def process_explicit_path(path, mode); end
+
+  # @api private
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#176
+  def ruby_executable?(file); end
+
+  # @api private
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#157
+  def ruby_extension?(file); end
+
+  # @api private
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#161
+  def ruby_extensions; end
+
+  # @api private
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#149
+  def ruby_file?(file); end
+
+  # @api private
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#168
+  def ruby_filename?(file); end
+
+  # @api private
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#113
+  def ruby_filenames; end
+
+  # @api private
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#187
+  def ruby_interpreters(file); end
+
+  # @api private
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#153
+  def stdin?; end
+
+  # @api private
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#98
+  def symlink_excluded_or_infinite_loop?(base_dir, current_dir, exclude_pattern, flags); end
+
+  # @api private
+  # @return [Boolean]
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#73
+  def to_inspect?(file, hidden_files, base_dir_config); end
+
+  # @api private
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#82
+  def wanted_dir_patterns(base_dir, exclude_pattern, flags); end
+
+  # @api private
+  #
+  # source://rubocop//lib/rubocop/target_finder.rb#134
+  def without_excluded(files); end
 end
 
 # @api private
 #
-# source://rubocop//lib/rubocop/target_finder.rb#8
+# source://rubocop//lib/rubocop/target_finder.rb#7
 RuboCop::TargetFinder::HIDDEN_PATH_SUBSTRING = T.let(T.unsafe(nil), String)
 
 # The kind of Ruby that code inspected by RuboCop is written in.
@@ -57099,34 +57137,34 @@ class RuboCop::TargetRuby
   # @api private
   # @return [TargetRuby] a new instance of TargetRuby
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#252
+  # source://rubocop//lib/rubocop/target_ruby.rb#254
   def initialize(config); end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#268
+  # source://rubocop//lib/rubocop/target_ruby.rb#270
   def rubocop_version_with_support; end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#256
+  # source://rubocop//lib/rubocop/target_ruby.rb#258
   def source; end
 
   # @api private
   # @return [Boolean]
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#264
+  # source://rubocop//lib/rubocop/target_ruby.rb#266
   def supported?; end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#260
+  # source://rubocop//lib/rubocop/target_ruby.rb#262
   def version; end
 
   class << self
     # @api private
     #
-    # source://rubocop//lib/rubocop/target_ruby.rb#238
+    # source://rubocop//lib/rubocop/target_ruby.rb#240
     def supported_versions; end
   end
 end
@@ -57135,23 +57173,23 @@ end
 #
 # @api private
 #
-# source://rubocop//lib/rubocop/target_ruby.rb#185
+# source://rubocop//lib/rubocop/target_ruby.rb#187
 class RuboCop::TargetRuby::BundlerLockFile < ::RuboCop::TargetRuby::Source
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#186
+  # source://rubocop//lib/rubocop/target_ruby.rb#188
   def name; end
 
   private
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#219
+  # source://rubocop//lib/rubocop/target_ruby.rb#221
   def bundler_lock_file_path; end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#192
+  # source://rubocop//lib/rubocop/target_ruby.rb#194
   def find_version; end
 end
 
@@ -57164,18 +57202,18 @@ RuboCop::TargetRuby::DEFAULT_VERSION = T.let(T.unsafe(nil), Float)
 #
 # @api private
 #
-# source://rubocop//lib/rubocop/target_ruby.rb#226
+# source://rubocop//lib/rubocop/target_ruby.rb#228
 class RuboCop::TargetRuby::Default < ::RuboCop::TargetRuby::Source
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#227
+  # source://rubocop//lib/rubocop/target_ruby.rb#229
   def name; end
 
   private
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#233
+  # source://rubocop//lib/rubocop/target_ruby.rb#235
   def find_version; end
 end
 
@@ -57202,7 +57240,7 @@ class RuboCop::TargetRuby::GemspecFile < ::RuboCop::TargetRuby::Source
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#119
+  # source://rubocop//lib/rubocop/target_ruby.rb#121
   def find_default_minimal_known_ruby(right_hand_side); end
 
   # @api private
@@ -57222,7 +57260,7 @@ class RuboCop::TargetRuby::GemspecFile < ::RuboCop::TargetRuby::Source
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#115
+  # source://rubocop//lib/rubocop/target_ruby.rb#117
   def version_from_array(array); end
 
   # @api private
@@ -57232,7 +57270,7 @@ class RuboCop::TargetRuby::GemspecFile < ::RuboCop::TargetRuby::Source
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#103
+  # source://rubocop//lib/rubocop/target_ruby.rb#105
   def version_from_right_hand_side(right_hand_side); end
 end
 
@@ -57274,49 +57312,49 @@ end
 #
 # @api private
 #
-# source://rubocop//lib/rubocop/target_ruby.rb#131
+# source://rubocop//lib/rubocop/target_ruby.rb#133
 class RuboCop::TargetRuby::RubyVersionFile < ::RuboCop::TargetRuby::Source
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#135
+  # source://rubocop//lib/rubocop/target_ruby.rb#137
   def name; end
 
   private
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#141
+  # source://rubocop//lib/rubocop/target_ruby.rb#143
   def filename; end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#149
+  # source://rubocop//lib/rubocop/target_ruby.rb#151
   def find_version; end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#145
+  # source://rubocop//lib/rubocop/target_ruby.rb#147
   def pattern; end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#156
+  # source://rubocop//lib/rubocop/target_ruby.rb#158
   def version_file; end
 end
 
 # @api private
 #
-# source://rubocop//lib/rubocop/target_ruby.rb#132
+# source://rubocop//lib/rubocop/target_ruby.rb#134
 RuboCop::TargetRuby::RubyVersionFile::RUBY_VERSION_FILENAME = T.let(T.unsafe(nil), String)
 
 # @api private
 #
-# source://rubocop//lib/rubocop/target_ruby.rb#133
+# source://rubocop//lib/rubocop/target_ruby.rb#135
 RuboCop::TargetRuby::RubyVersionFile::RUBY_VERSION_PATTERN = T.let(T.unsafe(nil), Regexp)
 
 # @api private
 #
-# source://rubocop//lib/rubocop/target_ruby.rb#242
+# source://rubocop//lib/rubocop/target_ruby.rb#244
 RuboCop::TargetRuby::SOURCES = T.let(T.unsafe(nil), Array)
 
 # A place where information about a target ruby version is found.
@@ -57352,34 +57390,34 @@ end
 #
 # @api private
 #
-# source://rubocop//lib/rubocop/target_ruby.rb#164
+# source://rubocop//lib/rubocop/target_ruby.rb#166
 class RuboCop::TargetRuby::ToolVersionsFile < ::RuboCop::TargetRuby::RubyVersionFile
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#168
+  # source://rubocop//lib/rubocop/target_ruby.rb#170
   def name; end
 
   private
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#174
+  # source://rubocop//lib/rubocop/target_ruby.rb#176
   def filename; end
 
   # @api private
   #
-  # source://rubocop//lib/rubocop/target_ruby.rb#178
+  # source://rubocop//lib/rubocop/target_ruby.rb#180
   def pattern; end
 end
 
 # @api private
 #
-# source://rubocop//lib/rubocop/target_ruby.rb#165
+# source://rubocop//lib/rubocop/target_ruby.rb#167
 RuboCop::TargetRuby::ToolVersionsFile::TOOL_VERSIONS_FILENAME = T.let(T.unsafe(nil), String)
 
 # @api private
 #
-# source://rubocop//lib/rubocop/target_ruby.rb#166
+# source://rubocop//lib/rubocop/target_ruby.rb#168
 RuboCop::TargetRuby::ToolVersionsFile::TOOL_VERSIONS_PATTERN = T.let(T.unsafe(nil), Regexp)
 
 # source://rubocop//lib/rubocop/ast_aliases.rb#7
@@ -57405,12 +57443,12 @@ module RuboCop::Version
   class << self
     # @api private
     #
-    # source://rubocop//lib/rubocop/version.rb#93
+    # source://rubocop//lib/rubocop/version.rb#108
     def document_version; end
 
     # @api private
     #
-    # source://rubocop//lib/rubocop/version.rb#43
+    # source://rubocop//lib/rubocop/version.rb#58
     def extension_versions(env); end
 
     # Returns feature version in one of two ways:
@@ -57420,12 +57458,17 @@ module RuboCop::Version
     #
     # @api private
     #
-    # source://rubocop//lib/rubocop/version.rb#77
+    # source://rubocop//lib/rubocop/version.rb#92
     def feature_version(feature); end
 
     # @api private
     #
-    # source://rubocop//lib/rubocop/version.rb#98
+    # source://rubocop//lib/rubocop/version.rb#43
+    def parser_version; end
+
+    # @api private
+    #
+    # source://rubocop//lib/rubocop/version.rb#113
     def server_mode; end
 
     # @api private
