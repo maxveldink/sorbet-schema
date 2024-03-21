@@ -14,6 +14,6 @@ class CoercerRegistryTest < Minitest::Test
   end
 
   def test_when_type_doesnt_match_coercer_returns_nil
-    assert_nil(Typed::Coercion::CoercerRegistry.instance.select_coercer_by(type: T::Utils.coerce(Date)))
+    assert_nil(Typed::Coercion::CoercerRegistry.instance.select_coercer_by(type: T::Utils.coerce(BigDecimal)))
   end
 end
