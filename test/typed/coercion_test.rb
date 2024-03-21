@@ -1,6 +1,6 @@
 # typed: true
 
-require "date"
+require "bigdecimal"
 
 class CoercionTest < Minitest::Test
   def teardown
@@ -21,7 +21,7 @@ class CoercionTest < Minitest::Test
   end
 
   def test_when_coercer_isnt_matched_coerce_returns_failure
-    result = Typed::Coercion.coerce(type: T::Utils.coerce(Date), value: "testing")
+    result = Typed::Coercion.coerce(type: T::Utils.coerce(BigDecimal), value: "testing")
 
     assert_failure(result)
     assert_error(Typed::Coercion::CoercionNotSupportedError.new, result)
