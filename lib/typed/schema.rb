@@ -27,5 +27,19 @@ module Typed
     def from_json(json)
       Typed::JSONSerializer.new(schema: self).deserialize(json)
     end
+
+    sig { params(field_name: Symbol, serializer: Field::InlineSerializer).returns(Schema) }
+    def add_serializer(field_name, serializer)
+      self.class.new(
+        target: target,
+        fields: fields.map do |field|
+          if field.name == field_name
+            Field.new(name: field.name, type: field.type, required: field.required, inline_serializer: serializer)
+          else
+            field
+          end
+        end
+      )
+    end
   end
 end
