@@ -55,5 +55,12 @@ module Typed
           Success.new(schema.target.new(**validated_params))
         end
     end
+
+    sig { params(struct: T::Struct, should_serialize_values: T::Boolean).returns(T::Hash[Symbol, T.untyped]) }
+    def serialize_from_struct(struct:, should_serialize_values: false)
+      hsh = schema.fields.each_with_object({}) { |field, hsh| hsh[field.name] = field.serialize(struct.send(field.name)) }.compact
+
+      HashTransformer.new(should_serialize_values: should_serialize_values).deep_symbolize_keys(hsh)
+    end
   end
 end
