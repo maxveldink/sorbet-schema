@@ -58,6 +58,13 @@ class HashSerializerTest < Minitest::Test
     assert_error(Typed::SerializeError.new("'Job' cannot be serialized to target type of 'Person'."), result)
   end
 
+  def test_will_use_inline_serializers
+    result = Typed::HashSerializer.new(schema: JOB_SCHEMA_WITH_INLINE_SERIALIZER, should_serialize_values: true).serialize(DEVELOPER_JOB_WITH_START_DATE)
+
+    assert_success(result)
+    assert_payload({title: "Software Developer", salary: 90_000_00, start_date: "061 March"}, result)
+  end
+
   # Deserialize Tests
 
   def test_it_can_simple_deserialize

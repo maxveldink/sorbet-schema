@@ -27,6 +27,18 @@ class FieldTest < Minitest::Test
     refute_predicate(@optional_field, :required?)
   end
 
+  def test_when_inline_serializer_serialize_uses_it
+    field = Typed::Field.new(name: :testing, type: String, inline_serializer: ->(_value) { "banana" })
+
+    assert_equal("banana", field.serialize("testing"))
+    assert_nil(field.serialize(nil))
+  end
+
+  def test_when_no_inline_serializer_serialize_returns_given_value
+    assert_equal("testing", @required_field.serialize("testing"))
+    assert_nil(@required_field.serialize(nil))
+  end
+
   def test_when_standard_type_work_with_works
     assert(@required_field.works_with?("Max"))
     refute(@required_field.works_with?(1))

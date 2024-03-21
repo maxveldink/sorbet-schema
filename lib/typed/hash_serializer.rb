@@ -22,9 +22,7 @@ module Typed
     def serialize(struct)
       return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
 
-      hsh = schema.fields.each_with_object({}) { |field, hsh| hsh[field.name] = struct.send(field.name) }
-
-      Success.new(HashTransformer.new(should_serialize_values: should_serialize_values).deep_symbolize_keys(hsh.compact))
+      Success.new(serialize_from_struct(struct: struct, should_serialize_values: should_serialize_values))
     end
 
     private

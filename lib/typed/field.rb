@@ -4,6 +4,8 @@ module Typed
   class Field
     extend T::Sig
 
+    InlineSerializer = T.type_alias { T.proc.params(arg0: T.untyped).returns(T.untyped) }
+
     sig { returns(Symbol) }
     attr_reader :name
 
@@ -13,11 +15,22 @@ module Typed
     sig { returns(T::Boolean) }
     attr_reader :required
 
-    sig { params(name: Symbol, type: T.any(T::Class[T.anything], T::Types::Base), required: T::Boolean).void }
-    def initialize(name:, type:, required: true)
+    sig { returns(T.nilable(InlineSerializer)) }
+    attr_reader :inline_serializer
+
+    sig do
+      params(
+        name: Symbol,
+        type: T.any(T::Class[T.anything], T::Types::Base),
+        required: T::Boolean,
+        inline_serializer: T.nilable(InlineSerializer)
+      ).void
+    end
+    def initialize(name:, type:, required: true, inline_serializer: nil)
       @name = name
       @type = T.let(T::Utils.coerce(type), T::Types::Base)
       @required = required
+      @inline_serializer = inline_serializer
     end
 
     sig { params(other: Field).returns(T.nilable(T::Boolean)) }
@@ -35,6 +48,15 @@ module Typed
     sig { returns(T::Boolean) }
     def optional?
       !required
+    end
+
+    sig { params(value: Value).returns(Value) }
+    def serialize(value)
+      if inline_serializer && value
+        T.must(inline_serializer).call(value)
+      else
+        value
+      end
     end
 
     sig { params(value: Value).returns(Validations::ValidationResult) }
