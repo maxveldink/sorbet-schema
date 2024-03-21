@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2](https://github.com/maxveldink/sorbet-schema/compare/v0.4.1...v0.4.2) (2024-03-21)
+
+
+### Features
+
+* Add Schema#add_serializer to easily update serializer ([f665a2a](https://github.com/maxveldink/sorbet-schema/commit/f665a2ab3afbdaa3757c2d9fa489602edbdf8f8f))
+
+
+### Bug Fixes
+
+* Field equality factors in inline serializer ([8049ddf](https://github.com/maxveldink/sorbet-schema/commit/8049ddf2e1a2af45d6591c2689f2fde60afb5839))
+
 ## [0.4.1](https://github.com/maxveldink/sorbet-schema/compare/v0.4.0...v0.4.1) (2024-03-21)
 
 
