@@ -18,7 +18,7 @@ class HashSerializerTest < Minitest::Test
     result = @serializer.serialize(ALEX_PERSON)
 
     assert_success(result)
-    assert_payload({name: "Alex", age: 31, ruby_rank: RubyRank::Brilliant, job: Job.new(title: "Software Developer", salary: 1_000_000_00)}, result)
+    assert_payload({name: "Alex", age: 31, ruby_rank: RubyRank::Brilliant, job: DEVELOPER_JOB}, result)
   end
 
   def test_it_can_deep_serialize
@@ -27,7 +27,7 @@ class HashSerializerTest < Minitest::Test
     result = serializer.serialize(ALEX_PERSON)
 
     assert_success(result)
-    assert_payload({name: "Alex", age: 31, ruby_rank: "pretty", job: {title: "Software Developer", salary: 1_000_000_00}}, result)
+    assert_payload({name: "Alex", age: 31, ruby_rank: "pretty", job: {title: "Software Developer", salary: 90_000_00}}, result)
   end
 
   def test_with_boolean_it_can_serialize
@@ -52,7 +52,7 @@ class HashSerializerTest < Minitest::Test
   end
 
   def test_when_struct_given_is_not_of_target_type_returns_failure
-    result = @serializer.serialize(Job.new(title: "Testing", salary: 90_00))
+    result = @serializer.serialize(DEVELOPER_JOB)
 
     assert_failure(result)
     assert_error(Typed::SerializeError.new("'Job' cannot be serialized to target type of 'Person'."), result)
@@ -96,7 +96,7 @@ class HashSerializerTest < Minitest::Test
   end
 
   def test_it_can_deserialize_with_nested_object
-    result = @serializer.deserialize({name: "Alex", age: 31, ruby_rank: "pretty", job: {title: "Software Developer", salary: 1_000_000_00}})
+    result = @serializer.deserialize({name: "Alex", age: 31, ruby_rank: "pretty", job: {title: "Software Developer", salary: 90_000_00}})
 
     assert_success(result)
     assert_payload(ALEX_PERSON, result)

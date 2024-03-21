@@ -20,12 +20,10 @@ class StructCoercerTest < Minitest::Test
   end
 
   def test_when_struct_of_correct_type_given_returns_success
-    job = Job.new(title: "Software Developer", salary: 90_000_00)
-
-    result = @coercer.coerce(type: @type, value: job)
+    result = @coercer.coerce(type: @type, value: DEVELOPER_JOB)
 
     assert_success(result)
-    assert_payload(job, result)
+    assert_payload(DEVELOPER_JOB, result)
   end
 
   def test_when_struct_of_incorrect_type_given_returns_failure
@@ -39,7 +37,7 @@ class StructCoercerTest < Minitest::Test
     result = @coercer.coerce(type: @type, value: {"title" => "Software Developer", :salary => 90_000_00})
 
     assert_success(result)
-    assert_payload(Job.new(title: "Software Developer", salary: 90_000_00), result)
+    assert_payload(DEVELOPER_JOB, result)
   end
 
   def test_when_value_is_not_a_hash_returns_failure

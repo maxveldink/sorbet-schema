@@ -20,7 +20,7 @@ class JSONSerializerTest < Minitest::Test
     result = @serializer.serialize(ALEX_PERSON)
 
     assert_success(result)
-    assert_payload('{"name":"Alex","age":31,"ruby_rank":"pretty","job":{"title":"Software Developer","salary":100000000}}', result)
+    assert_payload('{"name":"Alex","age":31,"ruby_rank":"pretty","job":{"title":"Software Developer","salary":9000000}}', result)
   end
 
   def test_with_boolean_it_can_serialize
@@ -61,7 +61,7 @@ class JSONSerializerTest < Minitest::Test
   end
 
   def test_it_can_deserialize_with_nested_object
-    result = @serializer.deserialize('{"name":"Alex","age":31,"ruby_rank":"pretty","job":{"title":"Software Developer","salary":100000000}}')
+    result = @serializer.deserialize('{"name":"Alex","age":31,"ruby_rank":"pretty","job":{"title":"Software Developer","salary":9000000}}')
 
     assert_success(result)
     assert_payload(ALEX_PERSON, result)

@@ -13,4 +13,4 @@ class Person < T::Struct
 end
 
 MAX_PERSON = Person.new(name: "Max", age: 29, ruby_rank: RubyRank::Luminary)
-ALEX_PERSON = Person.new(name: "Alex", age: 31, ruby_rank: RubyRank::Brilliant, job: Job.new(title: "Software Developer", salary: 1_000_000_00))
+ALEX_PERSON = Person.new(name: "Alex", age: 31, ruby_rank: RubyRank::Brilliant, job: DEVELOPER_JOB)
