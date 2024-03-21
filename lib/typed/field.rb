@@ -37,7 +37,8 @@ module Typed
     def ==(other)
       name == other.name &&
         type == other.type &&
-        required == other.required
+        required == other.required &&
+        inline_serializer == other.inline_serializer
     end
 
     sig { returns(T::Boolean) }
