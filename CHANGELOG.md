@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1](https://github.com/maxveldink/sorbet-schema/compare/v0.4.0...v0.4.1) (2024-03-21)
+
+
+### Features
+
+* Add DateCoercer ([ef8c1db](https://github.com/maxveldink/sorbet-schema/commit/ef8c1dbdf3bd87ab2e64102fbd1434811aa353d8))
+* Add inline serializer to fields ([dd8042d](https://github.com/maxveldink/sorbet-schema/commit/dd8042d8d88d67d530c7619ee3cbb108957990d1))
+
 ## [0.4.0](https://github.com/maxveldink/sorbet-schema/compare/v0.3.0...v0.4.0) (2024-03-14)
 
 
