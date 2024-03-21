@@ -30,4 +30,16 @@ class SchemaTest < Minitest::Test
     assert_success(result)
     assert_payload(MAX_PERSON, result)
   end
+
+  def test_add_serializer_when_no_matching_field_returns_same_schema
+    schema = @schema.add_serializer(:not_here, ->(value) { value + "a" })
+
+    assert_equal(@schema, schema)
+  end
+
+  def test_add_serializer_when_matching_field_returns_schema_with_serializer
+    schema = @schema.add_serializer(:name, ->(value) { value + "a" })
+
+    refute_equal(@schema, schema)
+  end
 end
