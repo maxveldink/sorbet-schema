@@ -1,5 +1,6 @@
 parallel: true
-ruby_version: 3.0
+format: progress
+ruby_version: 3.1
 ignore:
   - 'vendor/**/*'
 plugins:
