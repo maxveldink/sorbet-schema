@@ -15,6 +15,7 @@ group :development do
 end
 
 group :development, :test do
+  gem "bigdecimal" # used for testing un-matched coercer
   gem "minitest"
   gem "minitest-focus"
   gem "minitest-reporters"
