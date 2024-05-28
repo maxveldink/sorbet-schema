@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0](https://github.com/maxveldink/sorbet-schema/compare/v0.4.2...v0.5.0) (2024-04-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* Set minimum Ruby to 3.1 ([#69](https://github.com/maxveldink/sorbet-schema/issues/69))
+
+### Features
+
+* Add schema method to structs ([#60](https://github.com/maxveldink/sorbet-schema/issues/60)) ([4b7ff34](https://github.com/maxveldink/sorbet-schema/commit/4b7ff34bc6a48c42d3ece8d1fad07bdecf0bdc11))
+
+
+### Miscellaneous Chores
+
+* Set minimum Ruby to 3.1 ([#69](https://github.com/maxveldink/sorbet-schema/issues/69)) ([d2b4ba2](https://github.com/maxveldink/sorbet-schema/commit/d2b4ba2099da24f93a22849e059627221bbda081))
+
 ## [0.4.2](https://github.com/maxveldink/sorbet-schema/compare/v0.4.1...v0.4.2) (2024-03-21)
 
 
