@@ -12,4 +12,30 @@ class StructTest < Minitest::Test
 
     assert_equal(expected_schema, City.schema)
   end
+
+  def test_serializer_returns_hash_serializer
+    assert_kind_of(Typed::HashSerializer, City.serializer(:hash))
+  end
+
+  def test_serializer_returns_json_serializer
+    assert_kind_of(Typed::JSONSerializer, City.serializer(:json))
+  end
+
+  def test_serializer_raises_argument_error_when_unknown_serializer
+    assert_raises(ArgumentError) { City.serializer(:banana) }
+  end
+
+  def test_deserialize_from_works
+    result = City.deserialize_from(:hash, {name: "New York", capital: false})
+
+    assert_success(result)
+    assert_payload(NEW_YORK_CITY, result)
+  end
+
+  def test_serialize_to_works
+    result = NEW_YORK_CITY.serialize_to(:json)
+
+    assert_success(result)
+    assert_payload("{\"name\":\"New York\",\"capital\":false}", result)
+  end
 end
