@@ -10,7 +10,7 @@ module Typed
     Input = type_member
     Output = type_member
     Params = T.type_alias { T::Hash[Symbol, T.untyped] }
-    DeserializeResult = T.type_alias { Typed::Result[T::Struct, DeserializeError] }
+    DeserializeResult = T.type_alias { Result[T::Struct, DeserializeError] }
 
     sig { returns(Schema) }
     attr_reader :schema
