@@ -18,7 +18,7 @@ Sorbet Schema is designed to be compatible with Sorbet's `T::Struct` class, and 
 
 ### Getting Started
 
-While you can directly define a `Typed::Schema` to be used for your serialization needs, you'll typically use the provider helper class method to generate a `Schema` from an existing `T::Struct`.
+While you can directly define a `Typed::Schema` to be used for your serialization needs, you'll typically use the provided helper class method to generate a `Schema` from an existing `T::Struct`.
 
 ```ruby
 class Person < T::Struct
@@ -41,6 +41,16 @@ result = json_serializer.deserialize('{"name":"Max","age":29}')
 max = result.payload # == Person.new(name: "Max", age: 29)
 
 result = json_serializer.serialize(max)
+result.payload # == '{"name":"Max","age":29}'
+```
+
+Alternatively, you can use the built-in helper methods added to `T::Struct`s to quickly use the built-in serializers.
+
+```ruby
+result = Person.deserialize_from(:json, '{"name":"Max","age":29}')
+max = result.payload # == Person.new(name: "Max", age: 29)
+
+result = max.serialize_to(:json)
 result.payload # == '{"name":"Max","age":29}'
 ```
 
