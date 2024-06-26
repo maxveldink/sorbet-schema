@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1](https://github.com/maxveldink/sorbet-schema/compare/v0.5.0...v0.5.1) (2024-06-26)
+
+
+### Features
+
+* support nested structs ([#102](https://github.com/maxveldink/sorbet-schema/issues/102)) ([08428e1](https://github.com/maxveldink/sorbet-schema/commit/08428e18afdbb4121ef2f290e8a85651b2e13edf))
+
 ## [0.5.0](https://github.com/maxveldink/sorbet-schema/compare/v0.4.2...v0.5.0) (2024-04-19)
 
 
