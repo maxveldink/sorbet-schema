@@ -40,7 +40,7 @@ module Typed
           simple_attribute_type = attribute_type.respond_to?(:unwrap_nilable) ? attribute_type.unwrap_nilable : attribute_type
 
           # if the prop is a struct, we need to recursively coerce it
-          if simple_attribute_type.respond_to?(:raw_type) && simple_attribute_type.raw_type.respond_to?(:props)
+          if simple_attribute_type.respond_to?(:raw_type) && simple_attribute_type.raw_type <= T::Struct
             Typed::HashSerializer
               .new(schema: simple_attribute_type.raw_type.schema)
               .deserialize(value[name])
