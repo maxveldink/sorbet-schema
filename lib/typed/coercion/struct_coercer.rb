@@ -42,7 +42,7 @@ module Typed
           # if the prop is a struct, we need to recursively coerce it
           if simple_attribute_type.respond_to?(:raw_type) && simple_attribute_type.raw_type.respond_to?(:props)
             Typed::HashSerializer
-              .new(schema: Typed::Schema.from_struct(simple_attribute_type.raw_type))
+              .new(schema: simple_attribute_type.raw_type.schema)
               .deserialize(value[name])
               .and_then { |struct| Typed::Success.new(values[name] = struct) }
               .on_error { |error| return Typed::Failure.new(CoercionError.new("Nested hash for #{type} could not be coerced to #{name}, error: #{error}")) }
