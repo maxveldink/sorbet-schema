@@ -36,6 +36,7 @@ module Typed
         value = creation_params[field.name]
 
         if value.nil? || field.works_with?(value)
+          # TODO: Default check
           field.validate(value)
         else
           coercion_result = Coercion.coerce(type: field.type, value: value)

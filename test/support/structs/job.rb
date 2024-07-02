@@ -8,6 +8,8 @@ class Job < T::Struct
   const :title, String
   const :salary, Integer
   const :start_date, T.nilable(Date)
+  const :location, T.nilable(Country), default: US_COUNTRY
+  const :needs_credential, T::Boolean, default: false
 end
 
 JOB_SCHEMA_WITH_INLINE_SERIALIZER = Typed::Schema.new(
@@ -20,3 +22,5 @@ JOB_SCHEMA_WITH_INLINE_SERIALIZER = Typed::Schema.new(
 )
 DEVELOPER_JOB = Job.new(title: "Software Developer", salary: 90_000_00)
 DEVELOPER_JOB_WITH_START_DATE = Job.new(title: "Software Developer", salary: 90_000_00, start_date: Date.new(2024, 3, 1))
+DEVELOPER_JOB_WITH_METADATA = Job.new(title: "Software Developer", salary: 90_000_00)
+DEVELOPER_JOB_WITH_DEFAULT_OVERRIDES = Job.new(title: "Software Developer", salary: 90_000_00, location: Country.new(name: "Canada"), needs_credential: true)

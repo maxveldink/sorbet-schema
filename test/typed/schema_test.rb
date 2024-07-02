@@ -17,6 +17,17 @@ class SchemaTest < Minitest::Test
     assert_equal(@schema, Typed::Schema.from_struct(Person))
   end
 
+  def test_from_struct_works_with_defaults
+    schema = Typed::Schema.new(
+      fields: [
+        Typed::Field.new(name: :name, type: String),
+        Typed::Field.new(name: :cities, type: T::Utils.coerce(T::Array[City]), required: false)
+      ],
+      target: Country
+    )
+    assert_equal(schema, Typed::Schema.from_struct(Country))
+  end
+
   def test_from_hash_create_struct
     result = @schema.from_hash({name: "Max", age: 29, ruby_rank: RubyRank::Luminary})
 
