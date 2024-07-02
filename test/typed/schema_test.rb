@@ -7,7 +7,7 @@ class SchemaTest < Minitest::Test
         Typed::Field.new(name: :name, type: String),
         Typed::Field.new(name: :age, type: Integer),
         Typed::Field.new(name: :ruby_rank, type: RubyRank),
-        Typed::Field.new(name: :job, type: Job, required: false)
+        Typed::Field.new(name: :job, type: Job, optional: true)
       ],
       target: Person
     )

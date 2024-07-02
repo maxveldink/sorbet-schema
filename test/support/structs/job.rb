@@ -15,7 +15,7 @@ JOB_SCHEMA_WITH_INLINE_SERIALIZER = Typed::Schema.new(
   fields: [
     Typed::Field.new(name: :title, type: String),
     Typed::Field.new(name: :salary, type: Integer),
-    Typed::Field.new(name: :start_date, type: Date, required: false, inline_serializer: ->(start_date) { start_date.strftime("%j %B") })
+    Typed::Field.new(name: :start_date, type: T::Utils.coerce(T.nilable(Date)), inline_serializer: ->(start_date) { start_date.strftime("%j %B") })
   ]
 )
 DEVELOPER_JOB = Job.new(title: "Software Developer", salary: 90_000_00)

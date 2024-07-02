@@ -6,7 +6,7 @@ class FieldTypeValidatorTest < Minitest::Test
   def setup
     @validator = Typed::Validations::FieldTypeValidator.new
     @required_field = Typed::Field.new(name: :im_required, type: String)
-    @optional_field = Typed::Field.new(name: :im_optional, type: String, required: false)
+    @optional_field = Typed::Field.new(name: :im_optional, type: String, default: "Fallback")
   end
 
   def test_validate_correct_type_on_required_field
