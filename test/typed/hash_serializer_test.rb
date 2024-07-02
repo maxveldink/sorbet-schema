@@ -1,5 +1,7 @@
 # typed: true
 
+require "test_helper"
+
 class HashSerializerTest < Minitest::Test
   def setup
     @serializer = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Person))
@@ -49,6 +51,13 @@ class HashSerializerTest < Minitest::Test
 
     assert_success(result)
     assert_payload({name: "US", cities: [{name: "New York", capital: false}, {name: "DC", capital: true}]}, result)
+  end
+
+  def test_with_hash_it_can_serialize
+    result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Job)).serialize(DEVELOPER_JOB_WITH_METADATA)
+
+    assert_success(result)
+    assert_payload({title: "Software Developer", salary: 90_000_00, metadata: {"a number" => 1}}, result)
   end
 
   def test_when_struct_given_is_not_of_target_type_returns_failure
