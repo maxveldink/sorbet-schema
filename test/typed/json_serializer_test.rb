@@ -13,14 +13,14 @@ class JSONSerializerTest < Minitest::Test
     result = @serializer.serialize(MAX_PERSON)
 
     assert_success(result)
-    assert_payload('{"name":"Max","age":29,"ruby_rank":"shiny"}', result)
+    assert_payload('{"name":"Max","age":29,"stone_rank":"shiny"}', result)
   end
 
   def test_it_can_serialize_with_nested_struct
     result = @serializer.serialize(ALEX_PERSON)
 
     assert_success(result)
-    assert_payload('{"name":"Alex","age":31,"ruby_rank":"pretty","job":{"title":"Software Developer","salary":9000000,"needs_credential":false}}', result)
+    assert_payload('{"name":"Alex","age":31,"stone_rank":"pretty","job":{"title":"Software Developer","salary":9000000,"needs_credential":false}}', result)
   end
 
   def test_with_boolean_it_can_serialize
@@ -47,7 +47,7 @@ class JSONSerializerTest < Minitest::Test
   # Deserialize Tests
 
   def test_it_can_simple_deserialize
-    result = @serializer.deserialize('{"name":"Max","age":29,"ruby_rank":"shiny"}')
+    result = @serializer.deserialize('{"name":"Max","age":29,"stone_rank":"shiny"}')
 
     assert_success(result)
     assert_payload(MAX_PERSON, result)
@@ -68,21 +68,21 @@ class JSONSerializerTest < Minitest::Test
   end
 
   def test_it_can_deserialize_with_nested_object
-    result = @serializer.deserialize('{"name":"Alex","age":31,"ruby_rank":"pretty","job":{"title":"Software Developer","salary":9000000}}')
+    result = @serializer.deserialize('{"name":"Alex","age":31,"stone_rank":"pretty","job":{"title":"Software Developer","salary":9000000}}')
 
     assert_success(result)
     assert_payload(ALEX_PERSON, result)
   end
 
   def test_it_reports_on_parse_errors_on_deserialize
-    result = @serializer.deserialize('{"name": "Max", age": 29, "ruby_rank": "shiny"}') # Missing quotation
+    result = @serializer.deserialize('{"name": "Max", age": 29, "stone_rank": "shiny"}') # Missing quotation
 
     assert_failure(result)
     assert_error(Typed::ParseError.new(format: :json), result)
   end
 
   def test_it_reports_validation_errors_on_deserialize
-    result = @serializer.deserialize('{"name": "Max", "ruby_rank": "shiny"}')
+    result = @serializer.deserialize('{"name": "Max", "stone_rank": "shiny"}')
 
     assert_failure(result)
     assert_error(Typed::Validations::RequiredFieldError.new(field_name: :age), result)
@@ -99,7 +99,7 @@ class JSONSerializerTest < Minitest::Test
         errors: [
           Typed::Validations::RequiredFieldError.new(field_name: :name),
           Typed::Validations::RequiredFieldError.new(field_name: :age),
-          Typed::Validations::RequiredFieldError.new(field_name: :ruby_rank)
+          Typed::Validations::RequiredFieldError.new(field_name: :stone_rank)
         ]
       ),
       result

@@ -58,17 +58,17 @@ class StructCoercerTest < Minitest::Test
   def test_when_struct_has_nested_struct_and_all_values_passed_for_nested_struct
     name = "Alex"
     age = 31
-    ruby_rank = "pretty"
+    stone_rank = "pretty"
     salary = 90_000_00
     title = "Software Developer"
     start_date = Date.new(2024, 3, 1)
 
-    result = @coercer.coerce(type: @type_with_nested_struct, value: {name:, age:, ruby_rank:, job: {title:, salary:, start_date:}})
+    result = @coercer.coerce(type: @type_with_nested_struct, value: {name:, age:, stone_rank:, job: {title:, salary:, start_date:}})
 
     person = Person.new(
       name:,
       age:,
-      ruby_rank: RubyRank.deserialize(ruby_rank),
+      stone_rank: RubyRank.deserialize(stone_rank),
       job: Job.new(title:, salary:, start_date:)
     )
 
@@ -79,16 +79,16 @@ class StructCoercerTest < Minitest::Test
   def test_when_struct_has_nested_struct_and_optional_start_date_not_passed_for_nested_struct
     name = "Alex"
     age = 31
-    ruby_rank = "pretty"
+    stone_rank = "pretty"
     salary = 90_000_00
     title = "Software Developer"
 
-    result = @coercer.coerce(type: @type_with_nested_struct, value: {name:, age:, ruby_rank:, job: {title:, salary:}})
+    result = @coercer.coerce(type: @type_with_nested_struct, value: {name:, age:, stone_rank:, job: {title:, salary:}})
 
     person = Person.new(
       name:,
       age:,
-      ruby_rank: RubyRank.deserialize(ruby_rank),
+      stone_rank: RubyRank.deserialize(stone_rank),
       job: Job.new(title:, salary:)
     )
 

@@ -6,7 +6,7 @@ class SchemaTest < Minitest::Test
       fields: [
         Typed::Field.new(name: :name, type: String),
         Typed::Field.new(name: :age, type: Integer),
-        Typed::Field.new(name: :ruby_rank, type: RubyRank),
+        Typed::Field.new(name: :stone_rank, type: T::Utils.coerce(T.any(RubyRank, DiamondRank))),
         Typed::Field.new(name: :job, type: Job, optional: true)
       ],
       target: Person
@@ -18,14 +18,14 @@ class SchemaTest < Minitest::Test
   end
 
   def test_from_hash_create_struct
-    result = @schema.from_hash({name: "Max", age: 29, ruby_rank: RubyRank::Luminary})
+    result = @schema.from_hash({name: "Max", age: 29, stone_rank: RubyRank::Luminary})
 
     assert_success(result)
     assert_payload(MAX_PERSON, result)
   end
 
   def test_from_json_creates_struct
-    result = @schema.from_json('{"name": "Max", "age": 29, "ruby_rank": "shiny"}')
+    result = @schema.from_json('{"name": "Max", "age": 29, "stone_rank": "shiny"}')
 
     assert_success(result)
     assert_payload(MAX_PERSON, result)
