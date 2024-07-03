@@ -1,6 +1,18 @@
 # typed: true
 
 class HashSerializerTest < Minitest::Test
+  class StructWithBooleanDefaultSetToTrue < T::Struct
+    include ActsAsComparable
+
+    const :tired, T::Boolean, default: true
+  end
+
+  class StructWithBooleanDefaultSetToFalse < T::Struct
+    include ActsAsComparable
+
+    const :tired, T::Boolean, default: false
+  end
+
   def setup
     @serializer = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Person))
   end
@@ -107,6 +119,22 @@ class HashSerializerTest < Minitest::Test
 
     assert_success(result)
     assert_payload(ALEX_PERSON, result)
+  end
+
+  def test_it_can_deserialize_with_default_value_boolean_true
+    serializer = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(StructWithBooleanDefaultSetToTrue))
+    result = serializer.deserialize({})
+
+    assert_success(result)
+    assert_payload(StructWithBooleanDefaultSetToTrue.new(tired: true), result)
+  end
+
+  def test_it_can_deserialize_with_default_value_boolean_false
+    serializer = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(StructWithBooleanDefaultSetToFalse))
+    result = serializer.deserialize({})
+
+    assert_success(result)
+    assert_payload(StructWithBooleanDefaultSetToFalse.new(tired: false), result)
   end
 
   def test_it_reports_validation_errors_on_deserialize
