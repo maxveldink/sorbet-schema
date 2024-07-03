@@ -8,6 +8,7 @@ class Job < T::Struct
   const :title, String
   const :salary, Integer
   const :start_date, T.nilable(Date)
+  const :needs_credential, T::Boolean, default: false
 end
 
 JOB_SCHEMA_WITH_INLINE_SERIALIZER = Typed::Schema.new(

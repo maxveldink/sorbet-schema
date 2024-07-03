@@ -52,7 +52,7 @@ class StructCoercerTest < Minitest::Test
     result = @coercer.coerce(type: @type, value: {"not" => "valid"})
 
     assert_failure(result)
-    assert_error(Typed::Coercion::CoercionError.new("title is required but nil given"), result)
+    assert_error(Typed::Coercion::CoercionError.new("Multiple validation errors found: title is required. | salary is required."), result)
   end
 
   def test_when_struct_has_nested_struct_and_all_values_passed_for_nested_struct

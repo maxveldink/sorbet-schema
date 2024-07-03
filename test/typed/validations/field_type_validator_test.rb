@@ -44,8 +44,17 @@ class FieldTypeValidatorTest < Minitest::Test
     assert_error(Typed::Validations::RequiredFieldError.new(field_name: :im_required), result)
   end
 
-  def test_validate_nil_on_optional_field
+  def test_validate_nil_on_optional_field_with_default
     result = @validator.validate(field: @optional_field, value: nil)
+
+    assert_success(result)
+    assert_payload(Typed::Validations::ValidatedValue.new(name: :im_optional, value: "Fallback"), result)
+  end
+
+  def test_validate_nil_on_optional_field_without_default
+    field = Typed::Field.new(name: :im_optional, type: String, optional: true)
+
+    result = @validator.validate(field:, value: nil)
 
     assert_success(result)
     assert_payload(Typed::Validations::ValidatedValue.new(name: :im_optional, value: nil), result)

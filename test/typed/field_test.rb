@@ -14,12 +14,12 @@ class FieldTest < Minitest::Test
   end
 
   def test_sets_values_correctly_for_default
-    field = Typed::Field.new(name: :with_default, type: String, default: "fallback")
+    field = Typed::Field.new(name: :with_default, type: T::Utils.coerce(T::Boolean), default: false)
 
     assert_equal(:with_default, field.name)
-    assert_equal(T::Utils.coerce(String), field.type)
+    assert_equal(T::Utils.coerce(T::Boolean), field.type)
     refute(field.required)
-    assert_equal("fallback", field.default)
+    assert_equal(false, field.default)
     assert_nil(field.inline_serializer)
   end
 

@@ -49,10 +49,10 @@ module Typed
         @required = false
       end
 
-      if default && @type.valid?(default)
+      if !default.nil? && @type.valid?(default)
         @default = T.let(default, T.untyped)
         @required = false
-      elsif default && @required
+      elsif !default.nil? && @required
         raise ArgumentError, "Given #{default} with class of #{default.class} for default, invalid with type #{@type}"
       end
     end
