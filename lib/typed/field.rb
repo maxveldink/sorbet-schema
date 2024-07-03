@@ -12,6 +12,9 @@ module Typed
     sig { returns(T::Types::Base) }
     attr_reader :type
 
+    sig { returns(T.untyped) }
+    attr_reader :default
+
     sig { returns(T::Boolean) }
     attr_reader :required
 
@@ -22,15 +25,36 @@ module Typed
       params(
         name: Symbol,
         type: T.any(T::Class[T.anything], T::Types::Base),
-        required: T::Boolean,
+        optional: T::Boolean,
+        default: T.untyped,
         inline_serializer: T.nilable(InlineSerializer)
       ).void
     end
-    def initialize(name:, type:, required: true, inline_serializer: nil)
+    def initialize(name:, type:, optional: false, default: nil, inline_serializer: nil)
       @name = name
-      @type = T.let(T::Utils.coerce(type), T::Types::Base)
-      @required = required
+      # TODO: Guarentee type signature of the serializer will be valid
       @inline_serializer = inline_serializer
+
+      coerced_type = T::Utils.coerce(type)
+
+      if coerced_type.valid?(nil)
+        @required = T.let(false, T::Boolean)
+        @type = T.let(T.unsafe(coerced_type).unwrap_nilable, T::Types::Base)
+      else
+        @required = true
+        @type = coerced_type
+      end
+
+      if optional
+        @required = false
+      end
+
+      if !default.nil? && @type.valid?(default)
+        @default = T.let(default, T.untyped)
+        @required = false
+      elsif !default.nil? && @required
+        raise ArgumentError, "Given #{default} with class of #{default.class} for default, invalid with type #{@type}"
+      end
     end
 
     sig { params(other: Field).returns(T.nilable(T::Boolean)) }
@@ -38,6 +62,7 @@ module Typed
       name == other.name &&
         type == other.type &&
         required == other.required &&
+        default == other.default &&
         inline_serializer == other.inline_serializer
     end
 

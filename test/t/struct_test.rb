@@ -13,6 +13,20 @@ class StructTest < Minitest::Test
     assert_equal(expected_schema, City.schema)
   end
 
+  def test_schema_can_be_derived_from_struct_with_default
+    expected_schema = Typed::Schema.new(
+      fields: [
+        Typed::Field.new(name: :title, type: String),
+        Typed::Field.new(name: :salary, type: Integer),
+        Typed::Field.new(name: :start_date, type: Date, optional: true),
+        Typed::Field.new(name: :needs_credential, type: T::Utils.coerce(T::Boolean), default: false, optional: true)
+      ],
+      target: Job
+    )
+
+    assert_equal(expected_schema, Job.schema)
+  end
+
   def test_serializer_returns_hash_serializer
     assert_kind_of(Typed::HashSerializer, City.serializer(:hash))
   end
