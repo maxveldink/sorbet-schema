@@ -23,14 +23,14 @@ class HashSerializerTest < Minitest::Test
     result = @serializer.serialize(MAX_PERSON)
 
     assert_success(result)
-    assert_payload({name: "Max", age: 29, ruby_rank: RubyRank::Luminary}, result)
+    assert_payload({name: "Max", age: 29, stone_rank: RubyRank::Luminary}, result)
   end
 
   def test_it_can_serialize_with_nested_struct
     result = @serializer.serialize(ALEX_PERSON)
 
     assert_success(result)
-    assert_payload({name: "Alex", age: 31, ruby_rank: RubyRank::Brilliant, job: DEVELOPER_JOB}, result)
+    assert_payload({name: "Alex", age: 31, stone_rank: RubyRank::Brilliant, job: DEVELOPER_JOB}, result)
   end
 
   def test_it_can_deep_serialize
@@ -39,7 +39,7 @@ class HashSerializerTest < Minitest::Test
     result = serializer.serialize(ALEX_PERSON)
 
     assert_success(result)
-    assert_payload({name: "Alex", age: 31, ruby_rank: "pretty", job: {title: "Software Developer", salary: 90_000_00, needs_credential: false}}, result)
+    assert_payload({name: "Alex", age: 31, stone_rank: "pretty", job: {title: "Software Developer", salary: 90_000_00, needs_credential: false}}, result)
   end
 
   def test_with_boolean_it_can_serialize
@@ -80,14 +80,14 @@ class HashSerializerTest < Minitest::Test
   # Deserialize Tests
 
   def test_it_can_simple_deserialize
-    result = @serializer.deserialize({name: "Max", age: 29, ruby_rank: RubyRank::Luminary})
+    result = @serializer.deserialize({name: "Max", age: 29, stone_rank: RubyRank::Luminary})
 
     assert_success(result)
     assert_payload(MAX_PERSON, result)
   end
 
   def test_it_can_simple_deserialize_from_string_keys
-    result = @serializer.deserialize({"name" => "Max", "age" => 29, "ruby_rank" => RubyRank::Luminary})
+    result = @serializer.deserialize({"name" => "Max", "age" => 29, "stone_rank" => RubyRank::Luminary})
 
     assert_success(result)
     assert_payload(MAX_PERSON, result)
@@ -115,12 +115,33 @@ class HashSerializerTest < Minitest::Test
   end
 
   def test_it_can_deserialize_with_nested_object
-    result = @serializer.deserialize({name: "Alex", age: 31, ruby_rank: "pretty", job: {title: "Software Developer", salary: 90_000_00}})
+    result = @serializer.deserialize({name: "Alex", age: 31, stone_rank: "pretty", job: {title: "Software Developer", salary: 90_000_00}})
 
     assert_success(result)
     assert_payload(ALEX_PERSON, result)
   end
 
+  def test_it_can_deserialize_something_that_is_the_first_of_multiple_types
+    result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Person)).deserialize({name: "Max", age: 29, stone_rank: "shiny"})
+
+    assert_success(result)
+    assert_payload(MAX_PERSON, result)
+  end
+
+  def test_it_can_deserialize_something_that_is_the_second_of_multiple_types
+    result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Person)).deserialize({name: "Max", age: 29, stone_rank: "good"})
+
+    assert_success(result)
+    assert_payload(Person.new(name: "Max", age: 29, stone_rank: DiamondRank::Good), result)
+  end
+
+  def test_if_it_cannot_be_deserialized_against_something_with_multiple_types_it_will_fail
+    result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Person)).deserialize({name: "Max", age: 29, stone_rank: "not valid"})
+
+    assert_failure(result)
+    assert_error(Typed::Validations::ValidationError.new('Enum RubyRank key not found: "not valid", Enum DiamondRank key not found: "not valid"'), result)
+  end
+  
   def test_it_can_deserialize_with_default_value_boolean_true
     serializer = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(StructWithBooleanDefaultSetToTrue))
     result = serializer.deserialize({})
@@ -138,7 +159,7 @@ class HashSerializerTest < Minitest::Test
   end
 
   def test_it_reports_validation_errors_on_deserialize
-    result = @serializer.deserialize({name: "Max", ruby_rank: RubyRank::Luminary})
+    result = @serializer.deserialize({name: "Max", stone_rank: RubyRank::Luminary})
 
     assert_failure(result)
     assert_error(Typed::Validations::RequiredFieldError.new(field_name: :age), result)
@@ -153,7 +174,7 @@ class HashSerializerTest < Minitest::Test
         errors: [
           Typed::Validations::RequiredFieldError.new(field_name: :name),
           Typed::Validations::RequiredFieldError.new(field_name: :age),
-          Typed::Validations::RequiredFieldError.new(field_name: :ruby_rank)
+          Typed::Validations::RequiredFieldError.new(field_name: :stone_rank)
         ]
       ),
       result
