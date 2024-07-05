@@ -35,8 +35,8 @@ module Typed
       results = schema.fields.map do |field|
         value = creation_params.fetch(field.name, nil)
 
-        if value.nil? && field.default
-          Success.new(Validations::ValidatedValue.new(field.default))
+        if value.nil? && !field.default.nil?
+          Success.new(Validations::ValidatedValue.new(name: field.name, value: field.default))
         elsif value.nil? || field.works_with?(value)
           field.validate(value)
         elsif field.type.class <= T::Types::Union
