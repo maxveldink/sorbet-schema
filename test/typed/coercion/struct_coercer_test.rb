@@ -28,7 +28,7 @@ class StructCoercerTest < Minitest::Test
   end
 
   def test_when_struct_of_incorrect_type_given_returns_failure
-    result = @coercer.coerce(type: @type, value: Country.new(name: "Canada", cities: []))
+    result = @coercer.coerce(type: @type, value: Country.new(name: "Canada", cities: [], national_items: {}))
 
     assert_failure(result)
     assert_error(Typed::Coercion::CoercionError.new("Value of type 'Country' cannot be coerced to Job Struct."), result)

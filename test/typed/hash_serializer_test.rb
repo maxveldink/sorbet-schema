@@ -1,5 +1,7 @@
 # typed: true
 
+require "test_helper"
+
 class HashSerializerTest < Minitest::Test
   class StructWithBooleanDefaultSetToTrue < T::Struct
     include ActsAsComparable
@@ -49,18 +51,18 @@ class HashSerializerTest < Minitest::Test
     assert_payload({name: "New York", capital: false}, result)
   end
 
-  def test_with_array_it_can_serialize
+  def test_with_array_and_hash_it_can_serialize
     result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Country)).serialize(US_COUNTRY)
 
     assert_success(result)
-    assert_payload({name: "US", cities: [NEW_YORK_CITY, DC_CITY]}, result)
+    assert_payload({name: "US", cities: [NEW_YORK_CITY, DC_CITY], national_items: {bird: "bald eagle", anthem: "The Star-Spangled Banner"}}, result)
   end
 
   def test_with_array_it_can_deep_serialize
     result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Country), should_serialize_values: true).serialize(US_COUNTRY)
 
     assert_success(result)
-    assert_payload({name: "US", cities: [{name: "New York", capital: false}, {name: "DC", capital: true}]}, result)
+    assert_payload({name: "US", cities: [{name: "New York", capital: false}, {name: "DC", capital: true}], national_items: {bird: "bald eagle", anthem: "The Star-Spangled Banner"}}, result)
   end
 
   def test_when_struct_given_is_not_of_target_type_returns_failure
@@ -101,14 +103,14 @@ class HashSerializerTest < Minitest::Test
   end
 
   def test_with_array_it_can_deserialize
-    result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Country)).deserialize({name: "US", cities: [NEW_YORK_CITY, DC_CITY]})
+    result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Country)).deserialize({name: "US", cities: [NEW_YORK_CITY, DC_CITY], national_items: {bird: "bald eagle", anthem: "The Star-Spangled Banner"}})
 
     assert_success(result)
     assert_payload(US_COUNTRY, result)
   end
 
   def test_with_array_it_can_deep_deserialize
-    result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Country)).deserialize({name: "US", cities: [{name: "New York", capital: false}, {name: "DC", capital: true}]})
+    result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Country)).deserialize({name: "US", cities: [{name: "New York", capital: false}, {name: "DC", capital: true}], national_items: {bird: "bald eagle", anthem: "The Star-Spangled Banner"}})
 
     assert_success(result)
     assert_payload(US_COUNTRY, result)
