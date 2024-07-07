@@ -14,6 +14,7 @@ module Typed
       DEFAULT_COERCERS = T.let(
         [
           StringCoercer,
+          SymbolCoercer,
           BooleanCoercer,
           IntegerCoercer,
           FloatCoercer,

@@ -141,7 +141,7 @@ class HashSerializerTest < Minitest::Test
     assert_failure(result)
     assert_error(Typed::Validations::ValidationError.new('Enum RubyRank key not found: "not valid", Enum DiamondRank key not found: "not valid"'), result)
   end
-  
+
   def test_it_can_deserialize_with_default_value_boolean_true
     serializer = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(StructWithBooleanDefaultSetToTrue))
     result = serializer.deserialize({})
