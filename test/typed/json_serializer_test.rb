@@ -34,7 +34,7 @@ class JSONSerializerTest < Minitest::Test
     result = Typed::JSONSerializer.new(schema: Typed::Schema.from_struct(Country)).serialize(US_COUNTRY)
 
     assert_success(result)
-    assert_payload('{"name":"US","cities":[{"name":"New York","capital":false},{"name":"DC","capital":true}]}', result)
+    assert_payload('{"name":"US","cities":[{"name":"New York","capital":false},{"name":"DC","capital":true}],"national_items":{"bird":"bald eagle","anthem":"The Star-Spangled Banner"}}', result)
   end
 
   def test_will_use_inline_serializers
@@ -61,7 +61,7 @@ class JSONSerializerTest < Minitest::Test
   end
 
   def test_with_array_it_can_deep_deserialize
-    result = Typed::JSONSerializer.new(schema: Typed::Schema.from_struct(Country)).deserialize('{"name":"US","cities":[{"name":"New York","capital":false},{"name":"DC","capital":true}]}')
+    result = Typed::JSONSerializer.new(schema: Typed::Schema.from_struct(Country)).deserialize('{"name":"US","cities":[{"name":"New York","capital":false},{"name":"DC","capital":true}],"national_items":{"bird":"bald eagle","anthem":"The Star-Spangled Banner"}}')
 
     assert_success(result)
     assert_payload(US_COUNTRY, result)

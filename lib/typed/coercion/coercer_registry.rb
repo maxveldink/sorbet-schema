@@ -21,7 +21,8 @@ module Typed
           DateCoercer,
           EnumCoercer,
           StructCoercer,
-          TypedArrayCoercer
+          TypedArrayCoercer,
+          TypedHashCoercer
         ],
         Registry
       )
