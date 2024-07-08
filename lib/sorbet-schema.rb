@@ -16,10 +16,11 @@ loader.inflector.inflect(
 )
 loader.setup
 
-# We don't want to place this in the `Typed` module.
+# We don't want to place these in the `Typed` module.
 # `sorbet-schema` is a directory that is not autoloaded
 # but contains extensions, so we need to manually require it.
 require_relative "sorbet-schema/hash_transformer"
+require_relative "sorbet-schema/serialize_value"
 
 # We want to add a default `schema` method to structs
 # that will guarentee a schema can be created for use

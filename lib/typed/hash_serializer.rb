@@ -15,14 +15,14 @@ module Typed
 
     sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
     def deserialize(source)
-      deserialize_from_creation_params(HashTransformer.new(should_serialize_values: should_serialize_values).deep_symbolize_keys(source))
+      deserialize_from_creation_params(HashTransformer.symbolize_keys(source))
     end
 
     sig { override.params(struct: T::Struct).returns(Result[Output, SerializeError]) }
     def serialize(struct)
       return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
 
-      Success.new(serialize_from_struct(struct: struct, should_serialize_values: should_serialize_values))
+      Success.new(serialize_from_struct(struct:, should_serialize_values:))
     end
 
     private

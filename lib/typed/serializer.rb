@@ -82,7 +82,11 @@ module Typed
     def serialize_from_struct(struct:, should_serialize_values: false)
       hsh = schema.fields.each_with_object({}) { |field, hsh| hsh[field.name] = field.serialize(struct.send(field.name)) }.compact
 
-      HashTransformer.new(should_serialize_values: should_serialize_values).deep_symbolize_keys(hsh)
+      if should_serialize_values
+        hsh = HashTransformer.serialize_values(hsh)
+      end
+
+      hsh
     end
   end
 end
