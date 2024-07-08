@@ -79,6 +79,13 @@ class HashSerializerTest < Minitest::Test
     assert_payload({title: "Software Developer", salary: 90_000_00, start_date: "061 March"}, result)
   end
 
+  def test_with_hash_field_with_string_keys_serializes
+    result = Typed::HashSerializer.new(schema: City.schema).serialize(OVIEDO_CITY)
+
+    assert_success(result)
+    assert_payload({name: "Oviedo", capital: false, data: {"how many maxes live here?" => 1}}, result)
+  end
+
   # Deserialize Tests
 
   def test_it_can_simple_deserialize
