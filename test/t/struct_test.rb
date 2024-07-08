@@ -5,7 +5,8 @@ class StructTest < Minitest::Test
     expected_schema = Typed::Schema.new(
       fields: [
         Typed::Field.new(name: :name, type: String),
-        Typed::Field.new(name: :capital, type: T::Utils.coerce(T::Boolean))
+        Typed::Field.new(name: :capital, type: T::Utils.coerce(T::Boolean)),
+        Typed::Field.new(name: :data, type: T::Utils.coerce(T::Hash[String, Integer]), optional: true)
       ],
       target: City
     )

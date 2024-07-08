@@ -24,7 +24,7 @@ module Typed
     def serialize(struct)
       return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
 
-      Success.new(JSON.generate(serialize_from_struct(struct: struct, should_serialize_values: true)))
+      Success.new(JSON.generate(serialize_from_struct(struct:, should_serialize_values: true)))
     end
   end
 end
