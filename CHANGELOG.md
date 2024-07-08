@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0](https://github.com/maxveldink/sorbet-schema/compare/v0.6.0...v0.7.0) (2024-07-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* Fix mis-serializing hash keys that were suppose to be strings ([#111](https://github.com/maxveldink/sorbet-schema/issues/111))
+
+### Bug Fixes
+
+* Fix mis-serializing hash keys that were suppose to be strings ([#111](https://github.com/maxveldink/sorbet-schema/issues/111)) ([485a6c7](https://github.com/maxveldink/sorbet-schema/commit/485a6c7a83b9e70c731930d8406925304efa04a8))
+
 ## [0.6.0](https://github.com/maxveldink/sorbet-schema/compare/v0.5.1...v0.6.0) (2024-07-07)
 
 
