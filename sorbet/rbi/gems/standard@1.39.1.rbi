@@ -557,24 +557,24 @@ class Standard::Lsp::Routes
   # source://standard//lib/standard/lsp/routes.rb#38
   def handle_initialized(request); end
 
-  # source://standard//lib/standard/lsp/routes.rb#122
+  # source://standard//lib/standard/lsp/routes.rb#129
   def handle_method_missing(request); end
 
   # source://standard//lib/standard/lsp/routes.rb#42
   def handle_shutdown(request); end
 
-  # source://standard//lib/standard/lsp/routes.rb#114
+  # source://standard//lib/standard/lsp/routes.rb#121
   def handle_unsupported_method(request, method = T.unsafe(nil)); end
 
   private
 
-  # source://standard//lib/standard/lsp/routes.rb#155
+  # source://standard//lib/standard/lsp/routes.rb#162
   def diagnostic(file_uri, text); end
 
-  # source://standard//lib/standard/lsp/routes.rb#134
+  # source://standard//lib/standard/lsp/routes.rb#141
   def format_file(file_uri); end
 
-  # source://standard//lib/standard/lsp/routes.rb#130
+  # source://standard//lib/standard/lsp/routes.rb#137
   def uri_to_path(uri); end
 
   class << self
@@ -582,6 +582,9 @@ class Standard::Lsp::Routes
     def handle(name, &block); end
   end
 end
+
+# source://standard//lib/standard/lsp/routes.rb#75
+Standard::Lsp::Routes::CONFIGURATION_FILE_PATTERNS = T.let(T.unsafe(nil), Array)
 
 # source://standard//lib/standard/lsp/server.rb#9
 Standard::Lsp::SEV = LanguageServer::Protocol::Constant::DiagnosticSeverity
@@ -618,7 +621,7 @@ end
 class Standard::Lsp::StdinRubocopRunner < ::RuboCop::Runner
   # @return [StdinRubocopRunner] a new instance of StdinRubocopRunner
   #
-  # source://standard//lib/standard/lsp/stdin_rubocop_runner.rb#19
+  # source://standard//lib/standard/lsp/stdin_rubocop_runner.rb#21
   def initialize(config); end
 
   # Returns the value of attribute config_for_working_directory.
@@ -626,7 +629,7 @@ class Standard::Lsp::StdinRubocopRunner < ::RuboCop::Runner
   # source://standard//lib/standard/lsp/stdin_rubocop_runner.rb#10
   def config_for_working_directory; end
 
-  # source://standard//lib/standard/lsp/stdin_rubocop_runner.rb#50
+  # source://standard//lib/standard/lsp/stdin_rubocop_runner.rb#52
   def formatted_source; end
 
   # Returns the value of attribute offenses.
@@ -634,12 +637,12 @@ class Standard::Lsp::StdinRubocopRunner < ::RuboCop::Runner
   # source://standard//lib/standard/lsp/stdin_rubocop_runner.rb#8
   def offenses; end
 
-  # source://standard//lib/standard/lsp/stdin_rubocop_runner.rb#33
+  # source://standard//lib/standard/lsp/stdin_rubocop_runner.rb#35
   def run(path, contents); end
 
   private
 
-  # source://standard//lib/standard/lsp/stdin_rubocop_runner.rb#56
+  # source://standard//lib/standard/lsp/stdin_rubocop_runner.rb#58
   def file_finished(_file, offenses); end
 end
 

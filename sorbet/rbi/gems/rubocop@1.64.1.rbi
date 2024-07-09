@@ -769,7 +769,7 @@ class RuboCop::CommentConfig
 
   # @return [CommentConfig] a new instance of CommentConfig
   #
-  # source://standard/1.39.0/lib/standard/rubocop/ext.rb#20
+  # source://standard/1.39.1/lib/standard/rubocop/ext.rb#20
   def initialize(processed_source); end
 
   # @return [Boolean]
@@ -17009,7 +17009,7 @@ class RuboCop::Cop::Lint::AssignmentInCondition < ::RuboCop::Cop::Base
   include ::RuboCop::Cop::SafeAssignment
   extend ::RuboCop::Cop::AutoCorrector
 
-  # source://standard/1.39.0/lib/standard/rubocop/ext.rb#4
+  # source://standard/1.39.1/lib/standard/rubocop/ext.rb#4
   def message(_); end
 
   # source://rubocop//lib/rubocop/cop/lint/assignment_in_condition.rb#55
