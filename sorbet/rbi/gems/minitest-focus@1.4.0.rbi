@@ -7,25 +7,25 @@
 
 # source://minitest-focus//lib/minitest/focus.rb#3
 class Minitest::Test < ::Minitest::Runnable
-  # source://minitest/5.23.1/lib/minitest/test.rb#191
+  # source://minitest/5.24.1/lib/minitest/test.rb#191
   def capture_exceptions; end
 
-  # source://minitest/5.23.1/lib/minitest/test.rb#15
+  # source://minitest/5.24.1/lib/minitest/test.rb#15
   def class_name; end
 
-  # source://minitest/5.23.1/lib/minitest/test.rb#208
+  # source://minitest/5.24.1/lib/minitest/test.rb#208
   def neuter_exception(e); end
 
-  # source://minitest/5.23.1/lib/minitest/test.rb#219
+  # source://minitest/5.24.1/lib/minitest/test.rb#219
   def new_exception(klass, msg, bt, kill = T.unsafe(nil)); end
 
-  # source://minitest/5.23.1/lib/minitest/test.rb#87
+  # source://minitest/5.24.1/lib/minitest/test.rb#87
   def run; end
 
-  # source://minitest/5.23.1/lib/minitest/test.rb#201
+  # source://minitest/5.24.1/lib/minitest/test.rb#201
   def sanitize_exception(e); end
 
-  # source://minitest/5.23.1/lib/minitest/test.rb#233
+  # source://minitest/5.24.1/lib/minitest/test.rb#233
   def with_info_handler(&block); end
 
   class << self
@@ -59,22 +59,22 @@ class Minitest::Test < ::Minitest::Runnable
     # source://minitest-focus//lib/minitest/focus.rb#40
     def focus(name = T.unsafe(nil)); end
 
-    # source://minitest/5.23.1/lib/minitest/test.rb#35
+    # source://minitest/5.24.1/lib/minitest/test.rb#35
     def i_suck_and_my_tests_are_order_dependent!; end
 
-    # source://minitest/5.23.1/lib/minitest/test.rb#26
+    # source://minitest/5.24.1/lib/minitest/test.rb#26
     def io_lock; end
 
-    # source://minitest/5.23.1/lib/minitest/test.rb#26
+    # source://minitest/5.24.1/lib/minitest/test.rb#26
     def io_lock=(_arg0); end
 
-    # source://minitest/5.23.1/lib/minitest/test.rb#48
+    # source://minitest/5.24.1/lib/minitest/test.rb#48
     def make_my_diffs_pretty!; end
 
-    # source://minitest/5.23.1/lib/minitest/test.rb#60
+    # source://minitest/5.24.1/lib/minitest/test.rb#60
     def parallelize_me!; end
 
-    # source://minitest/5.23.1/lib/minitest/test.rb#70
+    # source://minitest/5.24.1/lib/minitest/test.rb#70
     def runnable_methods; end
 
     # Sets a one-off method_added callback to set focus on the method
