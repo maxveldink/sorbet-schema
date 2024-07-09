@@ -1,4 +1,7 @@
 gem:
   exclude:
   - rdoc
+  - spoom
+  - tapioca
+  - rbi
   workers: 5
