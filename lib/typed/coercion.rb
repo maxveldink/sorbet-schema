@@ -11,11 +11,11 @@ module Typed
 
     sig { type_parameters(:U).params(type: T::Types::Base, value: Value).returns(Result[Value, CoercionError]) }
     def self.coerce(type:, value:)
-      coercer = CoercerRegistry.instance.select_coercer_by(type: type)
+      coercer = CoercerRegistry.instance.select_coercer_by(type:)
 
-      return Failure.new(CoercionNotSupportedError.new) unless coercer
+      return Failure.new(CoercionNotSupportedError.new(type:)) unless coercer
 
-      coercer.new.coerce(type: type, value: value)
+      coercer.new.coerce(type:, value:)
     end
   end
 end

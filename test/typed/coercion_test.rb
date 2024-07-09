@@ -24,6 +24,6 @@ class CoercionTest < Minitest::Test
     result = Typed::Coercion.coerce(type: T::Utils.coerce(BigDecimal), value: "testing")
 
     assert_failure(result)
-    assert_error(Typed::Coercion::CoercionNotSupportedError.new, result)
+    assert_error(Typed::Coercion::CoercionNotSupportedError.new(type: T::Utils.coerce(BigDecimal)), result)
   end
 end
