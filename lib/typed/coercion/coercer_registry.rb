@@ -19,6 +19,7 @@ module Typed
           IntegerCoercer,
           FloatCoercer,
           DateCoercer,
+          DateTimeCoercer,
           EnumCoercer,
           StructCoercer,
           TypedArrayCoercer,
