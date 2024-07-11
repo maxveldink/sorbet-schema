@@ -1,5 +1,7 @@
 # typed: true
 
+require "test_helper"
+
 class DateCoercerTest < Minitest::Test
   def setup
     @coercer = Typed::Coercion::DateCoercer.new
