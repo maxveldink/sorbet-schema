@@ -10,7 +10,7 @@ class SerializeValue
     elsif value.is_a?(Array)
       value.map { |item| serialize(item) }
     elsif value.is_a?(T::Struct)
-      value.serialize_to(:hash).payload_or(value)
+      value.serialize_to(:nested_hash).payload_or(value)
     elsif value.respond_to?(:serialize)
       value.serialize
     else
