@@ -6,6 +6,9 @@ module Typed
     Input = type_member { {fixed: InputHash} }
     Output = type_member { {fixed: Params} }
 
+    sig { returns(T::Boolean) }
+    attr_reader :should_serialize_values
+
     sig { params(schema: Schema, should_serialize_values: T::Boolean).void }
     def initialize(schema:, should_serialize_values: false)
       @should_serialize_values = should_serialize_values
@@ -24,10 +27,5 @@ module Typed
 
       Success.new(serialize_from_struct(struct:, should_serialize_values:))
     end
-
-    private
-
-    sig { returns(T::Boolean) }
-    attr_reader :should_serialize_values
   end
 end

@@ -41,7 +41,7 @@ class HashSerializerTest < Minitest::Test
     result = serializer.serialize(ALEX_PERSON)
 
     assert_success(result)
-    assert_payload({name: "Alex", age: 31, stone_rank: "pretty", job: {title: "Software Developer", salary:{cents:9000000, currency:"USD"}, needs_credential: false}}, result)
+    assert_payload({name: "Alex", age: 31, stone_rank: "pretty", job: {title: "Software Developer", salary: {cents: 9000000, currency: "USD"}, needs_credential: false}}, result)
   end
 
   def test_with_boolean_it_can_serialize

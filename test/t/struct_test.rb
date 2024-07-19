@@ -28,12 +28,18 @@ class StructTest < Minitest::Test
     assert_equal(expected_schema, Job.schema)
   end
 
-  def test_serializer_returns_nested_hash_serializer
-    assert_kind_of(Typed::HashSerializer, City.serializer(:nested_hash))
+  def test_serializer_returns_deeply_nested_hash_serializer
+    serializer = City.serializer(:deeply_nested_hash)
+
+    assert_kind_of(Typed::HashSerializer, serializer)
+    assert_equal(true, T.cast(serializer, Typed::HashSerializer).should_serialize_values)
   end
 
   def test_serializer_returns_hash_serializer
-    assert_kind_of(Typed::HashSerializer, City.serializer(:hash))
+    serializer = City.serializer(:hash)
+
+    assert_kind_of(Typed::HashSerializer, serializer)
+    assert_equal(false, T.cast(serializer, Typed::HashSerializer).should_serialize_values)
   end
 
   def test_serializer_returns_json_serializer
