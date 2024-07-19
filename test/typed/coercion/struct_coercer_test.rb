@@ -35,7 +35,7 @@ class StructCoercerTest < Minitest::Test
   end
 
   def test_when_struct_can_be_coerced_returns_success
-    result = @coercer.coerce(type: @type, value: {"title" => "Software Developer", :salary => 90_000_00})
+    result = @coercer.coerce(type: @type, value: {"title" => "Software Developer", :salary => Money.new(cents: 90_000_00)})
 
     assert_success(result)
     assert_payload(DEVELOPER_JOB, result)
@@ -59,7 +59,7 @@ class StructCoercerTest < Minitest::Test
     name = "Alex"
     age = 31
     stone_rank = "pretty"
-    salary = 90_000_00
+    salary = Money.new(cents: 90_000_00)
     title = "Software Developer"
     start_date = Date.new(2024, 3, 1)
 
@@ -80,7 +80,7 @@ class StructCoercerTest < Minitest::Test
     name = "Alex"
     age = 31
     stone_rank = "pretty"
-    salary = 90_000_00
+    salary = Money.new(cents: 90_000_00)
     title = "Software Developer"
 
     result = @coercer.coerce(type: @type_with_nested_struct, value: {name:, age:, stone_rank:, job: {title:, salary:}})

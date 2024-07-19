@@ -41,7 +41,7 @@ class HashSerializerTest < Minitest::Test
     result = serializer.serialize(ALEX_PERSON)
 
     assert_success(result)
-    assert_payload({name: "Alex", age: 31, stone_rank: "pretty", job: {title: "Software Developer", salary: 90_000_00, needs_credential: false}}, result)
+    assert_payload({name: "Alex", age: 31, stone_rank: "pretty", job: {title: "Software Developer", salary: {cents: 9000000, currency: "USD"}, needs_credential: false}}, result)
   end
 
   def test_with_boolean_it_can_serialize
@@ -76,7 +76,7 @@ class HashSerializerTest < Minitest::Test
     result = Typed::HashSerializer.new(schema: JOB_SCHEMA_WITH_INLINE_SERIALIZER, should_serialize_values: true).serialize(DEVELOPER_JOB_WITH_START_DATE)
 
     assert_success(result)
-    assert_payload({title: "Software Developer", salary: 90_000_00, start_date: "061 March"}, result)
+    assert_payload({title: "Software Developer", salary: {cents: 90_000_00, currency: "USD"}, start_date: "061 March"}, result)
   end
 
   def test_with_hash_field_with_string_keys_serializes
@@ -124,7 +124,7 @@ class HashSerializerTest < Minitest::Test
   end
 
   def test_it_can_deserialize_with_nested_object
-    result = @serializer.deserialize({name: "Alex", age: 31, stone_rank: "pretty", job: {title: "Software Developer", salary: 90_000_00}})
+    result = @serializer.deserialize({name: "Alex", age: 31, stone_rank: "pretty", job: {title: "Software Developer", salary: Money.new(cents: 90_000_00)}})
 
     assert_success(result)
     assert_payload(ALEX_PERSON, result)

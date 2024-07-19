@@ -20,7 +20,7 @@ class JSONSerializerTest < Minitest::Test
     result = @serializer.serialize(ALEX_PERSON)
 
     assert_success(result)
-    assert_payload('{"name":"Alex","age":31,"stone_rank":"pretty","job":{"title":"Software Developer","salary":9000000,"needs_credential":false}}', result)
+    assert_payload('{"name":"Alex","age":31,"stone_rank":"pretty","job":{"title":"Software Developer","salary":{"cents":9000000,"currency":"USD"},"needs_credential":false}}', result)
   end
 
   def test_with_boolean_it_can_serialize
@@ -41,7 +41,7 @@ class JSONSerializerTest < Minitest::Test
     result = Typed::JSONSerializer.new(schema: JOB_SCHEMA_WITH_INLINE_SERIALIZER).serialize(DEVELOPER_JOB_WITH_START_DATE)
 
     assert_success(result)
-    assert_payload('{"title":"Software Developer","salary":9000000,"start_date":"061 March"}', result)
+    assert_payload('{"title":"Software Developer","salary":{"cents":9000000,"currency":"USD"},"start_date":"061 March"}', result)
   end
 
   # Deserialize Tests
@@ -68,7 +68,7 @@ class JSONSerializerTest < Minitest::Test
   end
 
   def test_it_can_deserialize_with_nested_object
-    result = @serializer.deserialize('{"name":"Alex","age":31,"stone_rank":"pretty","job":{"title":"Software Developer","salary":9000000}}')
+    result = @serializer.deserialize('{"name":"Alex","age":31,"stone_rank":"pretty","job":{"title":"Software Developer","salary":{"cents":9000000,"currency":"USD"}}}')
 
     assert_success(result)
     assert_payload(ALEX_PERSON, result)

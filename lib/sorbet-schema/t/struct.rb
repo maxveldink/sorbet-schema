@@ -15,6 +15,8 @@ module T
       sig { params(type: Symbol).returns(Typed::Serializer[T.untyped, T.untyped]) }
       def serializer(type)
         case type
+        when :deeply_nested_hash
+          Typed::HashSerializer.new(schema:, should_serialize_values: true)
         when :hash
           Typed::HashSerializer.new(schema:)
         when :json
