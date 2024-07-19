@@ -32,14 +32,14 @@ class StructTest < Minitest::Test
     serializer = City.serializer(:deeply_nested_hash)
 
     assert_kind_of(Typed::HashSerializer, serializer)
-    assert_equal(true, T.cast(serializer, Typed::HashSerializer).should_serialize_values)
+    assert(T.cast(serializer, Typed::HashSerializer).should_serialize_values)
   end
 
   def test_serializer_returns_hash_serializer
     serializer = City.serializer(:hash)
 
     assert_kind_of(Typed::HashSerializer, serializer)
-    assert_equal(false, T.cast(serializer, Typed::HashSerializer).should_serialize_values)
+    refute(T.cast(serializer, Typed::HashSerializer).should_serialize_values)
   end
 
   def test_serializer_returns_json_serializer
