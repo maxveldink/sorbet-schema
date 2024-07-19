@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sorbet-schema (0.7.2)
+    sorbet-schema (0.8.0)
       sorbet-result (~> 1.1)
       sorbet-runtime (~> 0.5)
       sorbet-struct-comparable (~> 1.3)

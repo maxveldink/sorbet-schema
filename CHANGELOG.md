@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0](https://github.com/maxveldink/sorbet-schema/compare/v0.7.2...v0.8.0) (2024-07-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* Ensure that nested structs will deeply serialize ([#118](https://github.com/maxveldink/sorbet-schema/issues/118))
+
+### Bug Fixes
+
+* Ensure that nested structs will deeply serialize ([#118](https://github.com/maxveldink/sorbet-schema/issues/118)) ([9216d02](https://github.com/maxveldink/sorbet-schema/commit/9216d028fec806540ec6763ec941e1422eb30357))
+
 ## [0.7.2](https://github.com/maxveldink/sorbet-schema/compare/v0.7.1...v0.7.2) (2024-07-11)
 
 
