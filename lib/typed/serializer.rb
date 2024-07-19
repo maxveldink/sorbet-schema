@@ -34,6 +34,7 @@ module Typed
     def deserialize_from_creation_params(creation_params)
       results = schema.fields.map do |field|
         value = creation_params.fetch(field.name, nil)
+
         if value.nil? && !field.default.nil?
           Success.new(Validations::ValidatedValue.new(name: field.name, value: field.default))
         elsif value.nil? || field.works_with?(value)
@@ -47,6 +48,7 @@ module Typed
             next if sub_type.raw_type.equal?(NilClass)
 
             coercion_result = Coercion.coerce(type: sub_type, value: value)
+
             if coercion_result.success?
               validated_value = field.validate(coercion_result.payload)
 
