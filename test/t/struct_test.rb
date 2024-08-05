@@ -28,8 +28,8 @@ class StructTest < Minitest::Test
     assert_equal(expected_schema, Job.schema)
   end
 
-  def test_serializer_returns_deeply_nested_hash_serializer
-    serializer = City.serializer(:deeply_nested_hash)
+  def test_serializer_returns_hash_serializer_with_options
+    serializer = City.serializer(:hash, options: {should_serialize_values: true})
 
     assert_kind_of(Typed::HashSerializer, serializer)
     assert(T.cast(serializer, Typed::HashSerializer).should_serialize_values)
