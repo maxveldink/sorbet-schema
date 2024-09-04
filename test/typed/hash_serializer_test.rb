@@ -109,6 +109,20 @@ class HashSerializerTest < Minitest::Test
     assert_payload(NEW_YORK_CITY, result)
   end
 
+  def test_with_boolean_string_false_it_can_deserialize
+    result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(City)).deserialize({name: "New York", capital: "false"})
+
+    assert_success(result)
+    assert_payload(NEW_YORK_CITY, result)
+  end
+
+  def test_with_boolean_string_true_it_can_deserialize
+    result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(City)).deserialize({name: "DC", capital: "true"})
+
+    assert_success(result)
+    assert_payload(DC_CITY, result)
+  end
+
   def test_with_array_it_can_deserialize
     result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Country)).deserialize({name: "US", cities: [NEW_YORK_CITY, DC_CITY], national_items: {bird: "bald eagle", anthem: "The Star-Spangled Banner"}})
 

@@ -34,11 +34,19 @@ module Typed
     def deserialize_from_creation_params(creation_params)
       results = schema.fields.map do |field|
         value = creation_params.fetch(field.name, nil)
+        coercer = Coercion::CoercerRegistry.instance.select_coercer_by(type: field.type)
 
         if value.nil? && !field.default.nil?
           Success.new(Validations::ValidatedValue.new(name: field.name, value: field.default))
         elsif value.nil? || field.works_with?(value)
           field.validate(value)
+        elsif !coercer.nil?
+          result = coercer.new.coerce(type: field.type, value:)
+          if result.success?
+            field.validate(result.payload)
+          else
+            Failure.new(Validations::ValidationError.new(result.error.message))
+          end
         elsif field.type.class <= T::Types::Union
           errors = []
           validated_value = T.let(nil, T.nilable(Typed::Result[Typed::Validations::ValidatedValue, Typed::Validations::ValidationError]))
@@ -60,13 +68,7 @@ module Typed
 
           validated_value.nil? ? Failure.new(Validations::ValidationError.new(errors.map(&:message).join(", "))) : validated_value
         else
-          coercion_result = Coercion.coerce(type: field.type, value:)
-
-          if coercion_result.success?
-            field.validate(coercion_result.payload)
-          else
-            Failure.new(Validations::ValidationError.new(coercion_result.error.message))
-          end
+          Failure.new(Validations::ValidationError.new("Coercer not found for type #{field.type}."))
         end
       end
 
