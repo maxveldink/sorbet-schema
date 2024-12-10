@@ -38,6 +38,8 @@ module Typed
 
         if value.nil? && !field.default.nil?
           Success.new(Validations::ValidatedValue.new(name: field.name, value: field.default))
+        elsif !field.required && (value.nil? || value == "")
+          Success.new(Validations::ValidatedValue.new(name: field.name, value: nil))
         elsif value.nil? || field.works_with?(value)
           field.validate(value)
         elsif !coercer.nil?

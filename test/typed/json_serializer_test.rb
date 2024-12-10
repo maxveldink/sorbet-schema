@@ -74,6 +74,13 @@ class JSONSerializerTest < Minitest::Test
     assert_payload(DC_CITY, result)
   end
 
+  def test_with_empty_string_for_nilable_it_can_deserialize
+    result = Typed::JSONSerializer.new(schema: Typed::Schema.from_struct(Job)).deserialize('{"title":"Software Developer","salary":{"cents":9000000,"currency":"USD"},"start_date":""}')
+
+    assert_success(result)
+    assert_payload(DEVELOPER_JOB, result)
+  end
+
   def test_with_array_it_can_deep_deserialize
     result = Typed::JSONSerializer.new(schema: Typed::Schema.from_struct(Country)).deserialize('{"name":"US","cities":[{"name":"New York","capital":false},{"name":"DC","capital":true}],"national_items":{"bird":"bald eagle","anthem":"The Star-Spangled Banner"}}')
 
