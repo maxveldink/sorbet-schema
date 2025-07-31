@@ -10,7 +10,7 @@ class CoercionTest < Minitest::Test
   def test_new_coercers_can_be_registered
     Typed::Coercion.register_coercer(SimpleStringCoercer)
 
-    assert_equal(SimpleStringCoercer, Typed::Coercion::CoercerRegistry.instance.select_coercer_by(type: T::Utils.coerce(String)))
+    assert_instance_of(SimpleStringCoercer, Typed::Coercion::CoercerRegistry.instance.select_coercer_by(type: T::Utils.coerce(String)))
   end
 
   def test_when_coercer_is_matched_coerce_coerces

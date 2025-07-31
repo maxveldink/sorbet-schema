@@ -15,7 +15,7 @@ module Typed
 
       return Failure.new(CoercionNotSupportedError.new(type:)) unless coercer
 
-      coercer.new.coerce(type:, value:)
+      coercer.coerce(type:, value:)
     end
   end
 end
