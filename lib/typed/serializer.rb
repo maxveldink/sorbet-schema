@@ -80,8 +80,8 @@ module Typed
         .new(results:)
         .combine
         .and_then do |validated_params|
-        Success.new(schema.target.new(**validated_params))
-      end
+          Success.new(schema.target.new(**validated_params))
+        end
     end
 
     sig { params(struct: T::Struct, should_serialize_values: T::Boolean).returns(T::Hash[Symbol, T.untyped]) }
