@@ -31,7 +31,7 @@ module Typed
       sig { void }
       def initialize
         @available = T.let(DEFAULT_COERCERS.clone, Registry)
-        @coercer_cache = T.let({}, T::Hash[String, Coercer])
+        @coercer_cache = T.let({}, T::Hash[T::Types::Base, Coercer[T.untyped]])
       end
 
       sig { params(coercer: T.class_of(Coercer)).void }
@@ -47,15 +47,12 @@ module Typed
 
       sig { params(type: T::Types::Base).returns(T.nilable(Coercer)) }
       def select_coercer_by(type:)
-        cache_key = type.to_s
-        if @coercer_cache.key?(cache_key)
-          return @coercer_cache[cache_key]
-        end
+        return @coercer_cache[type] if @coercer_cache.key?(type)
 
         klass = @available.find { |coercer| coercer.new.used_for_type?(type) }
-        instance = klass&.new
-        @coercer_cache[cache_key] = instance if instance
-        instance
+        return unless klass
+
+        @coercer_cache[type] ||= klass.new
       end
     end
   end
