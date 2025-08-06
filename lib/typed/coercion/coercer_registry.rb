@@ -37,6 +37,7 @@ module Typed
       sig { params(coercer: T.class_of(Coercer)).void }
       def register(coercer)
         @available.prepend(coercer)
+        @coercer_cache.clear
       end
 
       sig { void }
@@ -45,7 +46,7 @@ module Typed
         @coercer_cache.clear
       end
 
-      sig { params(type: T::Types::Base).returns(T.nilable(Coercer)) }
+      sig { params(type: T::Types::Base).returns(T.nilable(Coercer[T.untyped])) }
       def select_coercer_by(type:)
         return @coercer_cache[type] if @coercer_cache.key?(type)
 

@@ -1,6 +1,6 @@
 # typed: true
-
 require "date"
+
 
 class CoercerRegistryTest < Minitest::Test
   def teardown
@@ -9,7 +9,6 @@ class CoercerRegistryTest < Minitest::Test
 
   def test_register_prepends_coercer_so_it_overrides_built_in_ones
     Typed::Coercion::CoercerRegistry.instance.register(SimpleStringCoercer)
-
     assert_instance_of(SimpleStringCoercer, Typed::Coercion::CoercerRegistry.instance.select_coercer_by(type: T::Utils.coerce(String)))
   end
 
