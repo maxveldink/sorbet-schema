@@ -8,7 +8,7 @@ module Typed
       Target = type_member { {fixed: T::Enum} }
 
       sig { override.params(type: T::Types::Base).returns(T::Boolean) }
-      def used_for_type?(type)
+      def self.used_for_type?(type)
         return false unless type.respond_to?(:raw_type)
 
         !!(T.cast(type, T::Types::Simple).raw_type < T::Enum)
@@ -16,7 +16,7 @@ module Typed
 
       sig { override.params(type: T::Types::Base, value: Value).returns(Result[Target, CoercionError]) }
       def coerce(type:, value:)
-        return Failure.new(CoercionError.new("Field type must inherit from T::Enum for Enum coercion.")) unless used_for_type?(type)
+        return Failure.new(CoercionError.new("Field type must inherit from T::Enum for Enum coercion.")) unless self.class.used_for_type?(type)
 
         Success.new(T.cast(type, T::Types::Simple).raw_type.from_serialized(value))
       rescue KeyError => e

@@ -8,13 +8,13 @@ module Typed
       Target = type_member { {fixed: T::Hash[T.untyped, T.untyped]} }
 
       sig { override.params(type: T::Types::Base).returns(T::Boolean) }
-      def used_for_type?(type)
+      def self.used_for_type?(type)
         type.is_a?(T::Types::TypedHash)
       end
 
       sig { override.params(type: T::Types::Base, value: Value).returns(Result[Target, CoercionError]) }
       def coerce(type:, value:)
-        return Failure.new(CoercionError.new("Field type must be a T::Hash.")) unless used_for_type?(type)
+        return Failure.new(CoercionError.new("Field type must be a T::Hash.")) unless self.class.used_for_type?(type)
         return Failure.new(CoercionError.new("Value must be a Hash.")) unless value.is_a?(Hash)
 
         return Success.new(value) if type.recursively_valid?(value)
