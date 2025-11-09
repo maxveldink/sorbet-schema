@@ -6,6 +6,7 @@ source "https://rubygems.org"
 gemspec
 
 group :development do
+  gem "benchmark-ips"
   gem "rake"
   gem "standard"
   gem "standard-performance"
