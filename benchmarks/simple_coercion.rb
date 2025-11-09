@@ -91,7 +91,7 @@ game_data = {
 
 # Run the benchmark
 Benchmark.ips do |x|
-  x.report("deserialization") do
+  x.report("simple hash deserialization") do
     game_schema.from_hash(game_data)
   end
 

@@ -15,9 +15,13 @@ module Typed
     sig { returns(Schema) }
     attr_reader :schema
 
+    sig { returns(T::Hash[T::Types::Base, T.untyped]) }
+    attr_reader :coercer_cache
+
     sig { params(schema: Schema).void }
     def initialize(schema:)
       @schema = schema
+      @coercer_cache = T.let({}, T::Hash[T::Types::Base, T.untyped])
     end
 
     sig { abstract.params(source: Input).returns(DeserializeResult) }
@@ -34,41 +38,43 @@ module Typed
     def deserialize_from_creation_params(creation_params)
       results = schema.fields.map do |field|
         value = creation_params.fetch(field.name, nil)
-        coercer = Coercion::CoercerRegistry.instance.select_coercer_by(type: field.type)
 
         if value.nil? && !field.default.nil?
           Success.new(Validations::ValidatedValue.new(name: field.name, value: field.default))
         elsif value.nil? || field.works_with?(value)
           field.validate(value)
-        elsif !coercer.nil?
-          result = coercer.new.coerce(type: field.type, value:)
-          if result.success?
-            field.validate(result.payload)
-          else
-            Failure.new(Validations::ValidationError.new(result.error.message))
-          end
-        elsif field.type.class <= T::Types::Union
-          errors = []
-          validated_value = T.let(nil, T.nilable(Typed::Result[Typed::Validations::ValidatedValue, Typed::Validations::ValidationError]))
-
-          T.cast(field.type, T::Types::Union).types.each do |sub_type|
-            # the if clause took care of cases where value is nil so we can skip NilClass
-            next if sub_type.raw_type.equal?(NilClass)
-
-            coercion_result = Coercion.coerce(type: sub_type, value: value)
-
-            if coercion_result.success?
-              validated_value = field.validate(coercion_result.payload)
-
-              break
-            else
-              errors << Validations::ValidationError.new(coercion_result.error.message)
-            end
-          end
-
-          validated_value.nil? ? Failure.new(Validations::ValidationError.new(errors.map(&:message).join(", "))) : validated_value
         else
-          Failure.new(Validations::ValidationError.new("Coercer not found for type #{field.type}."))
+          coercer_instance = fetch_coercer(field.type)
+          if !coercer_instance.nil?
+            result = coercer_instance.coerce(type: field.type, value:)
+            if result.success?
+              field.validate(result.payload)
+            else
+              Failure.new(Validations::ValidationError.new(result.error.message))
+            end
+          elsif field.type.class <= T::Types::Union
+            errors = []
+            validated_value = T.let(nil, T.nilable(Typed::Result[Typed::Validations::ValidatedValue, Typed::Validations::ValidationError]))
+
+            T.cast(field.type, T::Types::Union).types.each do |sub_type|
+              # the if clause took care of cases where value is nil so we can skip NilClass
+              next if sub_type.raw_type.equal?(NilClass)
+
+              coercion_result = Coercion.coerce(type: sub_type, value: value)
+
+              if coercion_result.success?
+                validated_value = field.validate(coercion_result.payload)
+
+                break
+              else
+                errors << Validations::ValidationError.new(coercion_result.error.message)
+              end
+            end
+
+            validated_value.nil? ? Failure.new(Validations::ValidationError.new(errors.map(&:message).join(", "))) : validated_value
+          else
+            Failure.new(Validations::ValidationError.new("Coercer not found for type #{field.type}."))
+          end
         end
       end
 
@@ -89,6 +95,17 @@ module Typed
       end
 
       hsh
+    end
+
+    sig { params(type: T::Types::Base).returns(T.untyped) }
+    def fetch_coercer(type)
+      cached = coercer_cache[type]
+      return cached if cached
+
+      coercer_class = Coercion::CoercerRegistry.instance.select_coercer_by(type: type)
+      return nil if coercer_class.nil?
+
+      coercer_cache[type] = coercer_class.new
     end
   end
 end
