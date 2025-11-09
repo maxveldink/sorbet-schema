@@ -26,6 +26,7 @@ GEM
     json (2.7.2)
     language_server-protocol (3.17.0.3)
     lint_roller (1.1.0)
+    logger (1.7.0)
     minitest (5.24.1)
     minitest-focus (1.4.0)
       minitest (>= 4, < 6)
@@ -39,15 +40,17 @@ GEM
     parser (3.3.3.0)
       ast (~> 2.4.1)
       racc
-    prism (0.30.0)
+    prism (1.6.0)
     psych (5.1.2)
       stringio
     racc (1.8.0)
     rainbow (3.1.1)
     rake (13.2.1)
-    rbi (0.1.13)
-      prism (>= 0.18.0, < 1.0.0)
-      sorbet-runtime (>= 0.5.9204)
+    rbi (0.3.7)
+      prism (~> 1.0)
+      rbs (>= 3.4.4)
+    rbs (3.9.5)
+      logger
     rdoc (6.7.0)
       psych (>= 4.0.0)
     regexp_parser (2.9.2)
@@ -108,11 +111,11 @@ GEM
       rubocop-sorbet (~> 0.7.0)
     stringio (3.1.1)
     strscan (3.1.0)
-    tapioca (0.15.0)
+    tapioca (0.16.6)
       bundler (>= 2.2.25)
       netrc (>= 0.11.0)
       parallel (>= 1.21.0)
-      rbi (>= 0.1.4, < 0.2)
+      rbi (~> 0.2)
       sorbet-static-and-runtime (>= 0.5.11087)
       spoom (>= 1.2.0)
       thor (>= 1.2.0)
@@ -145,7 +148,7 @@ DEPENDENCIES
   standard
   standard-performance
   standard-sorbet
-  tapioca
+  tapioca (~> 0.16.6)
 
 BUNDLED WITH
    2.7.2
