@@ -20,12 +20,12 @@ module Typed
 
     sig { params(hash: Typed::HashSerializer::InputHash).returns(Typed::Serializer::DeserializeResult) }
     def from_hash(hash)
-      Typed::HashSerializer.new(schema: self).deserialize(hash)
+      hash_serializer.deserialize(hash)
     end
 
     sig { params(json: String).returns(Typed::Serializer::DeserializeResult) }
     def from_json(json)
-      Typed::JSONSerializer.new(schema: self).deserialize(json)
+      json_serializer.deserialize(json)
     end
 
     sig { params(field_name: Symbol, serializer: Field::InlineSerializer).returns(Schema) }
@@ -40,6 +40,20 @@ module Typed
           end
         end
       )
+    end
+
+    private
+
+    sig { returns(Typed::HashSerializer) }
+    def hash_serializer
+      @hash_serializer = T.let(@hash_serializer, T.nilable(Typed::HashSerializer))
+      @hash_serializer ||= Typed::HashSerializer.new(schema: self)
+    end
+
+    sig { returns(Typed::JSONSerializer) }
+    def json_serializer
+      @json_serializer = T.let(@json_serializer, T.nilable(Typed::JSONSerializer))
+      @json_serializer ||= Typed::JSONSerializer.new(schema: self)
     end
   end
 end
