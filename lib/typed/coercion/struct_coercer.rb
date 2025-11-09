@@ -8,7 +8,7 @@ module Typed
       Target = type_member { {fixed: T::Struct} }
 
       sig { override.params(type: T::Types::Base).returns(T::Boolean) }
-      def used_for_type?(type)
+      def self.used_for_type?(type)
         return false unless type.respond_to?(:raw_type)
 
         !!(T.cast(type, T::Types::Simple).raw_type < T::Struct)
@@ -16,7 +16,7 @@ module Typed
 
       sig { override.params(type: T::Types::Base, value: Value).returns(Result[Target, CoercionError]) }
       def coerce(type:, value:)
-        return Failure.new(CoercionError.new("Field type must inherit from T::Struct for Struct coercion.")) unless used_for_type?(type)
+        return Failure.new(CoercionError.new("Field type must inherit from T::Struct for Struct coercion.")) unless self.class.used_for_type?(type)
         return Success.new(value) if type.recursively_valid?(value)
 
         return Failure.new(CoercionError.new("Value of type '#{value.class}' cannot be coerced to #{type} Struct.")) unless value.is_a?(Hash)

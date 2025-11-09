@@ -7,8 +7,8 @@ class StringCoercerTest < Minitest::Test
   end
 
   def test_used_for_type_works
-    assert(@coercer.used_for_type?(@type))
-    refute(@coercer.used_for_type?(T::Utils.coerce(Integer)))
+    assert(@coercer.class.used_for_type?(@type))
+    refute(@coercer.class.used_for_type?(T::Utils.coerce(Integer)))
   end
 
   def test_when_non_string_type_given_returns_failure

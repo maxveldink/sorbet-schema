@@ -6,7 +6,7 @@ class SimpleStringCoercer < Typed::Coercion::Coercer
   Target = type_member { {fixed: String} }
 
   sig { override.params(type: T::Types::Base).returns(T::Boolean) }
-  def used_for_type?(type)
+  def self.used_for_type?(type)
     type == T::Utils.coerce(String)
   end
 

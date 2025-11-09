@@ -8,13 +8,13 @@ module Typed
       Target = type_member { {fixed: String} }
 
       sig { override.params(type: T::Types::Base).returns(T::Boolean) }
-      def used_for_type?(type)
+      def self.used_for_type?(type)
         type == T::Utils.coerce(String)
       end
 
       sig { override.params(type: T::Types::Base, value: Value).returns(Result[Target, CoercionError]) }
       def coerce(type:, value:)
-        return Failure.new(CoercionError.new("Type must be a String.")) unless used_for_type?(type)
+        return Failure.new(CoercionError.new("Type must be a String.")) unless self.class.used_for_type?(type)
 
         Success.new(String(value))
       end

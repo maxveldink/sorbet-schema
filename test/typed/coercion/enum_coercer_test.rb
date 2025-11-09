@@ -6,9 +6,9 @@ class EnumCoercerTest < Minitest::Test
   end
 
   def test_used_for_type_works
-    assert(@coercer.used_for_type?(T::Utils.coerce(RubyRank)))
-    refute(@coercer.used_for_type?(T::Utils.coerce(T::Enum)))
-    refute(@coercer.used_for_type?(T::Utils.coerce(Integer)))
+    assert(@coercer.class.used_for_type?(T::Utils.coerce(RubyRank)))
+    refute(@coercer.class.used_for_type?(T::Utils.coerce(T::Enum)))
+    refute(@coercer.class.used_for_type?(T::Utils.coerce(Integer)))
   end
 
   def test_when_non_enum_field_given_returns_failure

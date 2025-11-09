@@ -45,7 +45,7 @@ module Typed
 
       sig { params(type: T::Types::Base).returns(T.nilable(T.class_of(Coercer))) }
       def select_coercer_by(type:)
-        @available.find { |coercer| coercer.new.used_for_type?(type) }
+        @available.find { |coercer| coercer.used_for_type?(type) }
       end
     end
   end

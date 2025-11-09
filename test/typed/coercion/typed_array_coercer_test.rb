@@ -7,10 +7,10 @@ class TypedArrayCoercerTest < Minitest::Test
   end
 
   def test_used_for_type_works
-    assert(@coercer.used_for_type?(T::Utils.coerce(T::Array[City])))
-    assert(@coercer.used_for_type?(T::Utils.coerce(T::Array[String])))
-    assert(@coercer.used_for_type?(T::Utils.coerce(Array)))
-    refute(@coercer.used_for_type?(T::Utils.coerce(Integer)))
+    assert(@coercer.class.used_for_type?(T::Utils.coerce(T::Array[City])))
+    assert(@coercer.class.used_for_type?(T::Utils.coerce(T::Array[String])))
+    assert(@coercer.class.used_for_type?(T::Utils.coerce(Array)))
+    refute(@coercer.class.used_for_type?(T::Utils.coerce(Integer)))
   end
 
   def test_when_non_array_field_given_returns_failure
