@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.3](https://github.com/maxveldink/sorbet-schema/compare/v0.9.2...v0.9.3) (2025-12-06)
+
+
+### Performance Improvements
+
+* add deserialization benchmark ([#135](https://github.com/maxveldink/sorbet-schema/issues/135)) ([21d23bb](https://github.com/maxveldink/sorbet-schema/commit/21d23bb51c40ee199cb79a54f06184bb15634909))
+* add serialization benchmarks, refactor to helpers ([#137](https://github.com/maxveldink/sorbet-schema/issues/137)) ([dc43409](https://github.com/maxveldink/sorbet-schema/commit/dc434094511f26ddc37f853295b2f07586826f00))
+* Implement caching for serializers and coercers to improve performance ([#136](https://github.com/maxveldink/sorbet-schema/issues/136)) ([d980292](https://github.com/maxveldink/sorbet-schema/commit/d980292b64630c9ee93f886b10b3b9334b694879))
+* Improve coercer performance by using class methods ([#134](https://github.com/maxveldink/sorbet-schema/issues/134)) ([0336299](https://github.com/maxveldink/sorbet-schema/commit/033629914c7ac0e19d21a725336ff7b9dbc8fc90))
+
 ## [0.9.2](https://github.com/maxveldink/sorbet-schema/compare/v0.9.1...v0.9.2) (2024-09-04)
 
 
