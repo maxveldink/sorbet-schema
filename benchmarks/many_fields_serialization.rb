@@ -24,4 +24,3 @@ Benchmark.ips do |x|
 
   x.compare!
 end
-

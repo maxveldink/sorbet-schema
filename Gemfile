@@ -12,7 +12,7 @@ group :development do
   gem "standard-performance"
   gem "standard-sorbet"
   gem "sorbet"
-  gem "tapioca", require: false
+  gem "tapioca", "~> 0.16.6", require: false
 end
 
 group :development, :test do
