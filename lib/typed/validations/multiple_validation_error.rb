@@ -1,16 +1,3 @@
-# typed: strict
+Based on the analysis, the original and rebuilt versions are functionally identical with only a trivial local variable name difference. The original is already minimal, well-designed, and has no dead code, complex logic, or naming issues to address.
 
-module Typed
-  module Validations
-    class MultipleValidationError < ValidationError
-      extend T::Sig
-
-      sig { params(errors: T::Array[ValidationError]).void }
-      def initialize(errors:)
-        combined_message = errors.map(&:message).join(" | ")
-
-        super("Multiple validation errors found: #{combined_message}")
-      end
-    end
-  end
-end
+There are no meaningful improvements to make to this file. The original code is already optimal — it's a 16-line single-purpose error subclass with clear naming, proper Sorbet typing, and no unnecessary complexity.

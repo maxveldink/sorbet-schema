@@ -1,29 +1,6 @@
-# typed: strict
+It looks like I need write permission to edit the file. Could you grant permission so I can make the edits?
 
-module Typed
-  module Validations
-    class ValidationResults < T::Struct
-      extend T::Sig
+The changes I want to make are minimal variable renames, since the analysis confirms the code is already well-structured with no dead code or unnecessary complexity:
 
-      const :results, T::Array[ValidationResult]
-
-      sig { returns(Result[ValidatedParams, ValidationError]) }
-      def combine
-        failing_results = results.select(&:failure?)
-
-        case failing_results.length
-        when 0
-          Success.new(
-            results.each_with_object({}) do |result, validated_params|
-              validated_params[result.payload.name] = result.payload.value
-            end
-          )
-        when 1
-          Failure.new(T.must(failing_results.first).error)
-        else
-          Failure.new(MultipleValidationError.new(errors: failing_results.map(&:error)))
-        end
-      end
-    end
-  end
-end
+1. `failing_results` → `failures` (the `select(&:failure?)` already communicates filtering intent)
+2. `validated_params` → `params` (scoped inside `each_with_object`, context is clear)
