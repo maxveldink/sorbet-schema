@@ -5,6 +5,7 @@ module Typed
     module FieldValidator
       extend T::Sig
       extend T::Helpers
+
       interface!
 
       sig { abstract.params(field: Field, value: Value).returns(ValidationResult) }

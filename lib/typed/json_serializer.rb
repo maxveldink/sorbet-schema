@@ -9,13 +9,8 @@ module Typed
 
     sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
     def deserialize(source)
-      parsed_json = JSON.parse(source)
-
-      creation_params = schema.fields.each_with_object(T.let({}, Params)) do |field, hsh|
-        hsh[field.name] = parsed_json[field.name.to_s]
-      end
-
-      deserialize_from_creation_params(creation_params)
+      parsed_json = JSON.parse(source, symbolize_names: true)
+      deserialize_from_creation_params(parsed_json)
     rescue JSON::ParserError
       Failure.new(ParseError.new(format: :json))
     end
@@ -24,7 +19,10 @@ module Typed
     def serialize(struct)
       return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
 
-      Success.new(JSON.generate(serialize_from_struct(struct:, should_serialize_values: true)))
+      hash_result = serialize_from_struct(struct:, should_serialize_values: true)
+      Success.new(JSON.generate(hash_result))
+    rescue JSON::GeneratorError
+      Failure.new(SerializeError.new("Failed to generate JSON from struct."))
     end
   end
 end
