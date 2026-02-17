@@ -19,6 +19,10 @@ module T
           Typed::YMLSerializer.new(schema:)
         when :msgpack
           Typed::MessagePackSerializer.new(schema:)
+        when :activerecord
+          raise ArgumentError, "activerecord gem is required for ActiveRecord serialization" unless defined?(ActiveRecord)
+
+          Typed::ActiveRecordSerializer.new(**T.unsafe({schema:, **options}))
         else
           raise ArgumentError, "unknown serializer for #{type}"
         end

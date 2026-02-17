@@ -24,4 +24,7 @@ group :development, :test do
   gem "debug"
 
   gem "sorbet-struct-comparable"
+
+  gem "activerecord", ">= 6.0"
+  gem "sqlite3"
 end

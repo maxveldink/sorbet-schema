@@ -21,4 +21,6 @@ module Kernel
   end
 end
 
+require_relative "support/activerecord/setup"
+
 Dir["test/support/**/*.rb"].each { |file| require file }
