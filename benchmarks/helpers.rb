@@ -236,4 +236,3 @@ module BenchmarkHelpers
     }
   end
 end
-
