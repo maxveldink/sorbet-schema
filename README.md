@@ -129,6 +129,40 @@ max = result.payload # == Person.new(name: "Max", age: 29)
 
 By default, the `HashSerializer` will _not_ serialize values when converting to a Hash. For instance, if a field is an `T::Enum` type, when it is serialized to a `Hash` the value will be the `Enum` and not the `String` representation. The `should_serialize_values` option can be passed during initialization to serialize the values when converting to the `Hash`.
 
+#### YMLSerializer
+
+Works just like the `JSONSerializer`, but with YAML strings:
+
+```ruby
+yml_serializer = Typed::YMLSerializer.new(schema: Person.schema)
+
+# Deserialize from target format
+result = yml_serializer.deserialize("---\nname: Max\nage: 29\n")
+max = result.payload # == Person.new(name: "Max", age: 29)
+
+# Serialize to target format
+result = yml_serializer.serialize(max)
+result.payload # == "---\nname: Max\nage: 29\n"
+```
+
+#### CSVSerializer
+
+Accepts and returns a CSV string representing a single record, with a header row followed by one data row:
+
+```ruby
+csv_serializer = Typed::CSVSerializer.new(schema: Person.schema)
+
+# Deserialize from target format
+result = csv_serializer.deserialize("name,age\nMax,29\n")
+max = result.payload # == Person.new(name: "Max", age: 29)
+
+# Serialize to target format
+result = csv_serializer.serialize(max)
+result.payload # == "name,age\nMax,29\n"
+```
+
+CSV is a flat, row-based format, so nested `T::Struct`s, `Hash`es, and `Array`s cannot be represented as their own columns. `CSVSerializer#serialize` will still succeed for these fields, but will use their Ruby `to_s` representation (e.g. `"{cents: 9000000, currency: \"USD\"}"`), which is not something `CSVSerializer#deserialize` can reconstruct back into the original shape. Prefer this serializer for schemas with scalar fields only.
+
 ### Customization
 
 From the get-go, Sorbet Schema is designed to be extensible to model more complex data validation requirements and many serialization formats. We try out best to include built-in, battle-tested coercers and serializers from real world use cases and would love to see/upstream any customizations that the community have found useful!

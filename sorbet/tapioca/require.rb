@@ -1,6 +1,7 @@
 # typed: true
 # frozen_string_literal: true
 
+require "csv"
 require "debug"
 require "json"
 require "minitest/autorun"
