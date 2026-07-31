@@ -13,6 +13,10 @@ module T
           Typed::HashSerializer.new(**T.unsafe({schema:, **options}))
         when :json
           Typed::JSONSerializer.new(schema:)
+        when :yml
+          Typed::YMLSerializer.new(schema:)
+        when :csv
+          Typed::CSVSerializer.new(schema:)
         else
           raise ArgumentError, "unknown serializer for #{type}"
         end

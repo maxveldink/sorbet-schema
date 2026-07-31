@@ -54,6 +54,8 @@ result = max.serialize_to(:json)
 result.payload # == '{"name":"Max","age":29}'
 ```
 
+`:hash`, `:json`, `:yml`, and `:csv` are all supported as the first argument to `deserialize_from`/`serialize_to` (and the equivalent `from_hash`/`from_json`/`from_yml`/`from_csv` methods on `Typed::Schema`), corresponding to the built-in serializers below.
+
 Notice that both `deserialize` and `serialize` return `Typed::Result`s (from the [sorbet-result gem](https://github.com/maxveldink/sorbet-result)) that need to be checked for success or failure before being used. Check out that gem's README for more information on how to interact with `Result`s.
 
 One benefit of using `Result`s is we can add much more details information about why a format is unsuccessfully deserialized or serialized, to provide call sites with more information for error handling, messaging and formatting.
