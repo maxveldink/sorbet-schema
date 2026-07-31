@@ -3,10 +3,8 @@
 require "csv"
 
 module Typed
-  # CSV is a flat, row-based format, so nested `T::Struct`s, `Hash`es, and `Array`s
-  # cannot be round-tripped. Those values are serialized with their Ruby `to_s`
-  # representation, but `deserialize` will not reconstruct them back into their
-  # original shape. Prefer this serializer for schemas with scalar fields only.
+  # Nested structs/hashes/arrays can't round-trip through CSV; see README's
+  # CSVSerializer section for the caveat.
   class CSVSerializer < Serializer
     Input = type_member { {fixed: String} }
     Output = type_member { {fixed: String} }
