@@ -1,5 +1,6 @@
 # typed: true
 
+require "csv"
 require "test_helper"
 
 class CSVSerializerTest < Minitest::Test
@@ -33,8 +34,17 @@ class CSVSerializerTest < Minitest::Test
   def test_will_use_inline_serializers
     result = Typed::CSVSerializer.new(schema: JOB_SCHEMA_WITH_INLINE_SERIALIZER).serialize(DEVELOPER_JOB_WITH_START_DATE)
 
+    # Hash#to_s's exact formatting (e.g. `key: value` vs `:key=>value`) differs across
+    # Ruby versions, so build the expected row from the same Hash rather than a literal
+    # string to keep this test passing on every Ruby version in the CI matrix.
+    salary_hash = {cents: 90_000_00, currency: "USD"}
+    expected = CSV.generate do |csv|
+      csv << ["title", "salary", "start_date"]
+      csv << ["Software Developer", salary_hash, "061 March"]
+    end
+
     assert_success(result)
-    assert_payload("title,salary,start_date\nSoftware Developer,\"{cents: 9000000, currency: \"\"USD\"\"}\",061 March\n", result)
+    assert_payload(expected, result)
   end
 
   # CSV is a flat, row-based format: nested structs, hashes, and arrays cannot be
@@ -45,8 +55,16 @@ class CSVSerializerTest < Minitest::Test
   def test_it_serializes_nested_structs_as_an_unstructured_string
     result = @serializer.serialize(ALEX_PERSON)
 
+    # See the note in test_will_use_inline_serializers: build the expected row from the
+    # same Hash rather than a literal string since Hash#to_s formatting is Ruby-version-specific.
+    job_hash = {title: "Software Developer", salary: {cents: 90_000_00, currency: "USD"}, needs_credential: false}
+    expected = CSV.generate do |csv|
+      csv << ["name", "age", "stone_rank", "job"]
+      csv << ["Alex", 31, "pretty", job_hash]
+    end
+
     assert_success(result)
-    assert_payload("name,age,stone_rank,job\nAlex,31,pretty,\"{title: \"\"Software Developer\"\", salary: {cents: 9000000, currency: \"\"USD\"\"}, needs_credential: false}\"\n", result)
+    assert_payload(expected, result)
   end
 
   def test_it_cannot_deserialize_a_previously_serialized_nested_struct
