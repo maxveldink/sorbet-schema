@@ -1,5 +1,6 @@
 # typed: strict
 
+require "date"
 require "yaml"
 
 module Typed
