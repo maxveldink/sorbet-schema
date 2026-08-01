@@ -185,6 +185,23 @@ result.payload # == MessagePack.pack({"name" => "Max", "age" => 29})
 
 Unlike `CSVSerializer`, MessagePack natively supports nested maps and arrays, so nested `T::Struct`s, `Hash`es, and `Array`s round-trip without any `inline_serializer` needed.
 
+#### ActiveRecordSerializer
+
+Requires the `activerecord` gem to be available (`Typed::ActiveRecordSerializer.new` raises an `ArgumentError` if it isn't). The `Typed::ActiveRecordSerializer` converts between `ActiveRecord::Base` model instances and `T::Struct`s, matching fields by attribute name and mapping associated records through the model's declared associations. It requires a `model_class` option, in addition to `schema`, so it knows which `ActiveRecord::Base` subclass to deserialize from and serialize to:
+
+```ruby
+ar_serializer = Typed::ActiveRecordSerializer.new(schema: Person.schema, model_class: PersonModel)
+
+# Deserialize from target format
+result = ar_serializer.deserialize(PersonModel.new(name: "Max", age: 29))
+max = result.payload # == Person.new(name: "Max", age: 29)
+
+result = ar_serializer.serialize(max)
+result.payload # == PersonModel instance with name: "Max", age: 29
+```
+
+When serializing, only fields that map to a column (or a `_id` column backed by a declared association) on `model_class` are assigned; the rest are ignored.
+
 ### Customization
 
 From the get-go, Sorbet Schema is designed to be extensible to model more complex data validation requirements and many serialization formats. We try out best to include built-in, battle-tested coercers and serializers from real world use cases and would love to see/upstream any customizations that the community have found useful!
