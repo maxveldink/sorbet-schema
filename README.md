@@ -54,6 +54,8 @@ result = max.serialize_to(:json)
 result.payload # == '{"name":"Max","age":29}'
 ```
 
+`:hash`, `:json`, and `:csv` are all supported as the first argument to `deserialize_from`/`serialize_to` (and the equivalent `from_hash`/`from_json`/`from_csv` methods on `Typed::Schema`), corresponding to the built-in serializers below.
+
 Notice that both `deserialize` and `serialize` return `Typed::Result`s (from the [sorbet-result gem](https://github.com/maxveldink/sorbet-result)) that need to be checked for success or failure before being used. Check out that gem's README for more information on how to interact with `Result`s.
 
 One benefit of using `Result`s is we can add much more details information about why a format is unsuccessfully deserialized or serialized, to provide call sites with more information for error handling, messaging and formatting.
@@ -128,6 +130,24 @@ max = result.payload # == Person.new(name: "Max", age: 29)
 ```
 
 By default, the `HashSerializer` will _not_ serialize values when converting to a Hash. For instance, if a field is an `T::Enum` type, when it is serialized to a `Hash` the value will be the `Enum` and not the `String` representation. The `should_serialize_values` option can be passed during initialization to serialize the values when converting to the `Hash`.
+
+#### CSVSerializer
+
+Accepts and returns a CSV string representing a single record, with a header row followed by one data row:
+
+```ruby
+csv_serializer = Typed::CSVSerializer.new(schema: Person.schema)
+
+# Deserialize from target format
+result = csv_serializer.deserialize("name,age\nMax,29\n")
+max = result.payload # == Person.new(name: "Max", age: 29)
+
+# Serialize to target format
+result = csv_serializer.serialize(max)
+result.payload # == "name,age\nMax,29\n"
+```
+
+CSV is a flat, row-based format, so nested `T::Struct`s, `Hash`es, and `Array`s cannot be represented as their own columns. Rather than writing a lossy representation into a cell that can never be parsed back correctly, `CSVSerializer#serialize` returns a `Typed::SerializeError` naming the offending field(s) when a struct has one. Prefer this serializer for schemas with scalar fields only, or use an `inline_serializer` (see [Inline Serializers](#inline-serializers)) to flatten a nested field into a scalar before serializing it to CSV.
 
 ### Customization
 
