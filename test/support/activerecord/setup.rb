@@ -5,7 +5,7 @@ require "active_record"
 require "active_record/database_configurations"
 
 test_dir = Pathname.new(File.dirname(__FILE__)).join("../..")
-yaml_config = YAML.safe_load(File.read(test_dir.join("support/activerecord/database.yml")), aliases: true)
+yaml_config = YAML.safe_load_file(test_dir.join("support/activerecord/database.yml"), aliases: true)
 config = ActiveRecord::DatabaseConfigurations::HashConfig.new("test", "sqlite3", yaml_config)
 ActiveRecord::Base.configurations.configurations << config
 ActiveRecord::Base.establish_connection(:test)
