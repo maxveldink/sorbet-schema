@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib", "rbi"]
 
   spec.add_runtime_dependency "csv", "~> 3.3"
+  spec.add_runtime_dependency "msgpack", "~> 1.7"
   spec.add_runtime_dependency "sorbet-result", "~> 1.1"
   spec.add_runtime_dependency "sorbet-runtime", "~> 0.5"
   spec.add_runtime_dependency "sorbet-struct-comparable", "~> 1.3"
