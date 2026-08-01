@@ -50,6 +50,10 @@ class StructTest < Minitest::Test
     assert_kind_of(Typed::CSVSerializer, City.serializer(:csv))
   end
 
+  def test_serializer_returns_yml_serializer
+    assert_kind_of(Typed::YMLSerializer, City.serializer(:yml))
+  end
+
   def test_serializer_raises_argument_error_when_unknown_serializer
     assert_raises(ArgumentError) { City.serializer(:banana) }
   end
@@ -75,10 +79,24 @@ class StructTest < Minitest::Test
     assert_payload(NEW_YORK_CITY, result)
   end
 
+  def test_deserialize_from_works_with_yml
+    result = City.deserialize_from(:yml, "name: New York\ncapital: false\n")
+
+    assert_success(result)
+    assert_payload(NEW_YORK_CITY, result)
+  end
+
   def test_serialize_to_works_with_csv
     result = NEW_YORK_CITY.serialize_to(:csv)
 
     assert_success(result)
     assert_payload("name,capital\nNew York,false\n", result)
+  end
+
+  def test_serialize_to_works_with_yml
+    result = NEW_YORK_CITY.serialize_to(:yml)
+
+    assert_success(result)
+    assert_payload("---\nname: New York\ncapital: false\n", result)
   end
 end

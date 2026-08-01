@@ -54,7 +54,7 @@ result = max.serialize_to(:json)
 result.payload # == '{"name":"Max","age":29}'
 ```
 
-`:hash`, `:json`, and `:csv` are all supported as the first argument to `deserialize_from`/`serialize_to` (and the equivalent `from_hash`/`from_json`/`from_csv` methods on `Typed::Schema`), corresponding to the built-in serializers below.
+`:hash`, `:json`, `:csv`, and `:yml` are all supported as the first argument to `deserialize_from`/`serialize_to` (and the equivalent `from_hash`/`from_json`/`from_csv`/`from_yml` methods on `Typed::Schema`), corresponding to the built-in serializers below.
 
 Notice that both `deserialize` and `serialize` return `Typed::Result`s (from the [sorbet-result gem](https://github.com/maxveldink/sorbet-result)) that need to be checked for success or failure before being used. Check out that gem's README for more information on how to interact with `Result`s.
 
@@ -148,6 +148,23 @@ result.payload # == "name,age\nMax,29\n"
 ```
 
 CSV is a flat, row-based format, so nested `T::Struct`s, `Hash`es, and `Array`s cannot be represented as their own columns. Rather than writing a lossy representation into a cell that can never be parsed back correctly, `CSVSerializer#serialize` returns a `Typed::SerializeError` naming the offending field(s) when a struct has one. Prefer this serializer for schemas with scalar fields only, or use an `inline_serializer` (see [Inline Serializers](#inline-serializers)) to flatten a nested field into a scalar before serializing it to CSV.
+
+#### YMLSerializer
+
+Works just like the `JSONSerializer`, but with YAML strings:
+
+```ruby
+yml_serializer = Typed::YMLSerializer.new(schema: Person.schema)
+
+# Deserialize from target format
+result = yml_serializer.deserialize("---\nname: Max\nage: 29\n")
+max = result.payload # == Person.new(name: "Max", age: 29)
+
+# Serialize to target format
+result = yml_serializer.serialize(max)
+result.payload # == "---\nname: Max\nage: 29\n"
+```
+
 
 ### Customization
 

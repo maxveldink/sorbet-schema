@@ -33,6 +33,11 @@ module Typed
       csv_serializer.deserialize(csv)
     end
 
+    sig { params(yml: String).returns(Typed::Serializer::DeserializeResult) }
+    def from_yml(yml)
+      yml_serializer.deserialize(yml)
+    end
+
     sig { params(field_name: Symbol, serializer: Field::InlineSerializer).returns(Schema) }
     def add_serializer(field_name, serializer)
       self.class.new(
@@ -65,6 +70,12 @@ module Typed
     def csv_serializer
       @csv_serializer = T.let(@csv_serializer, T.nilable(Typed::CSVSerializer))
       @csv_serializer ||= Typed::CSVSerializer.new(schema: self)
+    end
+
+    sig { returns(Typed::YMLSerializer) }
+    def yml_serializer
+      @yml_serializer = T.let(@yml_serializer, T.nilable(Typed::YMLSerializer))
+      @yml_serializer ||= Typed::YMLSerializer.new(schema: self)
     end
   end
 end

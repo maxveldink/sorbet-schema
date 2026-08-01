@@ -38,6 +38,13 @@ class SchemaTest < Minitest::Test
     assert_payload(MAX_PERSON, result)
   end
 
+  def test_from_yml_creates_struct
+    result = @schema.from_yml("name: Max\nage: 29\nstone_rank: shiny\n")
+
+    assert_success(result)
+    assert_payload(MAX_PERSON, result)
+  end
+
   def test_add_serializer_when_no_matching_field_returns_same_schema
     schema = @schema.add_serializer(:not_here, ->(value) { value + "a" })
 
