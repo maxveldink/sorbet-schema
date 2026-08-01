@@ -1,5 +1,7 @@
 # typed: true
 
+require "msgpack"
+
 class StructTest < Minitest::Test
   def test_schema_can_be_derived_from_struct
     expected_schema = Typed::Schema.new(
@@ -54,6 +56,10 @@ class StructTest < Minitest::Test
     assert_kind_of(Typed::YMLSerializer, City.serializer(:yml))
   end
 
+  def test_serializer_returns_msgpack_serializer
+    assert_kind_of(Typed::MessagePackSerializer, City.serializer(:msgpack))
+  end
+
   def test_serializer_raises_argument_error_when_unknown_serializer
     assert_raises(ArgumentError) { City.serializer(:banana) }
   end
@@ -98,5 +104,19 @@ class StructTest < Minitest::Test
 
     assert_success(result)
     assert_payload("---\nname: New York\ncapital: false\n", result)
+  end
+
+  def test_deserialize_from_works_with_msgpack
+    result = City.deserialize_from(:msgpack, MessagePack.pack({"name" => "New York", "capital" => false}))
+
+    assert_success(result)
+    assert_payload(NEW_YORK_CITY, result)
+  end
+
+  def test_serialize_to_works_with_msgpack
+    result = NEW_YORK_CITY.serialize_to(:msgpack)
+
+    assert_success(result)
+    assert_payload(MessagePack.pack({"name" => "New York", "capital" => false}), result)
   end
 end

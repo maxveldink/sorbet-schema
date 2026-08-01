@@ -1,5 +1,7 @@
 # typed: true
 
+require "msgpack"
+
 class SchemaTest < Minitest::Test
   def setup
     @schema = Typed::Schema.new(
@@ -40,6 +42,13 @@ class SchemaTest < Minitest::Test
 
   def test_from_yml_creates_struct
     result = @schema.from_yml("name: Max\nage: 29\nstone_rank: shiny\n")
+
+    assert_success(result)
+    assert_payload(MAX_PERSON, result)
+  end
+
+  def test_from_msgpack_creates_struct
+    result = @schema.from_msgpack(MessagePack.pack({"name" => "Max", "age" => 29, "stone_rank" => "shiny"}))
 
     assert_success(result)
     assert_payload(MAX_PERSON, result)
