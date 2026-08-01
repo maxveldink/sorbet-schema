@@ -10,8 +10,13 @@ config = ActiveRecord::DatabaseConfigurations::HashConfig.new("test", "sqlite3",
 ActiveRecord::Base.configurations.configurations << config
 ActiveRecord::Base.establish_connection(:test)
 ActiveRecord::Schema.define do
+  create_table :countries, force: :cascade do |t|
+    t.string :name
+  end
+
   create_table :locations, force: :cascade do |t|
     t.string :name
+    t.integer :country_id
   end
 
   create_table :users, force: :cascade do |t|

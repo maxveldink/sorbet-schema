@@ -1,11 +1,11 @@
 # typed: strict
 # frozen_string_literal: true
 
-require_relative "ar_country"
+require_relative "ar_location"
 
-class ARLocation < T::Struct
+class ARUserHome < T::Struct
   include ActsAsComparable
 
   const :name, String
-  const :country, T.nilable(ARCountry)
+  const :home, T.nilable(ARLocation)
 end

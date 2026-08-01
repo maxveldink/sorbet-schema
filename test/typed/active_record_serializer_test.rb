@@ -36,6 +36,21 @@ class ActiveRecordSerializerTest < Minitest::Test
     assert_payload(ARUser.new(name: "Max", age: 28, location: ARLocation.new(name: "Florida")), result)
   end
 
+  def test_deserialize_handles_arbitrary_depth_nested_struct_fields
+    country_model = CountryModel.new(name: "US")
+    location_model = LocationModel.new(name: "Florida", country: country_model)
+    user_model = UserModel.new(name: "Max", age: 28, location: location_model)
+    serializer = Typed::ActiveRecordSerializer.new(schema: ARUser.schema, model_class: UserModel)
+
+    result = serializer.deserialize(user_model)
+
+    assert_success(result)
+    assert_payload(
+      ARUser.new(name: "Max", age: 28, location: ARLocation.new(name: "Florida", country: ARCountry.new(name: "US"))),
+      result
+    )
+  end
+
   def test_deserialize_when_model_has_extra_columns_only_maps_struct_fields
     pet_model = ComplexPetModel.new(name: "Sadie", breed: "Brittany", age: 2, pedigree: true)
     serializer = Typed::ActiveRecordSerializer.new(schema: ARPet.schema, model_class: ComplexPetModel)
@@ -76,6 +91,7 @@ class ActiveRecordSerializerTest < Minitest::Test
     assert_success(result)
     model = result.payload
     assert_kind_of LocationModel, model
+    model = T.cast(model, T.untyped)
     assert_equal "Florida", model.name
   end
 
@@ -88,6 +104,7 @@ class ActiveRecordSerializerTest < Minitest::Test
     assert_success(result)
     model = result.payload
     assert_kind_of PostModel, model
+    model = T.cast(model, T.untyped)
     assert_equal "Testing 123", model.title
     assert_equal "draft", model.status
   end
@@ -101,6 +118,7 @@ class ActiveRecordSerializerTest < Minitest::Test
     assert_success(result)
     model = result.payload
     assert_kind_of UserModel, model
+    model = T.cast(model, T.untyped)
     assert_equal "Max", model.name
     assert_equal 28, model.age
     assert_kind_of LocationModel, model.location
@@ -116,7 +134,35 @@ class ActiveRecordSerializerTest < Minitest::Test
     assert_success(result)
     model = result.payload
     assert_kind_of SimplePetModel, model
+    model = T.cast(model, T.untyped)
     assert_equal "Brittany", model.breed
+    refute model.attributes.key?("name")
+  end
+
+  def test_serialize_fails_for_renamed_foreign_key_association
+    home_struct = ARUserHome.new(name: "Max", home: ARLocation.new(name: "Florida"))
+    serializer = Typed::ActiveRecordSerializer.new(schema: ARUserHome.schema, model_class: UserWithHomeModel)
+
+    result = serializer.serialize(home_struct)
+
+    assert_success(result)
+    model = result.payload
+    assert_kind_of UserWithHomeModel, model
+    model = T.cast(model, T.untyped)
+    assert_kind_of LocationModel, model.home
+    assert_equal "Florida", model.home.name
+  end
+
+  def test_serialize_does_not_raise_for_two_level_nested_struct
+    country_struct = ARCountry.new(name: "US")
+    location_struct = ARLocation.new(name: "Florida", country: country_struct)
+    user_struct = ARUser.new(name: "Max", age: 28, location: location_struct)
+    serializer = Typed::ActiveRecordSerializer.new(schema: ARUser.schema, model_class: UserModel)
+
+    result = serializer.serialize(user_struct)
+
+    assert_failure(result)
+    assert_kind_of Typed::SerializeError, result.error
   end
 
   def test_serialize_fails_for_wrong_struct_type
@@ -149,5 +195,35 @@ class ActiveRecordSerializerTest < Minitest::Test
     model = result.payload
     assert_kind_of LocationModel, model
     assert_equal "Florida", model.name
+  end
+
+  # Persisted record tests (eager loading)
+
+  def test_deserialize_persisted_records_supports_eager_loading_to_avoid_n_plus_one
+    ActiveRecord::Base.transaction do
+      location = LocationModel.create!(name: "Florida")
+      3.times { |i| UserModel.create!(name: "User #{i}", age: 20 + i, location:) }
+
+      serializer = Typed::ActiveRecordSerializer.new(schema: ARUser.schema, model_class: UserModel)
+
+      without_includes_query_count = count_queries { UserModel.all.each { |user| serializer.deserialize(user) } }
+      with_includes_query_count = count_queries { UserModel.includes(:location).load.each { |user| serializer.deserialize(user) } }
+
+      assert_equal 4, without_includes_query_count # 1 for users + 1 per-user location lookup (N+1)
+      assert_equal 2, with_includes_query_count # 1 for users + 1 batched location lookup
+
+      raise ActiveRecord::Rollback
+    end
+  end
+
+  private
+
+  def count_queries(&)
+    count = 0
+    callback = ->(*, payload) { count += 1 unless payload[:name] == "SCHEMA" }
+
+    ActiveSupport::Notifications.subscribed(callback, "sql.active_record", &)
+
+    count
   end
 end
