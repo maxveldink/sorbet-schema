@@ -15,6 +15,8 @@ module T
           Typed::JSONSerializer.new(schema:)
         when :csv
           Typed::CSVSerializer.new(schema:)
+        when :yml
+          Typed::YMLSerializer.new(schema:)
         else
           raise ArgumentError, "unknown serializer for #{type}"
         end

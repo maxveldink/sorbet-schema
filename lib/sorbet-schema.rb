@@ -13,7 +13,8 @@ loader.ignore(__FILE__)
 loader.ignore("#{__dir__}/sorbet-schema/**/*.rb")
 loader.inflector.inflect(
   "json_serializer" => "JSONSerializer",
-  "csv_serializer" => "CSVSerializer"
+  "csv_serializer" => "CSVSerializer",
+  "yml_serializer" => "YMLSerializer"
 )
 loader.setup
 
