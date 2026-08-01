@@ -163,7 +163,7 @@ result = csv_serializer.serialize(max)
 result.payload # == "name,age\nMax,29\n"
 ```
 
-CSV is a flat, row-based format, so nested `T::Struct`s, `Hash`es, and `Array`s cannot be represented as their own columns. `CSVSerializer#serialize` will still succeed for these fields, but will use their Ruby `to_s` representation (e.g. `"{cents: 9000000, currency: \"USD\"}"`), which is not something `CSVSerializer#deserialize` can reconstruct back into the original shape. Prefer this serializer for schemas with scalar fields only.
+CSV is a flat, row-based format, so nested `T::Struct`s, `Hash`es, and `Array`s cannot be represented as their own columns. Rather than writing a lossy representation into a cell that can never be parsed back correctly, `CSVSerializer#serialize` returns a `Typed::SerializeError` naming the offending field(s) when a struct has one. Prefer this serializer for schemas with scalar fields only, or use an `inline_serializer` (see [Inline Serializers](#inline-serializers)) to flatten a nested field into a scalar before serializing it to CSV.
 
 ### Customization
 

@@ -1,6 +1,5 @@
 # typed: true
 
-require "csv"
 require "test_helper"
 
 class CSVSerializerTest < Minitest::Test
@@ -31,65 +30,26 @@ class CSVSerializerTest < Minitest::Test
     assert_error(Typed::SerializeError.new("'Job' cannot be serialized to target type of 'Person'."), result)
   end
 
-  def test_will_use_inline_serializers
+  def test_it_fails_to_serialize_when_a_field_remains_nested_despite_other_inline_serializers
     result = Typed::CSVSerializer.new(schema: JOB_SCHEMA_WITH_INLINE_SERIALIZER).serialize(DEVELOPER_JOB_WITH_START_DATE)
 
-    # Hash#to_s's exact formatting (e.g. `key: value` vs `:key=>value`) differs across
-    # Ruby versions, so build the expected row from the same Hash rather than a literal
-    # string to keep this test passing on every Ruby version in the CI matrix.
-    salary_hash = {cents: 90_000_00, currency: "USD"}
-    expected = CSV.generate do |csv|
-      csv << ["title", "salary", "start_date"]
-      csv << ["Software Developer", salary_hash, "061 March"]
-    end
-
-    assert_success(result)
-    assert_payload(expected, result)
+    assert_failure(result)
+    assert_error(Typed::SerializeError.new("'Job' cannot be serialized to CSV because field(s) salary are not scalar values."), result)
   end
 
-  # CSV is a flat, row-based format: nested structs, hashes, and arrays cannot be
-  # represented as their own columns. They are serialized using their Ruby `to_s`
-  # representation instead, which is not reconstructable back into the original
-  # struct/hash/array shape. Prefer this serializer for schemas with scalar fields.
-
-  def test_it_serializes_nested_structs_as_an_unstructured_string
+  def test_it_fails_to_serialize_a_struct_with_a_nested_struct_field
     result = @serializer.serialize(ALEX_PERSON)
 
-    # See the note in test_will_use_inline_serializers: build the expected row from the
-    # same Hash rather than a literal string since Hash#to_s formatting is Ruby-version-specific.
-    job_hash = {title: "Software Developer", salary: {cents: 90_000_00, currency: "USD"}, needs_credential: false}
-    expected = CSV.generate do |csv|
-      csv << ["name", "age", "stone_rank", "job"]
-      csv << ["Alex", 31, "pretty", job_hash]
-    end
-
-    assert_success(result)
-    assert_payload(expected, result)
-  end
-
-  def test_it_cannot_deserialize_a_previously_serialized_nested_struct
-    serialized = @serializer.serialize(ALEX_PERSON)
-    result = @serializer.deserialize(serialized.payload)
-
     assert_failure(result)
-    assert_error(Typed::Validations::ValidationError.new("Value of type 'String' cannot be coerced to Job Struct."), result)
+    assert_error(Typed::SerializeError.new("'Person' cannot be serialized to CSV because field(s) job are not scalar values."), result)
   end
 
-  def test_it_cannot_deserialize_a_previously_serialized_array_field
+  def test_it_fails_to_serialize_a_struct_with_array_and_hash_fields
     country_serializer = Typed::CSVSerializer.new(schema: Typed::Schema.from_struct(Country))
-    serialized = country_serializer.serialize(US_COUNTRY)
-    result = country_serializer.deserialize(serialized.payload)
+    result = country_serializer.serialize(US_COUNTRY)
 
     assert_failure(result)
-    assert_error(
-      Typed::Validations::MultipleValidationError.new(
-        errors: [
-          Typed::Validations::ValidationError.new("Value must be an Array."),
-          Typed::Validations::ValidationError.new("Value must be a Hash.")
-        ]
-      ),
-      result
-    )
+    assert_error(Typed::SerializeError.new("'Country' cannot be serialized to CSV because field(s) cities, national_items are not scalar values."), result)
   end
 
   # Deserialize Tests

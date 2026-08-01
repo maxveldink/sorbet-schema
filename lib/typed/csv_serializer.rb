@@ -3,15 +3,21 @@
 require "csv"
 
 module Typed
-  # Nested structs/hashes/arrays can't round-trip through CSV; see README's
-  # CSVSerializer section for the caveat.
+  # CSV is a flat, row-based format, so nested structs/hashes/arrays cannot be
+  # represented as their own columns. `serialize` fails with a `SerializeError`
+  # naming the offending field(s) rather than writing a lossy representation
+  # that `deserialize` could never parse back; see README's CSVSerializer
+  # section for the caveat.
   class CSVSerializer < Serializer
     Input = type_member { {fixed: String} }
     Output = type_member { {fixed: String} }
 
     sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
     def deserialize(source)
-      row = T.unsafe(CSV).parse(source, headers: true).first
+      # CSV.parse's built-in Sorbet payload sig can't statically know `headers: true`
+      # forces a `CSV::Table` of `CSV::Row`s, so cast to the actual runtime type instead
+      # of using a blanket `T.unsafe`.
+      row = T.cast(CSV.parse(source, headers: true).first, T.nilable(CSV::Row))
       return Failure.new(ParseError.new(format: :csv)) if row.nil?
 
       creation_params = schema.fields.each_with_object(T.let({}, Params)) do |field, hsh|
@@ -28,6 +34,11 @@ module Typed
       return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
 
       hsh = serialize_from_struct(struct:, should_serialize_values: true)
+
+      non_scalar_fields = hsh.select { |_key, value| value.is_a?(Hash) || value.is_a?(Array) }.keys
+      unless non_scalar_fields.empty?
+        return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to CSV because field(s) #{non_scalar_fields.join(", ")} are not scalar values."))
+      end
 
       csv_string = CSV.generate do |csv|
         csv << hsh.keys.map(&:to_s)
