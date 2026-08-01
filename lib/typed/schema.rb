@@ -28,6 +28,11 @@ module Typed
       json_serializer.deserialize(json)
     end
 
+    sig { params(csv: String).returns(Typed::Serializer::DeserializeResult) }
+    def from_csv(csv)
+      csv_serializer.deserialize(csv)
+    end
+
     sig { params(field_name: Symbol, serializer: Field::InlineSerializer).returns(Schema) }
     def add_serializer(field_name, serializer)
       self.class.new(
@@ -54,6 +59,12 @@ module Typed
     def json_serializer
       @json_serializer = T.let(@json_serializer, T.nilable(Typed::JSONSerializer))
       @json_serializer ||= Typed::JSONSerializer.new(schema: self)
+    end
+
+    sig { returns(Typed::CSVSerializer) }
+    def csv_serializer
+      @csv_serializer = T.let(@csv_serializer, T.nilable(Typed::CSVSerializer))
+      @csv_serializer ||= Typed::CSVSerializer.new(schema: self)
     end
   end
 end

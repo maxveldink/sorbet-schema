@@ -31,6 +31,13 @@ class SchemaTest < Minitest::Test
     assert_payload(MAX_PERSON, result)
   end
 
+  def test_from_csv_creates_struct
+    result = @schema.from_csv("name,age,stone_rank\nMax,29,shiny\n")
+
+    assert_success(result)
+    assert_payload(MAX_PERSON, result)
+  end
+
   def test_add_serializer_when_no_matching_field_returns_same_schema
     schema = @schema.add_serializer(:not_here, ->(value) { value + "a" })
 
