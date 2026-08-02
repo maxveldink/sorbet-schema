@@ -1,7 +1,5 @@
 # typed: strict
 
-require "csv"
-
 module Typed
   # CSV is a flat, row-based format, so nested structs/hashes/arrays cannot be
   # represented as their own columns. `serialize` fails with a `SerializeError`
@@ -11,6 +9,14 @@ module Typed
   class CSVSerializer < Serializer
     Input = type_member { {fixed: String} }
     Output = type_member { {fixed: String} }
+
+    sig { params(schema: Schema).void }
+    def initialize(schema:)
+      require "csv"
+      super
+    rescue LoadError
+      raise ArgumentError, "csv gem is required for CSV serialization - add it to your Gemfile"
+    end
 
     sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
     def deserialize(source)

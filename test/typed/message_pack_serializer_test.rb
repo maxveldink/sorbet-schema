@@ -140,6 +140,13 @@ class MessagePackSerializerTest < Minitest::Test
     assert_error(Typed::Validations::RequiredFieldError.new(field_name: :age), result)
   end
 
+  def test_it_raises_a_clear_error_when_msgpack_gem_is_unavailable
+    with_gem_unavailable("msgpack", :MessagePack) do
+      error = assert_raises(ArgumentError) { Typed::MessagePackSerializer.new(schema: Typed::Schema.from_struct(Person)) }
+      assert_equal("msgpack gem is required for MessagePack serialization - add it to your Gemfile", error.message)
+    end
+  end
+
   def test_it_reports_multiple_validation_errors_on_deserialize
     result = @serializer.deserialize(MessagePack.pack({}))
 
