@@ -51,6 +51,21 @@ class ActiveRecordSerializerTest < Minitest::Test
     )
   end
 
+  def test_deserialize_recurses_through_nilable_nested_struct_fields
+    country_model = CountryModel.new(name: "US")
+    location_model = LocationModel.new(name: "Florida", country: country_model)
+    user_with_home_model = UserWithHomeModel.new(name: "Max", home: location_model)
+    serializer = Typed::ActiveRecordSerializer.new(schema: ARUserHome.schema, model_class: UserWithHomeModel)
+
+    result = serializer.deserialize(user_with_home_model)
+
+    assert_success(result)
+    assert_payload(
+      ARUserHome.new(name: "Max", home: ARLocation.new(name: "Florida", country: ARCountry.new(name: "US"))),
+      result
+    )
+  end
+
   def test_deserialize_when_model_has_extra_columns_only_maps_struct_fields
     pet_model = ComplexPetModel.new(name: "Sadie", breed: "Brittany", age: 2, pedigree: true)
     serializer = Typed::ActiveRecordSerializer.new(schema: ARPet.schema, model_class: ComplexPetModel)
