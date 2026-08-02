@@ -64,6 +64,20 @@ class StructTest < Minitest::Test
     assert_raises(ArgumentError) { City.serializer(:banana) }
   end
 
+  def test_serializer_raises_clear_error_when_csv_gem_unavailable
+    with_gem_unavailable("csv", :CSV) do
+      error = assert_raises(ArgumentError) { City.serializer(:csv) }
+      assert_equal("csv gem is required for CSV serialization - add it to your Gemfile", error.message)
+    end
+  end
+
+  def test_serializer_raises_clear_error_when_msgpack_gem_unavailable
+    with_gem_unavailable("msgpack", :MessagePack) do
+      error = assert_raises(ArgumentError) { City.serializer(:msgpack) }
+      assert_equal("msgpack gem is required for MessagePack serialization - add it to your Gemfile", error.message)
+    end
+  end
+
   def test_deserialize_from_works
     result = City.deserialize_from(:hash, {name: "New York", capital: false})
 

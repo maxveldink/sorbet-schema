@@ -1,7 +1,5 @@
 # typed: strict
 
-require "msgpack"
-
 module Typed
   class MessagePackSerializer < Serializer
     # MessagePack packs to a binary (`ASCII-8BIT`) encoded string, not text,
@@ -9,6 +7,14 @@ module Typed
     # on the other serializers.
     Input = type_member { {fixed: String} }
     Output = type_member { {fixed: String} }
+
+    sig { params(schema: Schema).void }
+    def initialize(schema:)
+      require "msgpack"
+      super
+    rescue LoadError
+      raise ArgumentError, "msgpack gem is required for MessagePack serialization - add it to your Gemfile"
+    end
 
     sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
     def deserialize(source)

@@ -14,10 +14,14 @@ module T
         when :json
           Typed::JSONSerializer.new(schema:)
         when :csv
+          raise ArgumentError, "csv gem is required for CSV serialization - add it to your Gemfile" unless defined?(CSV)
+
           Typed::CSVSerializer.new(schema:)
         when :yml
           Typed::YMLSerializer.new(schema:)
         when :msgpack
+          raise ArgumentError, "msgpack gem is required for MessagePack serialization - add it to your Gemfile" unless defined?(MessagePack)
+
           Typed::MessagePackSerializer.new(schema:)
         else
           raise ArgumentError, "unknown serializer for #{type}"
