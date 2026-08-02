@@ -54,7 +54,7 @@ result = max.serialize_to(:json)
 result.payload # == '{"name":"Max","age":29}'
 ```
 
-`:hash`, `:json`, `:csv`, and `:yml` are all supported as the first argument to `deserialize_from`/`serialize_to` (and the equivalent `from_hash`/`from_json`/`from_csv`/`from_yml` methods on `Typed::Schema`), corresponding to the built-in serializers below.
+`:hash`, `:json`, `:csv`, `:yml`, and `:msgpack` are all supported as the first argument to `deserialize_from`/`serialize_to` (and the equivalent `from_hash`/`from_json`/`from_csv`/`from_yml`/`from_msgpack` methods on `Typed::Schema`), corresponding to the built-in serializers below.
 
 Notice that both `deserialize` and `serialize` return `Typed::Result`s (from the [sorbet-result gem](https://github.com/maxveldink/sorbet-result)) that need to be checked for success or failure before being used. Check out that gem's README for more information on how to interact with `Result`s.
 
@@ -165,6 +165,23 @@ result = yml_serializer.serialize(max)
 result.payload # == "---\nname: Max\nage: 29\n"
 ```
 
+#### MessagePackSerializer
+
+Works just like the `JSONSerializer`, but with [MessagePack](https://msgpack.org/) binary-encoded strings, using the [`msgpack`](https://github.com/msgpack/msgpack-ruby) gem:
+
+```ruby
+message_pack_serializer = Typed::MessagePackSerializer.new(schema: Person.schema)
+
+# Deserialize from target format
+result = message_pack_serializer.deserialize(MessagePack.pack({"name" => "Max", "age" => 29}))
+max = result.payload # == Person.new(name: "Max", age: 29)
+
+# Serialize to target format
+result = message_pack_serializer.serialize(max)
+result.payload # == MessagePack.pack({"name" => "Max", "age" => 29})
+```
+
+Unlike `CSVSerializer`, MessagePack natively supports nested maps and arrays, so nested `T::Struct`s, `Hash`es, and `Array`s round-trip without any `inline_serializer` needed.
 
 ### Customization
 

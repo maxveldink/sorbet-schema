@@ -17,6 +17,8 @@ module T
           Typed::CSVSerializer.new(schema:)
         when :yml
           Typed::YMLSerializer.new(schema:)
+        when :msgpack
+          Typed::MessagePackSerializer.new(schema:)
         else
           raise ArgumentError, "unknown serializer for #{type}"
         end

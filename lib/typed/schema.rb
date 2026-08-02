@@ -38,6 +38,11 @@ module Typed
       yml_serializer.deserialize(yml)
     end
 
+    sig { params(msgpack: String).returns(Typed::Serializer::DeserializeResult) }
+    def from_msgpack(msgpack)
+      message_pack_serializer.deserialize(msgpack)
+    end
+
     sig { params(field_name: Symbol, serializer: Field::InlineSerializer).returns(Schema) }
     def add_serializer(field_name, serializer)
       self.class.new(
@@ -76,6 +81,12 @@ module Typed
     def yml_serializer
       @yml_serializer = T.let(@yml_serializer, T.nilable(Typed::YMLSerializer))
       @yml_serializer ||= Typed::YMLSerializer.new(schema: self)
+    end
+
+    sig { returns(Typed::MessagePackSerializer) }
+    def message_pack_serializer
+      @message_pack_serializer = T.let(@message_pack_serializer, T.nilable(Typed::MessagePackSerializer))
+      @message_pack_serializer ||= Typed::MessagePackSerializer.new(schema: self)
     end
   end
 end
