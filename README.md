@@ -185,6 +185,34 @@ result.payload # == MessagePack.pack({"name" => "Max", "age" => 29})
 
 Unlike `CSVSerializer`, MessagePack natively supports nested maps and arrays, so nested `T::Struct`s, `Hash`es, and `Array`s round-trip without any `inline_serializer` needed.
 
+#### ActiveRecordSerializer
+
+Requires the `activerecord` gem to be available. This is only checked when going through `.serializer(:activerecord)`, which raises an `ArgumentError` if the gem isn't loaded; calling `Typed::ActiveRecordSerializer.new` directly without ActiveRecord loaded instead raises a `NameError`, since the class itself references the `ActiveRecord` constant. The `Typed::ActiveRecordSerializer` converts between `ActiveRecord::Base` model instances and `T::Struct`s, matching fields by attribute name and mapping associated records through the model's declared associations. It requires a `model_class` option, in addition to `schema`, so it knows which `ActiveRecord::Base` subclass to deserialize from and serialize to:
+
+```ruby
+ar_serializer = Typed::ActiveRecordSerializer.new(schema: Person.schema, model_class: PersonModel)
+
+# Deserialize from target format
+result = ar_serializer.deserialize(PersonModel.new(name: "Max", age: 29))
+max = result.payload # == Person.new(name: "Max", age: 29)
+
+result = ar_serializer.serialize(max)
+result.payload # == PersonModel instance with name: "Max", age: 29
+```
+
+When serializing, only fields that map to a column (or to an association's declared foreign key) on `model_class` are assigned; the rest are ignored.
+
+Nested `belongs_to` associations are deserialized recursively to arbitrary depth, so a `T::Struct` field whose type is itself a `T::Struct` backed by a `belongs_to` association will have its own nested associations resolved too.
+
+Deserializing reads through the model's association readers, so it is subject to the same N+1 query behavior as any other Rails association access. Preloading with `includes` works transparently and is the recommended way to avoid a query per record per association when deserializing a collection:
+
+```ruby
+# 1 query for people + 1 query for locations, instead of 1 + N
+PersonModel.includes(:location).find_each do |person_model|
+  ar_serializer.deserialize(person_model)
+end
+```
+
 ### Customization
 
 From the get-go, Sorbet Schema is designed to be extensible to model more complex data validation requirements and many serialization formats. We try out best to include built-in, battle-tested coercers and serializers from real world use cases and would love to see/upstream any customizations that the community have found useful!

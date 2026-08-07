@@ -8,3 +8,4 @@
 *.gem
 .DS_Store
 .idea/*
+test.db
