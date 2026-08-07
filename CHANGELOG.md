@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0](https://github.com/maxveldink/sorbet-schema/compare/v0.9.3...v0.10.0) (2026-08-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* bump local Ruby to 3.4, add to matrix ([#138](https://github.com/maxveldink/sorbet-schema/issues/138))
+
+### Features
+
+* add Typed::CSVSerializer ([#12](https://github.com/maxveldink/sorbet-schema/issues/12)) ([#144](https://github.com/maxveldink/sorbet-schema/issues/144)) ([b2377f0](https://github.com/maxveldink/sorbet-schema/commit/b2377f083782c0eb39ab442b14cb4bf18a2a8922))
+* add Typed::MessagePackSerializer ([#145](https://github.com/maxveldink/sorbet-schema/issues/145)) ([d367da8](https://github.com/maxveldink/sorbet-schema/commit/d367da83b2d9e72f5099b70594243178c3df432c))
+* add Typed::YMLSerializer ([#13](https://github.com/maxveldink/sorbet-schema/issues/13)) ([#143](https://github.com/maxveldink/sorbet-schema/issues/143)) ([bcc7eb8](https://github.com/maxveldink/sorbet-schema/commit/bcc7eb810f32b46d454df3a0c19468b0de09f498))
+* **typed:** add ActiveRecord serializer ([#140](https://github.com/maxveldink/sorbet-schema/issues/140)) ([a815f9f](https://github.com/maxveldink/sorbet-schema/commit/a815f9f42cb36c26ead45630384eb6b5022cd43d))
+
+
+### Bug Fixes
+
+* **typed:** make csv and msgpack gem dependencies optional ([#146](https://github.com/maxveldink/sorbet-schema/issues/146)) ([db22258](https://github.com/maxveldink/sorbet-schema/commit/db222586207129fc46d981a8efd28413aea99c7b))
+
+
+### Miscellaneous Chores
+
+* bump local Ruby to 3.4, add to matrix ([#138](https://github.com/maxveldink/sorbet-schema/issues/138)) ([1cf6a5b](https://github.com/maxveldink/sorbet-schema/commit/1cf6a5bdb77137ee34aa5c1bca66dd1ede37f875))
+
 ## [0.9.3](https://github.com/maxveldink/sorbet-schema/compare/v0.9.2...v0.9.3) (2025-12-06)
 
 
