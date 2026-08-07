@@ -65,4 +65,11 @@ class SchemaTest < Minitest::Test
 
     refute_equal(@schema, schema)
   end
+
+  # Guards against a regression where `const :target, T::Class[StructT]`
+  # (rather than `T.all(T::Class[StructT], T.class_of(T::Struct))`) erases to
+  # `T::Class[T.untyped]` at runtime and silently accepts a non-struct class.
+  def test_target_rejects_non_struct_class_at_runtime
+    assert_raises(TypeError) { Typed::Schema.new(target: T.unsafe(Integer), fields: []) }
+  end
 end

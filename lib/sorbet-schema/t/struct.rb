@@ -8,7 +8,10 @@ module T
       end
 
       def serializer(type, options: {})
-        case type
+        # The RBI shim now promises `Typed::Serializer[T.untyped, T.untyped,
+        # T.attached_class]`, which this `case` can no longer satisfy on its
+        # own (each branch returns a differently-parameterized serializer).
+        T.unsafe(case type
         when :hash
           Typed::HashSerializer.new(**T.unsafe({schema:, **options}))
         when :json
@@ -25,7 +28,7 @@ module T
           Typed::ActiveRecordSerializer.new(**T.unsafe({schema:, **options}))
         else
           raise ArgumentError, "unknown serializer for #{type}"
-        end
+        end)
       end
 
       def deserialize_from(serializer_type, source, options: {})
