@@ -9,32 +9,33 @@ module Typed
 
     Input = type_member
     Output = type_member
+    StructT = type_member { {upper: T::Struct} }
     Params = T.type_alias { T::Hash[Symbol, T.untyped] }
     DeserializeResult = T.type_alias { Result[T::Struct, DeserializeError] }
 
-    sig { returns(Schema) }
+    sig { returns(Schema[StructT]) }
     attr_reader :schema
 
     sig { returns(T::Hash[T::Types::Base, T.untyped]) }
     attr_reader :coercer_cache
 
-    sig { params(schema: Schema).void }
+    sig { params(schema: Schema[StructT]).void }
     def initialize(schema:)
       @schema = schema
       @coercer_cache = T.let({}, T::Hash[T::Types::Base, T.untyped])
     end
 
-    sig { abstract.params(source: Input).returns(DeserializeResult) }
+    sig { abstract.params(source: Input).returns(Result[StructT, DeserializeError]) }
     def deserialize(source)
     end
 
-    sig { abstract.params(struct: T::Struct).returns(Result[Output, SerializeError]) }
+    sig { abstract.params(struct: StructT).returns(Result[Output, SerializeError]) }
     def serialize(struct)
     end
 
     private
 
-    sig { params(creation_params: Params).returns(DeserializeResult) }
+    sig { params(creation_params: Params).returns(Result[StructT, DeserializeError]) }
     def deserialize_from_creation_params(creation_params)
       results = schema.fields.map do |field|
         value = creation_params.fetch(field.name, nil)
@@ -86,7 +87,7 @@ module Typed
         end
     end
 
-    sig { params(struct: T::Struct, should_serialize_values: T::Boolean).returns(T::Hash[Symbol, T.untyped]) }
+    sig { params(struct: StructT, should_serialize_values: T::Boolean).returns(T::Hash[Symbol, T.untyped]) }
     def serialize_from_struct(struct:, should_serialize_values: false)
       hsh = schema.fields.each_with_object({}) { |field, hsh| hsh[field.name] = field.serialize(struct.send(field.name)) }.compact
 

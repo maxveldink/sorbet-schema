@@ -270,8 +270,12 @@ The serializer can be used when creating a `Schema` and defining its `fields`, o
 ```ruby
 my_date_serializer = ->(date) { date.strftime("%Y/%m") }
 
-# use directly on a Schema
-Typed::Schema.new(
+# use directly on a Schema - `Typed::Schema` is generic over its target struct,
+# so prefer `from_struct`, which infers the type argument, over `Schema.new`
+Typed::Schema.from_struct(SchemaWithDateField).add_serializer(:date, my_date_serializer)
+
+# or, if you need custom `fields` up front, specify the type argument explicitly
+Typed::Schema[SchemaWithDateField].new(
   target: SchemaWithDateField,
   fields: [
     Typed::Field.new(name: :date, type: Date, serializer: my_date_serializer)
@@ -292,8 +296,9 @@ require "json"
 class JSONSerializer < Serializer
   Input = type_member { {fixed: String} }
   Output = type_member { {fixed: String} }
+  StructT = type_member { {upper: T::Struct} }
 
-  sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
+  sig { override.params(source: Input).returns(Result[StructT, DeserializeError]) }
   def deserialize(source)
     parsed_json = JSON.parse(source)
 
@@ -306,7 +311,7 @@ class JSONSerializer < Serializer
     Failure.new(ParseError.new(format: :json))
   end
 
-  sig { override.params(struct: T::Struct).returns(Result[Output, SerializeError]) }
+  sig { override.params(struct: StructT).returns(Result[Output, SerializeError]) }
   def serialize(struct)
     return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
 
@@ -315,7 +320,7 @@ class JSONSerializer < Serializer
 end
 ```
 
-Since `Serializer` is a generic class, we need to define our `Input` and `Output` types. For JSON, deserialization and serialization both use JSON strings, so these are both strings.
+Since `Serializer` is a generic class, we need to define our `Input`, `Output`, and `StructT` types. For JSON, deserialization and serialization both use JSON strings, so `Input`/`Output` are both `String`. `StructT` is the struct type the serializer round-trips to/from - it must always be re-declared as `type_member { {upper: T::Struct} }` in the subclass (Sorbet requires each generic type member to be re-declared down the inheritance chain), and using it in `deserialize`/`serialize` (instead of `T::Struct`) is what lets every deserialize path narrow to the concrete struct type instead of widening to `T::Struct`.
 
 Next, the `deserialize` and `serialize` methods must be implemented. Notice that both of these return `Result`s.
 

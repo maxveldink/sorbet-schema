@@ -7,8 +7,9 @@ module Typed
     # on the other serializers.
     Input = type_member { {fixed: String} }
     Output = type_member { {fixed: String} }
+    StructT = type_member { {upper: T::Struct} }
 
-    sig { params(schema: Schema).void }
+    sig { params(schema: Schema[StructT]).void }
     def initialize(schema:)
       require "msgpack"
       super
@@ -16,7 +17,7 @@ module Typed
       raise ArgumentError, "msgpack gem is required for MessagePack serialization - add it to your Gemfile"
     end
 
-    sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
+    sig { override.params(source: Input).returns(Result[StructT, DeserializeError]) }
     def deserialize(source)
       parsed_msgpack = MessagePack.unpack(source)
       return Failure.new(ParseError.new(format: :msgpack)) unless parsed_msgpack.is_a?(Hash)
@@ -30,7 +31,7 @@ module Typed
       Failure.new(ParseError.new(format: :msgpack))
     end
 
-    sig { override.params(struct: T::Struct).returns(Result[Output, SerializeError]) }
+    sig { override.params(struct: StructT).returns(Result[Output, SerializeError]) }
     def serialize(struct)
       return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
 

@@ -2,11 +2,11 @@
 
 class T::Struct
   class << self
-    sig { overridable.returns(Typed::Schema) }
+    sig { overridable.returns(Typed::Schema[T.attached_class]) }
     def schema
     end
 
-    sig { params(type: Symbol, options: T::Hash[Symbol, T.untyped]).returns(Typed::Serializer[T.untyped, T.untyped]) }
+    sig { params(type: Symbol, options: T::Hash[Symbol, T.untyped]).returns(Typed::Serializer[T.untyped, T.untyped, T.attached_class]) }
     def serializer(type, options: {})
     end
 

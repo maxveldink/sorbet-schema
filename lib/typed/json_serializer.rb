@@ -6,8 +6,9 @@ module Typed
   class JSONSerializer < Serializer
     Input = type_member { {fixed: String} }
     Output = type_member { {fixed: String} }
+    StructT = type_member { {upper: T::Struct} }
 
-    sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
+    sig { override.params(source: Input).returns(Result[StructT, DeserializeError]) }
     def deserialize(source)
       parsed_json = JSON.parse(source)
 
@@ -20,7 +21,7 @@ module Typed
       Failure.new(ParseError.new(format: :json))
     end
 
-    sig { override.params(struct: T::Struct).returns(Result[Output, SerializeError]) }
+    sig { override.params(struct: StructT).returns(Result[Output, SerializeError]) }
     def serialize(struct)
       return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
 
