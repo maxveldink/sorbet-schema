@@ -49,7 +49,7 @@ module Typed
         target: target,
         fields: fields.map do |field|
           if field.name == field_name
-            Field.new(name: field.name, type: field.type, default: field.default, inline_serializer: serializer)
+            Field.new(name: field.name, type: field.type, optional: field.optional?, default: field.default, inline_serializer: serializer)
           else
             field
           end

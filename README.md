@@ -274,7 +274,7 @@ my_date_serializer = ->(date) { date.strftime("%Y/%m") }
 Typed::Schema.new(
   target: SchemaWithDateField,
   fields: [
-    Typed::Field.new(name: :date, type: Date, serializer: my_date_serializer)
+    Typed::Field.new(name: :date, type: Date, inline_serializer: my_date_serializer)
   ]
 )
 

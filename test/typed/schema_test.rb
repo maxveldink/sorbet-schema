@@ -65,4 +65,13 @@ class SchemaTest < Minitest::Test
 
     refute_equal(@schema, schema)
   end
+
+  def test_add_serializer_on_optional_field_keeps_field_optional
+    schema = @schema.add_serializer(:job, ->(value) { value })
+
+    result = schema.from_hash({name: "Max", age: 29, stone_rank: RubyRank::Luminary})
+
+    assert_success(result)
+    assert_payload(MAX_PERSON, result)
+  end
 end

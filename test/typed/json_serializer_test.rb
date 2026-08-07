@@ -95,6 +95,27 @@ class JSONSerializerTest < Minitest::Test
     assert_error(Typed::ParseError.new(format: :json), result)
   end
 
+  def test_it_reports_a_parse_error_when_json_is_an_array
+    result = @serializer.deserialize('[{"name":"Max"}]')
+
+    assert_failure(result)
+    assert_error(Typed::ParseError.new(format: :json), result)
+  end
+
+  def test_it_reports_a_parse_error_when_json_is_a_scalar
+    result = @serializer.deserialize("29")
+
+    assert_failure(result)
+    assert_error(Typed::ParseError.new(format: :json), result)
+  end
+
+  def test_it_reports_a_parse_error_when_json_is_null
+    result = @serializer.deserialize("null")
+
+    assert_failure(result)
+    assert_error(Typed::ParseError.new(format: :json), result)
+  end
+
   def test_it_reports_validation_errors_on_deserialize
     result = @serializer.deserialize('{"name": "Max", "stone_rank": "shiny"}')
 

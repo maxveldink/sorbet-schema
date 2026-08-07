@@ -1,5 +1,17 @@
 # typed: strict
 
+# Tapioca's RBI generation requires every gem source file to introspect it, even for
+# consumers who never touch ActiveRecord. This file's type signatures reference
+# `ActiveRecord::Base` by name, so without this placeholder that reflection raises
+# `NameError` when the `activerecord` gem isn't installed. If the real gem loads
+# later, it reopens this the same as any other class reopening, so this is a no-op
+# for actual ActiveRecord usage.
+unless defined?(ActiveRecord::Base)
+  module ActiveRecord
+    class Base; end
+  end
+end
+
 module Typed
   class ActiveRecordSerializer < Serializer
     Input = type_member { {fixed: T.untyped} }
