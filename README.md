@@ -296,6 +296,7 @@ class JSONSerializer < Serializer
   sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
   def deserialize(source)
     parsed_json = JSON.parse(source)
+    return Failure.new(ParseError.new(format: :json)) unless parsed_json.is_a?(Hash)
 
     creation_params = schema.fields.each_with_object(T.let({}, Params)) do |field, hsh|
       hsh[field.name] = parsed_json[field.name.to_s]
