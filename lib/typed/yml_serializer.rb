@@ -14,7 +14,7 @@ module Typed
       return Failure.new(ParseError.new(format: :yml)) unless parsed_yaml.is_a?(Hash)
 
       creation_params = schema.fields.each_with_object(T.let({}, Params)) do |field, hsh|
-        hsh[field.name] = parsed_yaml[field.name]
+        hsh[field.serialized_name] = parsed_yaml[field.serialized_name]
       end
 
       deserialize_from_creation_params(creation_params)

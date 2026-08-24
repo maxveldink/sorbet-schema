@@ -37,7 +37,7 @@ module Typed
     sig { params(creation_params: Params).returns(DeserializeResult) }
     def deserialize_from_creation_params(creation_params)
       results = schema.fields.map do |field|
-        value = creation_params.fetch(field.name, nil)
+        value = creation_params.fetch(field.serialized_name, nil)
 
         if value.nil? && !field.default.nil?
           Success.new(Validations::ValidatedValue.new(name: field.name, value: field.default))
@@ -88,7 +88,7 @@ module Typed
 
     sig { params(struct: T::Struct, should_serialize_values: T::Boolean).returns(T::Hash[Symbol, T.untyped]) }
     def serialize_from_struct(struct:, should_serialize_values: false)
-      hsh = schema.fields.each_with_object({}) { |field, hsh| hsh[field.name] = field.serialize(struct.send(field.name)) }.compact
+      hsh = schema.fields.each_with_object({}) { |field, hsh| hsh[field.serialized_name] = field.serialize(struct.send(field.name)) }.compact
 
       if should_serialize_values
         hsh = HashTransformer.serialize_values(hsh)

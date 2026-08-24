@@ -12,7 +12,7 @@ module Typed
       parsed_json = JSON.parse(source)
 
       creation_params = schema.fields.each_with_object(T.let({}, Params)) do |field, hsh|
-        hsh[field.name] = parsed_json[field.name.to_s]
+        hsh[field.serialized_name] = parsed_json[field.serialized_name.to_s]
       end
 
       deserialize_from_creation_params(creation_params)

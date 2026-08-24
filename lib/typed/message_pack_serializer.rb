@@ -22,7 +22,7 @@ module Typed
       return Failure.new(ParseError.new(format: :msgpack)) unless parsed_msgpack.is_a?(Hash)
 
       creation_params = schema.fields.each_with_object(T.let({}, Params)) do |field, hsh|
-        hsh[field.name] = parsed_msgpack[field.name.to_s]
+        hsh[field.serialized_name] = parsed_msgpack[field.serialized_name.to_s]
       end
 
       deserialize_from_creation_params(creation_params)
