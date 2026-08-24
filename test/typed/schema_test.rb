@@ -19,6 +19,13 @@ class SchemaTest < Minitest::Test
     assert_equal(@schema, Typed::Schema.from_struct(Person))
   end
 
+  def test_from_struct_takes_serialized_name_from_prop_name_option
+    schema = Typed::Schema.from_struct(WebhookPayload)
+
+    assert_equal([:event_id, :email_address, :retries], schema.fields.map(&:name))
+    assert_equal([:eventId, :emailAddress, :retries], schema.fields.map(&:serialized_name))
+  end
+
   def test_from_hash_create_struct
     result = @schema.from_hash({name: "Max", age: 29, stone_rank: RubyRank::Luminary})
 
