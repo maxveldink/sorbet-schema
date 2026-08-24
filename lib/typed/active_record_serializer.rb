@@ -31,7 +31,7 @@ module Typed
       creation_params = schema.fields.each_with_object(T.let({}, Params)) do |field, hsh|
         if source.respond_to?(field.name)
           value = source.send(field.name)
-          hsh[field.name] = coerce_ar_value(field:, value:)
+          hsh[field.serialized_name] = coerce_ar_value(field:, value:)
         end
       end
 

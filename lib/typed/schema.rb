@@ -13,7 +13,12 @@ module Typed
       Typed::Schema.new(
         target: struct,
         fields: struct.props.map do |name, properties|
-          Typed::Field.new(name:, type: properties[:type_object], default: properties.fetch(:default, nil))
+          Typed::Field.new(
+            name:,
+            type: properties[:type_object],
+            default: properties.fetch(:default, nil),
+            serialized_name: properties[:serialized_form]&.to_sym
+          )
         end
       )
     end
@@ -49,7 +54,7 @@ module Typed
         target: target,
         fields: fields.map do |field|
           if field.name == field_name
-            Field.new(name: field.name, type: field.type, default: field.default, inline_serializer: serializer)
+            Field.new(name: field.name, type: field.type, default: field.default, inline_serializer: serializer, serialized_name: field.serialized_name)
           else
             field
           end

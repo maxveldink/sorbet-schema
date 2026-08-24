@@ -9,6 +9,12 @@ module Typed
     sig { returns(Symbol) }
     attr_reader :name
 
+    # Key this field is read from and written to in serialized form. Defaults to
+    # `name`; `Schema.from_struct` fills it from the prop's `name:` option, so a
+    # struct can mirror an external payload without adopting its key casing.
+    sig { returns(Symbol) }
+    attr_reader :serialized_name
+
     sig { returns(T::Types::Base) }
     attr_reader :type
 
@@ -27,11 +33,13 @@ module Typed
         type: T.any(T::Class[T.anything], T::Types::Base),
         optional: T::Boolean,
         default: T.untyped,
-        inline_serializer: T.nilable(InlineSerializer)
+        inline_serializer: T.nilable(InlineSerializer),
+        serialized_name: T.nilable(Symbol)
       ).void
     end
-    def initialize(name:, type:, optional: false, default: nil, inline_serializer: nil)
+    def initialize(name:, type:, optional: false, default: nil, inline_serializer: nil, serialized_name: nil)
       @name = name
+      @serialized_name = T.let(serialized_name || name, Symbol)
       # TODO: Guarentee type signature of the serializer will be valid
       @inline_serializer = inline_serializer
 
@@ -60,6 +68,7 @@ module Typed
     sig { params(other: Field).returns(T.nilable(T::Boolean)) }
     def ==(other)
       name == other.name &&
+        serialized_name == other.serialized_name &&
         type == other.type &&
         required == other.required &&
         default == other.default &&
