@@ -97,6 +97,11 @@ module Typed
       hsh
     end
 
+    sig { params(params: Params).returns(T::Array[Symbol]) }
+    def non_scalar_field_names(params)
+      params.select { |_key, value| value.is_a?(Hash) || value.is_a?(Array) }.keys
+    end
+
     sig { params(type: T::Types::Base).returns(T.untyped) }
     def fetch_coercer(type)
       cached = coercer_cache[type]

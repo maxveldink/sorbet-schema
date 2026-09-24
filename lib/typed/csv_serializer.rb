@@ -41,7 +41,7 @@ module Typed
 
       hsh = serialize_from_struct(struct:, should_serialize_values: true)
 
-      non_scalar_fields = hsh.select { |_key, value| value.is_a?(Hash) || value.is_a?(Array) }.keys
+      non_scalar_fields = non_scalar_field_names(hsh)
       unless non_scalar_fields.empty?
         return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to CSV because field(s) #{non_scalar_fields.join(", ")} are not scalar values."))
       end

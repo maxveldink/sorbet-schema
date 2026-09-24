@@ -26,21 +26,7 @@ module Typed
     def serialize(struct)
       return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
 
-      Success.new(YAML.dump(stringify_keys(serialize_from_struct(struct:, should_serialize_values: true))))
-    end
-
-    private
-
-    sig { params(value: T.untyped).returns(T.untyped) }
-    def stringify_keys(value)
-      case value
-      when Hash
-        value.each_with_object({}) { |(key, val), hsh| hsh[key.to_s] = stringify_keys(val) }
-      when Array
-        value.map { |item| stringify_keys(item) }
-      else
-        value
-      end
+      Success.new(YAML.dump(HashTransformer.stringify_keys(serialize_from_struct(struct:, should_serialize_values: true))))
     end
   end
 end
