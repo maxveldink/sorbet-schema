@@ -160,6 +160,10 @@ module Typed
           return Failure.new(DeserializeError.new("Item at index #{index} must be a mapping."))
         end
 
+        unless value.keys.all? { |key| key.is_a?(String) || key.is_a?(Symbol) }
+          return Failure.new(DeserializeError.new("Item at index #{index} must have only string or symbol keys."))
+        end
+
         result = @item_serializer.deserialize(value)
         return indexed_deserialize_error(index, result.error) if result.failure?
 

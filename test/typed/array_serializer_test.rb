@@ -135,6 +135,21 @@ class ArraySerializerTest < Minitest::Test
     assert_error(Typed::DeserializeError.new("Item at index 1 must be a mapping."), result)
   end
 
+  def test_reports_non_string_mapping_keys_with_their_index
+    sources = {
+      hash: [{1 => "Max", age: 29, stone_rank: "shiny"}],
+      yml: "---\n- 1: Max\n  age: 29\n  stone_rank: shiny\n",
+      msgpack: MessagePack.pack([{1 => "Max", "age" => 29, "stone_rank" => "shiny"}])
+    }
+
+    sources.each do |format, source|
+      result = array_serializer(format).deserialize(source)
+
+      assert_failure(result)
+      assert_error(Typed::DeserializeError.new("Item at index 0 must have only string or symbol keys."), result)
+    end
+  end
+
   def test_reports_wrong_element_types_with_their_index
     result = array_serializer(:json).serialize([MAX_PERSON, DEVELOPER_JOB])
 

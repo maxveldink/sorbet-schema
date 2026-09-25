@@ -115,7 +115,7 @@ These are the currently available serializers. For more information about implem
 
 #### ArraySerializer
 
-`Typed::ArraySerializer` is the explicit API for a document whose root is an array of one schema's structs. It accepts the schema and document format up front, and its `Result` payload is always an array. Supported formats are `:hash`, `:json`, `:yml` (also `:yaml`), `:msgpack`, and `:csv`; ActiveRecord is intentionally not a collection format.
+`Typed::ArraySerializer` is the explicit API for a document whose root is an array of one schema's structs. It accepts the schema and document format up front. Deserialization `Result` payloads are always arrays; serialization payloads are an array for `:hash` and a format-specific `String` for `:json`, `:yml` (also `:yaml`), `:msgpack`, and `:csv`. Supported formats are `:hash`, `:json`, `:yml` (also `:yaml`), `:msgpack`, and `:csv`; ActiveRecord is intentionally not a collection format.
 
 ```ruby
 people = Typed::ArraySerializer.new(schema: Person.schema, format: :json)
