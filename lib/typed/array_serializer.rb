@@ -113,7 +113,7 @@ module Typed
       return root_error unless source.is_a?(String)
 
       validate_array_root(YAML.safe_load(source, permitted_classes: [Date, Time]))
-    rescue Psych::SyntaxError, Psych::DisallowedClass
+    rescue Psych::SyntaxError, Psych::DisallowedClass, Psych::BadAlias
       Failure.new(ParseError.new(format:))
     end
 

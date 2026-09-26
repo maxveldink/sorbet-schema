@@ -53,6 +53,15 @@ class ArraySerializerTest < Minitest::Test
     assert_equal(:yml, serializer.format)
   end
 
+  def test_rejects_yml_aliases_with_a_parse_error
+    [:yml, :yaml].each do |format|
+      result = array_serializer(format).deserialize("---\n- &person {name: Max}\n- *person\n")
+
+      assert_failure(result)
+      assert_error(Typed::ParseError.new(format: :yml), result)
+    end
+  end
+
   def test_msgpack_serializes_and_deserializes_root_arrays
     serializer = array_serializer(:msgpack)
 
