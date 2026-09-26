@@ -109,6 +109,15 @@ class ArraySerializerTest < Minitest::Test
     assert_payload([], result)
   end
 
+  def test_rejects_nonblank_csv_without_schema_headers
+    ["name,stone_rank,job\n", "Max,29,shiny\n"].each do |source|
+      result = array_serializer(:csv).deserialize(source)
+
+      assert_failure(result)
+      assert_error(Typed::ParseError.new(format: :csv), result)
+    end
+  end
+
   def test_rejects_mapping_and_scalar_document_roots
     serializer = array_serializer(:json)
 
@@ -146,8 +155,17 @@ class ArraySerializerTest < Minitest::Test
       result = array_serializer(format).deserialize(source)
 
       assert_failure(result)
-      assert_error(Typed::DeserializeError.new("Item at index 0 must have only string or symbol keys."), result)
+      assert_error(Typed::DeserializeError.new("Item at index 0 could not be deserialized: Hash keys must be strings or symbols."), result)
     end
+  end
+
+  def test_reports_nested_non_string_mapping_keys_with_their_index
+    result = Typed::ArraySerializer.new(schema: Country.schema, format: :hash).deserialize([
+      {name: "US", cities: [{1 => "New York", capital: false}], national_items: {}}
+    ])
+
+    assert_failure(result)
+    assert_instance_of(Typed::DeserializeError, result.error)
   end
 
   def test_reports_wrong_element_types_with_their_index

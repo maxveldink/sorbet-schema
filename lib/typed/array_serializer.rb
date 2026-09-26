@@ -133,6 +133,7 @@ module Typed
 
       parsed = CSV.parse(source, headers: true)
       return Failure.new(ParseError.new(format:)) unless parsed.is_a?(CSV::Table)
+      return Failure.new(ParseError.new(format:)) unless parsed.headers.tally == schema.fields.map { |field| field.name.to_s }.tally
 
       validate_array_root(parsed.map(&:to_h))
     rescue CSV::MalformedCSVError
@@ -158,10 +159,6 @@ module Typed
       values.each_with_index do |value, index|
         unless value.is_a?(Hash)
           return Failure.new(DeserializeError.new("Item at index #{index} must be a mapping."))
-        end
-
-        unless value.keys.all? { |key| key.is_a?(String) || key.is_a?(Symbol) }
-          return Failure.new(DeserializeError.new("Item at index #{index} must have only string or symbol keys."))
         end
 
         result = @item_serializer.deserialize(value)
