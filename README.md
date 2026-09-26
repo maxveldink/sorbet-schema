@@ -111,7 +111,7 @@ end
 
 These are the currently available serializers. For more information about implementing a custom one (or contributing one back!), see [Custom Coercers](#custom-coercers).
 
-`HashSerializer`, `JSONSerializer`, and `YMLSerializer` work out of the box with no extra dependencies. `CSVSerializer` and `MessagePackSerializer` require you to add the `csv` and `msgpack` gems, respectively, to your own Gemfile - they are not pulled in as runtime dependencies of `sorbet-schema` itself. Referencing `:csv`/`:msgpack` via `serializer`/`deserialize_from`/`serialize_to` without the gem installed raises a clear `ArgumentError` telling you which gem to add.
+`HashSerializer`, `JSONSerializer`, and `YMLSerializer` work out of the box with no extra dependencies. `CSVSerializer` and `ArraySerializer` with `format: :csv` require the `csv` gem; `MessagePackSerializer` and `ArraySerializer` with `format: :msgpack` require the `msgpack` gem. These gems are not runtime dependencies of `sorbet-schema`; add the one you use to your own Gemfile. Referencing `:csv`/`:msgpack` via `serializer`/`deserialize_from`/`serialize_to`, or constructing an `ArraySerializer` with either format, without the gem installed raises a clear `ArgumentError` telling you which gem to add.
 
 #### ArraySerializer
 
