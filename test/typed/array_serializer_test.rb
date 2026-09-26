@@ -47,19 +47,19 @@ class ArraySerializerTest < Minitest::Test
     assert_payload([MAX_PERSON, ALEX_PERSON], deserialized)
   end
 
-  def test_yaml_format_alias_is_supported
-    serializer = array_serializer(:yaml)
+  def test_rejects_yml_aliases_with_a_parse_error
+    result = array_serializer(:yml).deserialize("---\n- &person {name: Max}\n- *person\n")
 
-    assert_equal(:yml, serializer.format)
+    assert_failure(result)
+    assert_error(Typed::ParseError.new(format: :yml), result)
   end
 
-  def test_rejects_yml_aliases_with_a_parse_error
-    [:yml, :yaml].each do |format|
-      result = array_serializer(format).deserialize("---\n- &person {name: Max}\n- *person\n")
+  def test_rejects_unsupported_format_spellings
+    string_error = assert_raises(TypeError) { array_serializer("json") }
+    assert_includes(string_error.message, "Expected type Symbol")
 
-      assert_failure(result)
-      assert_error(Typed::ParseError.new(format: :yml), result)
-    end
+    symbol_error = assert_raises(ArgumentError) { array_serializer(:yaml) }
+    assert_equal("unknown array serializer format for yaml", symbol_error.message)
   end
 
   def test_msgpack_serializes_and_deserializes_root_arrays

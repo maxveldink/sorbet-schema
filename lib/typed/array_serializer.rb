@@ -7,7 +7,7 @@ module Typed
   class ArraySerializer
     extend T::Sig
 
-    Format = T.type_alias { T.any(Symbol, String) }
+    Format = T.type_alias { Symbol }
     DeserializeResult = T.type_alias { Result[T::Array[T::Struct], DeserializeError] }
     SerializeOutput = T.type_alias { T.any(String, T::Array[Serializer::Params]) }
     SerializeResult = T.type_alias { Result[SerializeOutput, SerializeError] }
@@ -51,10 +51,7 @@ module Typed
 
     sig { params(format: Format).returns(Symbol) }
     def normalize_format(format)
-      normalized_format = format.to_sym
-      normalized_format = :yml if normalized_format == :yaml
-
-      return normalized_format if [:hash, :json, :yml, :msgpack, :csv].include?(normalized_format)
+      return format if [:hash, :json, :yml, :msgpack, :csv].include?(format)
 
       raise ArgumentError, "unknown array serializer format for #{format}"
     end
