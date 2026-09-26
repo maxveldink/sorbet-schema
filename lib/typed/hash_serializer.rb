@@ -18,6 +18,10 @@ module Typed
 
     sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
     def deserialize(source)
+      unless source.keys.all? { |key| key.is_a?(String) || key.is_a?(Symbol) }
+        return Failure.new(DeserializeError.new("Hash keys must be strings or symbols."))
+      end
+
       deserialize_from_creation_params(HashTransformer.symbolize_keys(source))
     end
 
