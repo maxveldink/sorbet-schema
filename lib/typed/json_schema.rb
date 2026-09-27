@@ -1,0 +1,138 @@
+# typed: strict
+
+module Typed
+  # Generates a JSON Schema (draft 2020-12) describing the hash a `Typed::Schema`
+  # deserializes from: keys are the fields' serialized names, values are in their
+  # serialized form (a `T::Enum` by its serialized value, a `Date` as an ISO 8601
+  # string). A type the generator has no JSON form for raises instead of being
+  # silently described as something it isn't.
+  module JSONSchema
+    extend T::Sig
+
+    class UnsupportedTypeError < StandardError; end
+
+    Document = T.type_alias { T::Hash[String, T.untyped] }
+
+    # How a nested struct's schema is found. Defaults to the struct's own `schema`,
+    # which is what deserialization uses.
+    StructSchema = T.type_alias { T.proc.params(struct: T.class_of(T::Struct)).returns(Schema) }
+
+    SIMPLE_TYPES = T.let(
+      {
+        String => {"type" => "string"},
+        Symbol => {"type" => "string"},
+        Integer => {"type" => "integer"},
+        Float => {"type" => "number"},
+        Date => {"type" => "string", "format" => "date"},
+        DateTime => {"type" => "string", "format" => "date-time"}
+      }.freeze,
+      T::Hash[T::Module[T.anything], Document]
+    )
+
+    BOOLEAN = T.let(T::Utils.coerce(T::Boolean), T::Types::Base)
+    private_constant :BOOLEAN
+
+    sig { params(schema: Schema, struct_schema: T.nilable(StructSchema)).returns(Document) }
+    def self.generate(schema, struct_schema: nil)
+      resolve = struct_schema || ->(struct) { struct.schema }
+      object(schema, resolve)
+    end
+
+    sig { params(schema: Schema, resolve: StructSchema).returns(Document) }
+    def self.object(schema, resolve)
+      properties = schema.fields.to_h { |field| [field.serialized_name.to_s, property(schema, field, resolve)] }
+      required = schema.fields.select(&:required?).map { |field| field.serialized_name.to_s }
+
+      document = {"type" => "object", "properties" => properties}
+      required.empty? ? document : document.merge("required" => required)
+    end
+    private_class_method :object
+
+    sig { params(schema: Schema, field: Field, resolve: StructSchema).returns(Document) }
+    def self.property(schema, field, resolve)
+      document = type(field.type, resolve)
+      document = nullable(document) if field.nilable?
+      description = field.description
+      description.nil? ? document : document.merge("description" => description)
+    rescue UnsupportedTypeError => e
+      raise UnsupportedTypeError, "#{schema.target}.#{field.name}: #{e.message}"
+    end
+    private_class_method :property
+
+    sig { params(type: T::Types::Base, resolve: StructSchema).returns(Document) }
+    def self.type(type, resolve)
+      return {"type" => "boolean"} if type == BOOLEAN
+
+      case type
+      when T::Types::Untyped, T::Types::Anything then {}
+      when T::Types::Simple then simple(type.raw_type, resolve)
+      when T::Types::TypedArray then {"type" => "array", "items" => type(type.type, resolve)}
+      when T::Types::TypedHash then hash(type, resolve)
+      when T::Types::Union then union(type, resolve)
+      else raise UnsupportedTypeError, "#{type} has no JSON Schema"
+      end
+    end
+    private_class_method :type
+
+    sig { params(raw_type: T::Module[T.anything], resolve: StructSchema).returns(Document) }
+    def self.simple(raw_type, resolve)
+      known = SIMPLE_TYPES[raw_type]
+      return known unless known.nil?
+
+      case raw_type
+      when T::Enum.singleton_class then enum(raw_type)
+      when T::Struct.singleton_class then object(resolve.call(raw_type), resolve)
+      else raise UnsupportedTypeError, "#{raw_type} has no JSON Schema"
+      end
+    end
+    private_class_method :simple
+
+    sig { params(enum: T.class_of(T::Enum)).returns(Document) }
+    def self.enum(enum)
+      values = enum.values.map(&:serialize)
+      document = {"enum" => values}
+
+      if values.all?(String)
+        document.merge("type" => "string")
+      elsif values.all?(Integer)
+        document.merge("type" => "integer")
+      else
+        document
+      end
+    end
+    private_class_method :enum
+
+    # Keys of a JSON object are always strings.
+    sig { params(type: T::Types::TypedHash, resolve: StructSchema).returns(Document) }
+    def self.hash(type, resolve)
+      keys = type.keys
+      string_keys = keys.is_a?(T::Types::Simple) && [String, Symbol].include?(keys.raw_type)
+      raise UnsupportedTypeError, "#{type} has non-string keys" unless string_keys
+
+      values = type(type.values, resolve)
+      values.empty? ? {"type" => "object"} : {"type" => "object", "additionalProperties" => values}
+    end
+    private_class_method :hash
+
+    sig { params(type: T::Types::Union, resolve: StructSchema).returns(Document) }
+    def self.union(type, resolve)
+      non_nil = T::Utils.unwrap_nilable(type)
+      return nullable(type(non_nil, resolve)) unless non_nil.nil?
+
+      {"anyOf" => type.types.map { |member| type(member, resolve) }}
+    end
+    private_class_method :union
+
+    sig { params(document: Document).returns(Document) }
+    def self.nullable(document)
+      type = document["type"]
+      return document if document.empty?
+      return {"anyOf" => [document, {"type" => "null"}]} unless type.is_a?(String)
+
+      nullable = document.merge("type" => [type, "null"])
+      enum = document["enum"]
+      enum.nil? ? nullable : nullable.merge("enum" => [*enum, nil])
+    end
+    private_class_method :nullable
+  end
+end
