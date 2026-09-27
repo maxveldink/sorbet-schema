@@ -95,6 +95,14 @@ class JSONSchemaTest < Minitest::Test
     assert_equal(["cents"], document.dig("properties", "salary", "properties").keys)
   end
 
+  def test_closes_every_struct_object_when_additional_properties_are_off
+    document = Job.schema.to_json_schema(additional_properties: false)
+
+    assert_equal(false, document.fetch("additionalProperties"))
+    assert_equal(false, document.dig("properties", "salary", "additionalProperties"))
+    assert_equal({"type" => "object"}, Described.schema.to_json_schema(additional_properties: false).dig("properties", "payload"))
+  end
+
   def test_raises_on_types_without_json_form
     error = assert_raises(Typed::JSONSchema::UnsupportedTypeError) { Unsupported.schema.to_json_schema }
 

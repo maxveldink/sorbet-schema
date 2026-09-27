@@ -40,9 +40,9 @@ module Typed
     end
 
     # JSON Schema (draft 2020-12) of the hash this schema deserializes from.
-    sig { returns(JSONSchema::Document) }
-    def to_json_schema
-      JSONSchema.generate(self)
+    sig { params(additional_properties: T::Boolean).returns(JSONSchema::Document) }
+    def to_json_schema(additional_properties: true)
+      JSONSchema.generate(self, additional_properties:)
     end
 
     sig { params(hash: Typed::HashSerializer::InputHash).returns(Typed::Result[StructT, Typed::DeserializeError]) }
