@@ -1,6 +1,6 @@
 # Sorbet Schema
 
-Extendable serialization and deserialization to various formats for Sorbet `T::Struct`s.
+Serialize and deserialize Sorbet `T::Struct` and `T::ImmutableStruct` values.
 
 ## Installation
 
@@ -14,11 +14,11 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 ## Usage
 
-Sorbet Schema is designed to be compatible with Sorbet's `T::Struct` class, and seeks to update many of the common pitfalls developers encountering when deserializing to and serializing from a `T::Struct`.
+Both `T::Struct` and `T::ImmutableStruct` use the same schema helpers and serializers.
 
 ### Getting Started
 
-While you can directly define a `Typed::Schema` to be used for your serialization needs, you'll typically use the provided helper class method to generate a `Schema` from an existing `T::Struct`.
+Define a `Typed::Schema` directly, or call the `schema` class method on a `T::Struct` or `T::ImmutableStruct`.
 
 ```ruby
 class Person < T::Struct
@@ -44,7 +44,7 @@ result = json_serializer.serialize(max)
 result.payload # == '{"name":"Max","age":29}'
 ```
 
-Alternatively, you can use the built-in helper methods added to `T::Struct`s to quickly use the built-in serializers.
+Alternatively, use the helper methods on either struct class to call the built-in serializers.
 
 ```ruby
 result = Person.deserialize_from(:json, '{"name":"Max","age":29}')
@@ -80,6 +80,30 @@ Finally, there are built-in coercers that do their best effort to convert common
 result = json_serializer.deserialize('{"name":"Max","age":"29"}')
 max = result.payload # == Person.new(name: "Max", age: 29)
 ```
+
+### Immutable structs
+
+Use `T::ImmutableStruct` when the deserialized struct must be frozen:
+
+```ruby
+class ImmutablePerson < T::ImmutableStruct
+  const :name, String
+  const :age, Integer
+end
+
+result = ImmutablePerson.deserialize_from(:json, '{"name":"Ada","age":37}')
+ada = result.payload
+ada.frozen? # => true
+
+ada.serialize_to(:json).payload # => '{"name":"Ada","age":37}'
+```
+
+`ImmutablePerson.deserialize_from` returns `Typed::Result[ImmutablePerson, Typed::DeserializeError]` in Sorbet and creates frozen instances through the struct's constructor.
+Deserialization also converts hashes in nested fields, array elements, and hash values into immutable instances.
+
+Deserialization adds no recursive freezing to strings, arrays, hashes, or mutable child structs.
+Custom schema overrides, inline serializers, and serializer options work the same for both struct classes.
+`T::InexactStruct` and its other subclasses remain unsupported.
 
 ### Rails Example
 
@@ -119,7 +143,7 @@ See [Getting Started](#getting-started) for more information on how to use the J
 
 #### HashSerializer
 
-While not strictly serialization, converting `T::Struct`s to and from Ruby `Hash`es has traditionally had many pitfalls ([well-documented](https://sorbet.org/docs/tstruct#legacy-code-and-historical-context) in the Sorbet docs). The `Typed::HashSerializer` aims to address several common issues, while providing the same `Result` handling for invalid or missing data and coercion behavior.
+The `Typed::HashSerializer` converts both struct classes to and from Ruby hashes. It addresses several common [pitfalls](https://sorbet.org/docs/tstruct#legacy-code-and-historical-context) and returns `Result` values for invalid or missing data.
 
 To use it, simply instantiate and use it like the `JSONSerializer`:
 
@@ -149,7 +173,7 @@ result = csv_serializer.serialize(max)
 result.payload # == "name,age\nMax,29\n"
 ```
 
-CSV is a flat, row-based format, so nested `T::Struct`s, `Hash`es, and `Array`s cannot be represented as their own columns. Rather than writing a lossy representation into a cell that can never be parsed back correctly, `CSVSerializer#serialize` returns a `Typed::SerializeError` naming the offending field(s) when a struct has one. Prefer this serializer for schemas with scalar fields only, or use an `inline_serializer` (see [Inline Serializers](#inline-serializers)) to flatten a nested field into a scalar before serializing it to CSV.
+CSV is a flat, row-based format, so nested structs, hashes, and arrays must be flattened into scalar values. If a serialized field contains a hash or array, `CSVSerializer#serialize` returns a `Typed::SerializeError` naming the field. Use an `inline_serializer` to flatten a nested value (see [Inline Serializers](#inline-serializers)).
 
 #### YMLSerializer
 
@@ -183,11 +207,11 @@ result = message_pack_serializer.serialize(max)
 result.payload # == MessagePack.pack({"name" => "Max", "age" => 29})
 ```
 
-Unlike `CSVSerializer`, MessagePack natively supports nested maps and arrays, so nested `T::Struct`s, `Hash`es, and `Array`s round-trip without any `inline_serializer` needed.
+MessagePack supports nested structs, hashes, and arrays, so both struct classes round-trip without an `inline_serializer`.
 
 #### ActiveRecordSerializer
 
-Requires the `activerecord` gem to be available. This is only checked when going through `.serializer(:activerecord)`, which raises an `ArgumentError` if the gem isn't loaded; calling `Typed::ActiveRecordSerializer.new` directly without ActiveRecord loaded instead raises a `NameError`, since the class itself references the `ActiveRecord` constant. The `Typed::ActiveRecordSerializer` converts between `ActiveRecord::Base` model instances and `T::Struct`s, matching fields by attribute name and mapping associated records through the model's declared associations. It requires a `model_class` option, in addition to `schema`, so it knows which `ActiveRecord::Base` subclass to deserialize from and serialize to:
+Requires the `activerecord` gem to be available. This is only checked when going through `.serializer(:activerecord)`, which raises an `ArgumentError` if the gem isn't loaded; calling `Typed::ActiveRecordSerializer.new` directly without ActiveRecord loaded instead raises a `NameError`, since the class itself references the `ActiveRecord` constant. The `Typed::ActiveRecordSerializer` converts between `ActiveRecord::Base` model instances and either struct class. It matches fields by attribute name and maps records through the model's declared associations. It requires a `model_class` option, in addition to `schema`, so it knows which `ActiveRecord::Base` subclass to deserialize from and serialize to:
 
 ```ruby
 ar_serializer = Typed::ActiveRecordSerializer.new(schema: Person.schema, model_class: PersonModel)
@@ -202,7 +226,8 @@ result.payload # == PersonModel instance with name: "Max", age: 29
 
 When serializing, only fields that map to a column (or to an association's declared foreign key) on `model_class` are assigned; the rest are ignored.
 
-Nested `belongs_to` associations are deserialized recursively to arbitrary depth, so a `T::Struct` field whose type is itself a `T::Struct` backed by a `belongs_to` association will have its own nested associations resolved too.
+Nested `belongs_to` associations deserialize recursively to arbitrary depth for both struct classes.
+Serialization supports one level and returns `Typed::SerializeError` for a second nested association level without an inline serializer.
 
 Deserializing reads through the model's association readers, so it is subject to the same N+1 query behavior as any other Rails association access. Preloading with `includes` works transparently and is the recommended way to avoid a query per record per association when deserializing a collection:
 

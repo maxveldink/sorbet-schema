@@ -6,9 +6,9 @@ module Typed
     include ActsAsComparable
 
     const :fields, T::Array[Field], default: []
-    const :target, T.class_of(T::Struct)
+    const :target, StructClass
 
-    sig { params(struct: T.class_of(T::Struct)).returns(Typed::Schema) }
+    sig { params(struct: StructClass).returns(Typed::Schema) }
     def self.from_struct(struct)
       Typed::Schema.new(
         target: struct,

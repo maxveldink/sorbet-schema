@@ -33,4 +33,6 @@ require_relative "sorbet-schema/t/struct"
 # Sorbet-aware namespace to super-charge your projects
 module Typed
   Value = T.type_alias { T.untyped }
+  StructValue = T.type_alias { T.any(T::Struct, T::ImmutableStruct) }
+  StructClass = T.type_alias { T.any(T.class_of(T::Struct), T.class_of(T::ImmutableStruct)) }
 end

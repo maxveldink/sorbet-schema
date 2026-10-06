@@ -10,7 +10,7 @@ module Typed
     Input = type_member
     Output = type_member
     Params = T.type_alias { T::Hash[Symbol, T.untyped] }
-    DeserializeResult = T.type_alias { Result[T::Struct, DeserializeError] }
+    DeserializeResult = T.type_alias { Result[StructValue, DeserializeError] }
 
     sig { returns(Schema) }
     attr_reader :schema
@@ -28,7 +28,7 @@ module Typed
     def deserialize(source)
     end
 
-    sig { abstract.params(struct: T::Struct).returns(Result[Output, SerializeError]) }
+    sig { abstract.params(struct: StructValue).returns(Result[Output, SerializeError]) }
     def serialize(struct)
     end
 
@@ -86,7 +86,7 @@ module Typed
         end
     end
 
-    sig { params(struct: T::Struct, should_serialize_values: T::Boolean).returns(T::Hash[Symbol, T.untyped]) }
+    sig { params(struct: StructValue, should_serialize_values: T::Boolean).returns(T::Hash[Symbol, T.untyped]) }
     def serialize_from_struct(struct:, should_serialize_values: false)
       hsh = schema.fields.each_with_object({}) { |field, hsh| hsh[field.name] = field.serialize(struct.send(field.name)) }.compact
 

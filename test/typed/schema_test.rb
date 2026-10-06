@@ -19,6 +19,17 @@ class SchemaTest < Minitest::Test
     assert_equal(@schema, Typed::Schema.from_struct(Person))
   end
 
+  def test_from_immutable_struct_returns_schema
+    schema = Typed::Schema.from_struct(ImmutableCity)
+
+    assert_equal(ImmutableCity, schema.target)
+    assert_equal([:name, :capital, :data], schema.fields.map(&:name))
+    result = schema.from_hash({name: "Ada", capital: false})
+    assert_success(result)
+    assert_instance_of(ImmutableCity, result.payload)
+    assert(result.payload.frozen?)
+  end
+
   def test_from_hash_create_struct
     result = @schema.from_hash({name: "Max", age: 29, stone_rank: RubyRank::Luminary})
 

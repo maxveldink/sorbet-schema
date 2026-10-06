@@ -50,6 +50,17 @@ class TypedHashCoercerTest < Minitest::Test
     assert_payload({"test" => 1}, result)
   end
 
+  def test_immutable_struct_values_can_be_coerced
+    city = ImmutableCity.new(name: "Ada", capital: false)
+    result = @coercer.coerce(type: T::Utils.coerce(T::Hash[String, ImmutableCity]), value: {"home" => city, "capital" => {name: "DC", capital: true}})
+
+    assert_success(result)
+    assert_same(city, result.payload.fetch("home"))
+    assert_instance_of(ImmutableCity, result.payload.fetch("capital"))
+    assert_equal("DC", result.payload.fetch("capital").name)
+    assert(result.payload.fetch("capital").frozen?)
+  end
+
   def test_when_array_cannot_be_coerced_returns_failure
     result = @coercer.coerce(type: @type, value: {"test" => "test"})
 

@@ -3,6 +3,21 @@
 require "test_helper"
 
 class ActiveRecordSerializerTest < Minitest::Test
+  class ImmutableCountry < T::ImmutableStruct
+    const :name, String
+  end
+
+  class ImmutableLocation < T::ImmutableStruct
+    const :name, String
+    const :country, T.nilable(ImmutableCountry)
+  end
+
+  class ImmutableUser < T::ImmutableStruct
+    const :name, String
+    const :age, Integer
+    const :location, T.nilable(ImmutableLocation)
+  end
+
   # Deserialize Tests (AR model -> T::Struct)
 
   def test_deserialize_handles_simple_fields
@@ -49,6 +64,36 @@ class ActiveRecordSerializerTest < Minitest::Test
       ARUser.new(name: "Max", age: 28, location: ARLocation.new(name: "Florida", country: ARCountry.new(name: "US"))),
       result
     )
+  end
+
+  def test_deserialize_handles_arbitrary_depth_immutable_struct_fields
+    country_model = CountryModel.new(name: "US")
+    location_model = LocationModel.new(name: "Florida", country: country_model)
+    user_model = UserModel.new(name: "Ada", age: 37, location: location_model)
+    serializer = Typed::ActiveRecordSerializer.new(schema: ImmutableUser.schema, model_class: UserModel)
+
+    result = serializer.deserialize(user_model)
+
+    assert_success(result)
+    user = T.cast(result.payload, ImmutableUser)
+    assert_equal("Ada", user.name)
+    assert_equal(37, user.age)
+    assert(user.frozen?)
+    location = T.must(user.location)
+    assert_equal("Florida", location.name)
+    assert(location.frozen?)
+    assert_equal("US", T.must(location.country).name)
+    assert(T.must(location.country).frozen?)
+  end
+
+  def test_deserialize_handles_nil_immutable_struct_associations
+    serializer = Typed::ActiveRecordSerializer.new(schema: ImmutableUser.schema, model_class: UserModel)
+
+    result = serializer.deserialize(UserModel.new(name: "Ada", age: 37))
+
+    assert_success(result)
+    assert_nil(T.cast(result.payload, ImmutableUser).location)
+    assert(result.payload.frozen?)
   end
 
   def test_deserialize_recurses_through_nilable_nested_struct_fields
@@ -140,6 +185,22 @@ class ActiveRecordSerializerTest < Minitest::Test
     assert_equal "Florida", model.location.name
   end
 
+  def test_serialize_handles_nested_immutable_struct_via_association
+    user = ImmutableUser.new(name: "Ada", age: 37, location: ImmutableLocation.new(name: "Florida"))
+    serializer = Typed::ActiveRecordSerializer.new(schema: ImmutableUser.schema, model_class: UserModel)
+
+    result = serializer.serialize(user)
+
+    assert_success(result)
+    model = result.payload
+    assert_kind_of UserModel, model
+    model = T.cast(model, T.untyped)
+    assert_equal "Ada", model.name
+    assert_equal 37, model.age
+    assert_kind_of LocationModel, model.location
+    assert_equal "Florida", model.location.name
+  end
+
   def test_serialize_filters_to_model_columns
     pet_struct = ARPet.new(name: "Sadie", breed: "Brittany")
     serializer = Typed::ActiveRecordSerializer.new(schema: ARPet.schema, model_class: SimplePetModel)
@@ -180,6 +241,18 @@ class ActiveRecordSerializerTest < Minitest::Test
     assert_kind_of Typed::SerializeError, result.error
   end
 
+  def test_serialize_keeps_the_two_level_immutable_association_error
+    country = ImmutableCountry.new(name: "US")
+    location = ImmutableLocation.new(name: "Florida", country: country)
+    user = ImmutableUser.new(name: "Ada", age: 37, location: location)
+    serializer = Typed::ActiveRecordSerializer.new(schema: ImmutableUser.schema, model_class: UserModel)
+
+    result = serializer.serialize(user)
+
+    assert_failure(result)
+    assert_kind_of Typed::SerializeError, result.error
+  end
+
   def test_serialize_fails_for_wrong_struct_type
     location_struct = ARLocation.new(name: "Florida")
     serializer = Typed::ActiveRecordSerializer.new(schema: ARPost.schema, model_class: PostModel)
@@ -210,6 +283,20 @@ class ActiveRecordSerializerTest < Minitest::Test
     model = result.payload
     assert_kind_of LocationModel, model
     assert_equal "Florida", model.name
+  end
+
+  def test_immutable_activerecord_helpers_forward_model_class_options
+    result = ImmutableLocation.deserialize_from(:activerecord, LocationModel.new(name: "Florida"), options: {model_class: LocationModel})
+
+    assert_success(result)
+    location = result.payload
+    T.assert_type!(location, ImmutableLocation)
+    assert(location.frozen?)
+
+    serialized = location.serialize_to(:activerecord, options: {model_class: LocationModel})
+    assert_success(serialized)
+    assert_kind_of LocationModel, serialized.payload
+    assert_equal "Florida", serialized.payload.name
   end
 
   # Persisted record tests (eager loading)

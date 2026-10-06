@@ -22,7 +22,7 @@ module Typed
       super(schema: schema)
     end
 
-    sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
+    sig { override.params(source: Input).returns(DeserializeResult) }
     def deserialize(source)
       return Failure.new(DeserializeError.new("Cannot deserialize a non-ActiveRecord object.")) unless source.is_a?(ActiveRecord::Base)
 
@@ -38,7 +38,7 @@ module Typed
       deserialize_from_creation_params(creation_params)
     end
 
-    sig { override.params(struct: T::Struct).returns(Result[Output, SerializeError]) }
+    sig { override.params(struct: StructValue).returns(Result[Output, SerializeError]) }
     def serialize(struct)
       return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
 
@@ -74,12 +74,11 @@ module Typed
       nested_result.success? ? nested_result.payload : value.attributes.transform_keys(&:to_sym)
     end
 
-    sig { params(type: T::Types::Base).returns(T.nilable(T.class_of(T::Struct))) }
+    sig { params(type: T::Types::Base).returns(T.nilable(StructClass)) }
     def struct_class_for(type)
-      return nil unless type.respond_to?(:raw_type)
+      return nil unless Coercion::StructCoercer.used_for_type?(type)
 
-      raw_type = T.cast(type, T::Types::Simple).raw_type
-      (raw_type < T::Struct) ? raw_type : nil
+      T.cast(T.cast(type, T::Types::Simple).raw_type, StructClass)
     end
   end
 end

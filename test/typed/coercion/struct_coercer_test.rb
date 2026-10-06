@@ -9,15 +9,34 @@ class StructCoercerTest < Minitest::Test
 
   def test_used_for_type_works
     assert(@coercer.class.used_for_type?(@type))
+    assert(@coercer.class.used_for_type?(T::Utils.coerce(ImmutableCity)))
     refute(@coercer.class.used_for_type?(T::Utils.coerce(T::Struct)))
+    refute(@coercer.class.used_for_type?(T::Utils.coerce(T::ImmutableStruct)))
     refute(@coercer.class.used_for_type?(T::Utils.coerce(Integer)))
+  end
+
+  def test_immutable_struct_can_be_coerced_from_a_hash
+    result = @coercer.coerce(type: T::Utils.coerce(ImmutableCity), value: {name: "Ada", capital: false})
+
+    assert_success(result)
+    assert_instance_of(ImmutableCity, result.payload)
+    assert_equal("Ada", T.cast(result.payload, ImmutableCity).name)
+    assert(result.payload.frozen?)
+  end
+
+  def test_existing_immutable_struct_is_returned_unchanged
+    city = ImmutableCity.new(name: "Ada", capital: false)
+    result = @coercer.coerce(type: T::Utils.coerce(ImmutableCity), value: city)
+
+    assert_success(result)
+    assert_same(city, result.payload)
   end
 
   def test_when_non_struct_type_given_returns_failure
     result = @coercer.coerce(type: T::Utils.coerce(Integer), value: {})
 
     assert_failure(result)
-    assert_error(Typed::Coercion::CoercionError.new("Field type must inherit from T::Struct for Struct coercion."), result)
+    assert_error(Typed::Coercion::CoercionError.new("Field type must inherit from T::Struct or T::ImmutableStruct for Struct coercion."), result)
   end
 
   def test_when_struct_of_correct_type_given_returns_success

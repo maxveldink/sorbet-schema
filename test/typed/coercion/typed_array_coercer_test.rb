@@ -41,6 +41,17 @@ class TypedArrayCoercerTest < Minitest::Test
     assert_payload([DC_CITY, NEW_YORK_CITY], result)
   end
 
+  def test_immutable_struct_values_can_be_coerced
+    city = ImmutableCity.new(name: "Ada", capital: false)
+    result = @coercer.coerce(type: T::Utils.coerce(T::Array[ImmutableCity]), value: [city, {name: "DC", capital: true}])
+
+    assert_success(result)
+    assert_same(city, result.payload.first)
+    assert_instance_of(ImmutableCity, result.payload.last)
+    assert_equal("DC", result.payload.last.name)
+    assert(result.payload.last.frozen?)
+  end
+
   def test_when_untyped_array_returns_success
     result = @coercer.coerce(type: T::Utils.coerce(Array), value: [DC_CITY, {name: "New York", capital: false}])
 
