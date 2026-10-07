@@ -9,9 +9,12 @@ module Typed
 
     Input = type_member
     Output = type_member
-    StructT = type_member { {upper: T::Struct} }
+    # `T::InexactStruct` is the common Sorbet superclass of the supported
+    # mutable and immutable struct classes. `Schema#target` enforces the
+    # narrower runtime set because Sorbet cannot propagate their union here.
+    StructT = type_member { {upper: T::InexactStruct} }
     Params = T.type_alias { T::Hash[Symbol, T.untyped] }
-    DeserializeResult = T.type_alias { Result[T::Struct, DeserializeError] }
+    DeserializeResult = T.type_alias { Result[StructValue, DeserializeError] }
 
     sig { returns(Schema[StructT]) }
     attr_reader :schema

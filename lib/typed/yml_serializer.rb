@@ -7,7 +7,7 @@ module Typed
   class YMLSerializer < Serializer
     Input = type_member { {fixed: String} }
     Output = type_member { {fixed: String} }
-    StructT = type_member { {upper: T::Struct} }
+    StructT = type_member { {upper: T::InexactStruct} }
 
     sig { override.params(source: Input).returns(Result[StructT, DeserializeError]) }
     def deserialize(source)
