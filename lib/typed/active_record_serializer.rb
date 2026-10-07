@@ -32,7 +32,7 @@ module Typed
       creation_params = schema.fields.each_with_object(T.let({}, Params)) do |field, hsh|
         if source.respond_to?(field.name)
           value = source.send(field.name)
-          hsh[field.serialized_name] = coerce_ar_value(field:, value:)
+          hsh[key_for(field)] = coerce_ar_value(field:, value:)
         end
       end
 
@@ -63,6 +63,12 @@ module Typed
     end
 
     private
+
+    # Models are addressed by the Ruby prop name; `serialized_name` is a wire-format concern.
+    sig { override.params(field: Field).returns(Symbol) }
+    def key_for(field)
+      field.name
+    end
 
     sig { params(field: Field, value: T.untyped).returns(T.untyped) }
     def coerce_ar_value(field:, value:)

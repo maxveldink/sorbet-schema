@@ -38,7 +38,7 @@ module Typed
     sig { params(creation_params: Params).returns(Result[StructT, DeserializeError]) }
     def deserialize_from_creation_params(creation_params)
       results = schema.fields.map do |field|
-        value = creation_params.fetch(field.serialized_name, nil)
+        value = creation_params.fetch(key_for(field), nil)
 
         if value.nil? && !field.default.nil?
           Success.new(Validations::ValidatedValue.new(name: field.name, value: field.default))
@@ -89,13 +89,20 @@ module Typed
 
     sig { params(struct: StructT, should_serialize_values: T::Boolean).returns(T::Hash[Symbol, T.untyped]) }
     def serialize_from_struct(struct:, should_serialize_values: false)
-      hsh = schema.fields.each_with_object({}) { |field, hsh| hsh[field.serialized_name] = field.serialize(struct.send(field.name)) }.compact
+      hsh = schema.fields.each_with_object({}) { |field, hsh| hsh[key_for(field)] = field.serialize(struct.send(field.name)) }.compact
 
       if should_serialize_values
         hsh = HashTransformer.serialize_values(hsh)
       end
 
       hsh
+    end
+
+    # The key a field is read from and written to. Wire formats use the serialized key;
+    # serializers that talk to Ruby objects (ActiveRecord) override it with the Ruby name.
+    sig { params(field: Field).returns(Symbol) }
+    def key_for(field)
+      field.serialized_name
     end
 
     sig { params(type: T::Types::Base).returns(T.untyped) }

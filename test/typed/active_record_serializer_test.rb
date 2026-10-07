@@ -76,6 +76,16 @@ class ActiveRecordSerializerTest < Minitest::Test
     assert_payload(ARPet.new(name: "Sadie", breed: "Brittany"), result)
   end
 
+  def test_deserialize_maps_model_attributes_to_renamed_fields
+    user_model = UserModel.new(name: "Max", age: 28, location: LocationModel.new(name: "Florida"))
+    serializer = Typed::ActiveRecordSerializer.new(schema: ARRenamedUser.schema, model_class: UserModel)
+
+    result = serializer.deserialize(user_model)
+
+    assert_success(result)
+    assert_payload(ARRenamedUser.new(name: "Max", age: 28, location: ARLocation.new(name: "Florida")), result)
+  end
+
   def test_deserialize_fails_for_non_activerecord_object
     serializer = Typed::ActiveRecordSerializer.new(schema: ARLocation.schema, model_class: LocationModel)
 
@@ -137,6 +147,18 @@ class ActiveRecordSerializerTest < Minitest::Test
     assert_equal "Max", model.name
     assert_equal 28, model.age
     assert_kind_of LocationModel, model.location
+    assert_equal "Florida", model.location.name
+  end
+
+  def test_serialize_maps_renamed_fields_to_model_attributes
+    user_struct = ARRenamedUser.new(name: "Max", age: 28, location: ARLocation.new(name: "Florida"))
+    serializer = Typed::ActiveRecordSerializer.new(schema: ARRenamedUser.schema, model_class: UserModel)
+
+    result = serializer.serialize(user_struct)
+
+    assert_success(result)
+    model = T.cast(result.payload, T.untyped)
+    assert_equal "Max", model.name
     assert_equal "Florida", model.location.name
   end
 
