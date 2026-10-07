@@ -213,6 +213,25 @@ PersonModel.includes(:location).find_each do |person_model|
 end
 ```
 
+### Differing Serialized Keys
+
+Sorbet's `name:` prop option is honored, so a struct can keep snake_case props while reading and writing the key an external payload actually uses:
+
+```ruby
+class WebhookPayload < T::Struct
+  const :event_id, String, name: "eventId"
+  const :email_address, String, name: "emailAddress"
+end
+
+WebhookPayload.deserialize_from(:hash, {eventId: "evt-1", emailAddress: "user@example.com"})
+# <Typed::Success value=#<WebhookPayload event_id="evt-1", email_address="user@example.com">>
+
+WebhookPayload.new(event_id: "evt-1", email_address: "user@example.com").serialize_to(:hash)
+# {eventId: "evt-1", emailAddress: "user@example.com"}
+```
+
+`Typed::Field` exposes this as `serialized_name`, which defaults to `name` when the prop declares no `name:` option. Hand-built schemas can set it directly: `Typed::Field.new(name: :event_id, type: String, serialized_name: :eventId)`.
+
 ### Customization
 
 From the get-go, Sorbet Schema is designed to be extensible to model more complex data validation requirements and many serialization formats. We try out best to include built-in, battle-tested coercers and serializers from real world use cases and would love to see/upstream any customizations that the community have found useful!

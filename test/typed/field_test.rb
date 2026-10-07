@@ -3,6 +3,26 @@
 require "test_helper"
 
 class FieldTest < Minitest::Test
+  def test_serialized_name_defaults_to_name
+    field = Typed::Field.new(name: :event_id, type: String)
+
+    assert_equal(:event_id, field.serialized_name)
+  end
+
+  def test_serialized_name_can_differ_from_name
+    field = Typed::Field.new(name: :event_id, type: String, serialized_name: :eventId)
+
+    assert_equal(:event_id, field.name)
+    assert_equal(:eventId, field.serialized_name)
+  end
+
+  def test_fields_differing_only_by_serialized_name_are_not_equal
+    refute_equal(
+      Typed::Field.new(name: :event_id, type: String),
+      Typed::Field.new(name: :event_id, type: String, serialized_name: :eventId)
+    )
+  end
+
   def test_sets_values_correctly_for_required
     field = Typed::Field.new(name: :required, type: String)
 
