@@ -15,7 +15,7 @@ module Typed
 
     # How a nested struct's schema is found. Defaults to the struct's own `schema`,
     # which is what deserialization uses.
-    StructSchema = T.type_alias { T.proc.params(struct: T.class_of(T::Struct)).returns(Schema) }
+    StructSchema = T.type_alias { T.proc.params(struct: T.class_of(T::Struct)).returns(Schema[T.untyped]) }
 
     # What a generation needs at every depth.
     class Options < T::Struct
@@ -32,7 +32,7 @@ module Typed
         Date => {"type" => "string", "format" => "date"},
         DateTime => {"type" => "string", "format" => "date-time"}
       }.freeze,
-      T::Hash[T::Module[T.anything], Document]
+      T::Hash[T.anything, Document]
     )
 
     BOOLEAN = T.let(T::Utils.coerce(T::Boolean), T::Types::Base)
@@ -42,14 +42,14 @@ module Typed
     # rejects them in every struct object instead, e.g. to catch typos in a config file
     # or to meet an LLM structured-output API that requires closed objects.
     sig do
-      params(schema: Schema, struct_schema: T.nilable(StructSchema), additional_properties: T::Boolean).returns(Document)
+      params(schema: Schema[T.untyped], struct_schema: T.nilable(StructSchema), additional_properties: T::Boolean).returns(Document)
     end
     def self.generate(schema, struct_schema: nil, additional_properties: true)
       resolve = struct_schema || ->(struct) { struct.schema }
       object(schema, Options.new(struct_schema: resolve, additional_properties:))
     end
 
-    sig { params(schema: Schema, options: Options).returns(Document) }
+    sig { params(schema: Schema[T.untyped], options: Options).returns(Document) }
     def self.object(schema, options)
       properties = schema.fields.to_h { |field| [field.serialized_name.to_s, property(schema, field, options)] }
       required = schema.fields.select(&:required?).map { |field| field.serialized_name.to_s }
@@ -60,7 +60,7 @@ module Typed
     end
     private_class_method :object
 
-    sig { params(schema: Schema, field: Field, options: Options).returns(Document) }
+    sig { params(schema: Schema[T.untyped], field: Field, options: Options).returns(Document) }
     def self.property(schema, field, options)
       document = type(field.type, options)
       document = nullable(document) if field.nilable?
@@ -77,17 +77,18 @@ module Typed
 
       case type
       when T::Types::Untyped, T::Types::Anything then {}
-      when T::Types::Simple then simple(type.raw_type, options)
+      when T::Types::Simple then simple(type, options)
       when T::Types::TypedArray then {"type" => "array", "items" => type(type.type, options)}
-      when T::Types::TypedHash then hash(type, options)
+      when T::Types::TypedHash then hash_type(type, options)
       when T::Types::Union then union(type, options)
       else raise UnsupportedTypeError, "#{type} has no JSON Schema"
       end
     end
     private_class_method :type
 
-    sig { params(raw_type: T::Module[T.anything], options: Options).returns(Document) }
-    def self.simple(raw_type, options)
+    sig { params(type: T::Types::Simple, options: Options).returns(Document) }
+    def self.simple(type, options)
+      raw_type = type.raw_type
       known = SIMPLE_TYPES[raw_type]
       return known unless known.nil?
 
@@ -116,7 +117,7 @@ module Typed
 
     # Keys of a JSON object are always strings.
     sig { params(type: T::Types::TypedHash, options: Options).returns(Document) }
-    def self.hash(type, options)
+    def self.hash_type(type, options)
       keys = type.keys
       string_keys = keys.is_a?(T::Types::Simple) && [String, Symbol].include?(keys.raw_type)
       raise UnsupportedTypeError, "#{type} has non-string keys" unless string_keys
@@ -124,7 +125,7 @@ module Typed
       values = type(type.values, options)
       values.empty? ? {"type" => "object"} : {"type" => "object", "additionalProperties" => values}
     end
-    private_class_method :hash
+    private_class_method :hash_type
 
     sig { params(type: T::Types::Union, options: Options).returns(Document) }
     def self.union(type, options)
