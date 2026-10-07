@@ -4,6 +4,7 @@ module Typed
   class ActiveRecordSerializer < Serializer
     Input = type_member { {fixed: T.untyped} }
     Output = type_member { {fixed: ActiveRecord::Base} }
+    StructT = type_member { {upper: T::Struct} }
 
     sig { returns(T.class_of(ActiveRecord::Base)) }
     attr_reader :model_class
@@ -11,7 +12,7 @@ module Typed
     sig { returns(T::Hash[String, T.untyped]) }
     attr_reader :associations_by_name
 
-    sig { params(schema: Schema, model_class: T.class_of(ActiveRecord::Base)).void }
+    sig { params(schema: Schema[StructT], model_class: T.class_of(ActiveRecord::Base)).void }
     def initialize(schema:, model_class:)
       @model_class = model_class
       @associations_by_name = T.let(
@@ -22,7 +23,7 @@ module Typed
       super(schema: schema)
     end
 
-    sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
+    sig { override.params(source: Input).returns(Result[StructT, DeserializeError]) }
     def deserialize(source)
       return Failure.new(DeserializeError.new("Cannot deserialize a non-ActiveRecord object.")) unless source.is_a?(ActiveRecord::Base)
 
@@ -38,7 +39,7 @@ module Typed
       deserialize_from_creation_params(creation_params)
     end
 
-    sig { override.params(struct: T::Struct).returns(Result[Output, SerializeError]) }
+    sig { override.params(struct: StructT).returns(Result[Output, SerializeError]) }
     def serialize(struct)
       return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
 

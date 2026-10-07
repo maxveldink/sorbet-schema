@@ -9,8 +9,9 @@ module Typed
   class CSVSerializer < Serializer
     Input = type_member { {fixed: String} }
     Output = type_member { {fixed: String} }
+    StructT = type_member { {upper: T::Struct} }
 
-    sig { params(schema: Schema).void }
+    sig { params(schema: Schema[StructT]).void }
     def initialize(schema:)
       require "csv"
       super
@@ -18,7 +19,7 @@ module Typed
       raise ArgumentError, "csv gem is required for CSV serialization - add it to your Gemfile"
     end
 
-    sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
+    sig { override.params(source: Input).returns(Result[StructT, DeserializeError]) }
     def deserialize(source)
       parsed = CSV.parse(source, headers: true)
       return Failure.new(ParseError.new(format: :csv)) unless parsed.is_a?(CSV::Table)
@@ -35,7 +36,7 @@ module Typed
       Failure.new(ParseError.new(format: :csv))
     end
 
-    sig { override.params(struct: T::Struct).returns(Result[Output, SerializeError]) }
+    sig { override.params(struct: StructT).returns(Result[Output, SerializeError]) }
     def serialize(struct)
       return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
 
