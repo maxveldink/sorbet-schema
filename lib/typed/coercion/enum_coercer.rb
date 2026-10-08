@@ -18,7 +18,7 @@ module Typed
       def coerce(type:, value:)
         return Failure.new(CoercionError.new("Field type must inherit from T::Enum for Enum coercion.")) unless self.class.used_for_type?(type)
 
-        Success.new(T.cast(type, T::Types::Simple).raw_type.from_serialized(value))
+        Success.new(T.cast(T.cast(type, T::Types::Simple).raw_type, T.class_of(T::Enum)).from_serialized(value))
       rescue KeyError => e
         Failure.new(CoercionError.new(e.message))
       end
