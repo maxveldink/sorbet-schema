@@ -32,10 +32,17 @@ module Typed
             name:,
             type: properties[:type_object],
             default: properties.fetch(:default, nil),
-            serialized_name: properties[:serialized_form]&.to_sym
+            serialized_name: properties[:serialized_form]&.to_sym,
+            description: properties.dig(:extra, :description)
           )
         end
       )
+    end
+
+    # JSON Schema (draft 2020-12) of the hash this schema deserializes from.
+    sig { params(additional_properties: T::Boolean).returns(JSONSchema::Document) }
+    def to_json_schema(additional_properties: true)
+      JSONSchema.generate(self, additional_properties:)
     end
 
     sig { params(hash: Typed::HashSerializer::InputHash).returns(Typed::Result[StructT, Typed::DeserializeError]) }
