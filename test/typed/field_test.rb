@@ -23,6 +23,18 @@ class FieldTest < Minitest::Test
     )
   end
 
+  def test_nilable_follows_the_declared_type_not_the_default
+    assert(Typed::Field.new(name: :note, type: T::Utils.coerce(T.nilable(String)), default: "none").nilable?)
+    refute(Typed::Field.new(name: :retries, type: Integer, default: 0).nilable?)
+  end
+
+  def test_fields_differing_only_by_description_are_not_equal
+    refute_equal(
+      Typed::Field.new(name: :title, type: String),
+      Typed::Field.new(name: :title, type: String, description: "Shown to people")
+    )
+  end
+
   def test_sets_values_correctly_for_required
     field = Typed::Field.new(name: :required, type: String)
 

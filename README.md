@@ -255,6 +255,29 @@ WebhookPayload.new(event_id: "evt-1", email_address: "user@example.com").seriali
 
 `Typed::Field` exposes this as `serialized_name`, which defaults to `name` when the prop declares no `name:` option. Hand-built schemas can set it directly: `Typed::Field.new(name: :event_id, type: String, serialized_name: :eventId)`.
 
+### JSON Schema
+
+A schema can describe the hash it deserializes from as a JSON Schema (draft 2020-12), e.g. to hand it to an API client or an LLM tool definition:
+
+```ruby
+class Job < T::Struct
+  const :title, String, extra: {description: "Job title"}
+  const :start_date, T.nilable(Date)
+end
+
+Job.schema.to_json_schema
+# => {
+#   "type" => "object",
+#   "properties" => {
+#     "title" => {"type" => "string", "description" => "Job title"},
+#     "start_date" => {"type" => ["string", "null"], "format" => "date"}
+#   },
+#   "required" => ["title"]
+# }
+```
+
+Properties are keyed by the serialized name, values are in serialized form (a `T::Enum` as the `enum` of its serialized values, a `Date` as a string), and a field is required when it is neither nilable nor defaulted. Deserialization ignores unknown keys, so objects are open by default; `to_json_schema(additional_properties: false)` closes every struct object, e.g. to catch typos in a config file or for LLM structured-output APIs that require it. Nested structs are described through their own `schema`; pass `struct_schema:` to `Typed::JSONSchema.generate` to resolve them differently. A type without a JSON form raises `Typed::JSONSchema::UnsupportedTypeError`.
+
 ### Customization
 
 From the get-go, Sorbet Schema is designed to be extensible to model more complex data validation requirements and many serialization formats. We try out best to include built-in, battle-tested coercers and serializers from real world use cases and would love to see/upstream any customizations that the community have found useful!
