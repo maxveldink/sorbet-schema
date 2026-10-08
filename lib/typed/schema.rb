@@ -26,7 +26,7 @@ module Typed
         target: struct,
         # `T::Class[X]` does not expose `X`'s singleton methods, so `.props`
         # is invisible to sorbet here even though it's always present on a
-        # `T::Struct` subclass.
+        # supported struct subclass.
         fields: T.unsafe(struct).props.map do |name, properties|
           Typed::Field.new(
             name:,
