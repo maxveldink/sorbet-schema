@@ -46,4 +46,40 @@ class NarrowingTest < Minitest::Test
 
     assert_payload("New York", name)
   end
+
+  sig { void }
+  def test_immutable_deserialize_from_narrows_with_no_cast
+    name = ImmutableCity.deserialize_from(:hash, {name: "Ada", capital: false}).and_then { |city| Typed::Success.new(city.name) }
+
+    assert_payload("Ada", name)
+  end
+
+  sig { void }
+  def test_immutable_serializer_deserialize_narrows_with_no_cast
+    name = ImmutableCity.serializer(:hash).deserialize({name: "Ada", capital: false}).and_then { |city| Typed::Success.new(city.name) }
+
+    assert_payload("Ada", name)
+  end
+
+  sig { void }
+  def test_immutable_schema_from_hash_narrows_with_no_cast
+    name = ImmutableCity.schema.from_hash({name: "Ada", capital: false}).and_then { |city| Typed::Success.new(city.name) }
+
+    assert_payload("Ada", name)
+  end
+
+  sig { void }
+  def test_immutable_direct_serializer_construction_narrows_with_no_cast
+    schema = ImmutableCity.schema
+    name = Typed::HashSerializer.new(schema: schema).deserialize({name: "Ada", capital: false}).and_then { |city| Typed::Success.new(city.name) }
+
+    assert_payload("Ada", name)
+  end
+
+  sig { void }
+  def test_immutable_schema_from_struct_narrows_with_no_cast
+    name = Typed::Schema.from_struct(ImmutableCity).from_hash({name: "Ada", capital: false}).and_then { |city| Typed::Success.new(city.name) }
+
+    assert_payload("Ada", name)
+  end
 end

@@ -7,7 +7,7 @@ module Typed
     # on the other serializers.
     Input = type_member { {fixed: String} }
     Output = type_member { {fixed: String} }
-    StructT = type_member { {upper: T::Struct} }
+    StructT = type_member { {upper: T::InexactStruct} }
 
     sig { params(schema: Schema[StructT]).void }
     def initialize(schema:)

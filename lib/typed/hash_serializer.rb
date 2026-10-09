@@ -5,7 +5,7 @@ module Typed
     InputHash = T.type_alias { T::Hash[T.any(Symbol, String), T.untyped] }
     Input = type_member { {fixed: InputHash} }
     Output = type_member { {fixed: Params} }
-    StructT = type_member { {upper: T::Struct} }
+    StructT = type_member { {upper: T::InexactStruct} }
 
     sig { returns(T::Boolean) }
     attr_reader :should_serialize_values
@@ -16,8 +16,8 @@ module Typed
     # struct type carried by `schema`.
     sig do
       type_parameters(:S)
-        .params(schema: Schema[T.all(T::Struct, T.type_parameter(:S))], should_serialize_values: T::Boolean)
-        .returns(HashSerializer[T.all(T::Struct, T.type_parameter(:S))])
+        .params(schema: Schema[T.all(T::InexactStruct, T.type_parameter(:S))], should_serialize_values: T::Boolean)
+        .returns(HashSerializer[T.all(T::InexactStruct, T.type_parameter(:S))])
     end
     def self.new(schema:, should_serialize_values: false)
       super

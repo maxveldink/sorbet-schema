@@ -6,27 +6,27 @@ module Typed
     extend T::Generic
     include ActsAsComparable
 
-    StructT = type_member { {upper: T::Struct} }
+    StructT = type_member { {upper: T::InexactStruct} }
 
     const :fields, T::Array[Field], default: []
-    # `T.all(T::Class[StructT], T.class_of(T::Struct))` rather than the bare
+    # `T.all(T::Class[StructT], StructClass)` rather than the bare
     # `T::Class[StructT]`: sorbet-runtime erases `T::Class[X]` to
     # `T::Class[T.untyped]` at runtime, which would silently accept a
-    # non-struct `target`. Intersecting with `T.class_of(T::Struct)` restores
+    # non-struct `target`. Intersecting with `StructClass` restores
     # the runtime check while still narrowing statically.
-    const :target, T.all(T::Class[StructT], T.class_of(T::Struct))
+    const :target, T.all(T::Class[StructT], StructClass)
 
     sig do
       type_parameters(:S)
-        .params(struct: T.all(T::Class[T.all(T::Struct, T.type_parameter(:S))], T.class_of(T::Struct)))
-        .returns(Typed::Schema[T.all(T::Struct, T.type_parameter(:S))])
+        .params(struct: T.all(T::Class[T.all(T::InexactStruct, T.type_parameter(:S))], StructClass))
+        .returns(Typed::Schema[T.all(T::InexactStruct, T.type_parameter(:S))])
     end
     def self.from_struct(struct)
-      Typed::Schema[T.all(T::Struct, T.type_parameter(:S))].new(
+      Typed::Schema[T.all(T::InexactStruct, T.type_parameter(:S))].new(
         target: struct,
         # `T::Class[X]` does not expose `X`'s singleton methods, so `.props`
         # is invisible to sorbet here even though it's always present on a
-        # `T::Struct` subclass.
+        # supported struct subclass.
         fields: T.unsafe(struct).props.map do |name, properties|
           Typed::Field.new(
             name:,

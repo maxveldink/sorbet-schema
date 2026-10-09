@@ -3,6 +3,21 @@
 require "test_helper"
 
 class ActiveRecordSerializerTest < Minitest::Test
+  class ImmutableARCountry < T::ImmutableStruct
+    const :name, String
+  end
+
+  class ImmutableARLocation < T::ImmutableStruct
+    const :name, String
+    const :country, T.nilable(ImmutableARCountry)
+  end
+
+  class ImmutableARUser < T::ImmutableStruct
+    const :name, String
+    const :age, Integer
+    const :location, T.nilable(ImmutableARLocation)
+  end
+
   # Deserialize Tests (AR model -> T::Struct)
 
   def test_deserialize_handles_simple_fields
@@ -49,6 +64,23 @@ class ActiveRecordSerializerTest < Minitest::Test
       ARUser.new(name: "Max", age: 28, location: ARLocation.new(name: "Florida", country: ARCountry.new(name: "US"))),
       result
     )
+  end
+
+  def test_deserialize_handles_arbitrary_depth_immutable_struct_fields
+    country_model = CountryModel.new(name: "US")
+    location_model = LocationModel.new(name: "Florida", country: country_model)
+    user_model = UserModel.new(name: "Ada", age: 37, location: location_model)
+    serializer = Typed::ActiveRecordSerializer.new(schema: ImmutableARUser.schema, model_class: UserModel)
+
+    result = serializer.deserialize(user_model)
+
+    assert_success(result)
+    user = result.payload
+    assert(user.frozen?)
+    assert_equal("Florida", T.must(user.location).name)
+    assert(T.must(user.location).frozen?)
+    assert_equal("US", T.must(T.must(user.location).country).name)
+    assert(T.must(T.must(user.location).country).frozen?)
   end
 
   def test_deserialize_recurses_through_nilable_nested_struct_fields
@@ -160,6 +192,22 @@ class ActiveRecordSerializerTest < Minitest::Test
     model = T.cast(result.payload, T.untyped)
     assert_equal "Max", model.name
     assert_equal "Florida", model.location.name
+  end
+
+  def test_serialize_handles_immutable_struct_via_association
+    user = ImmutableARUser.new(name: "Ada", age: 37, location: ImmutableARLocation.new(name: "Florida"))
+    serializer = Typed::ActiveRecordSerializer.new(schema: ImmutableARUser.schema, model_class: UserModel)
+
+    result = serializer.serialize(user)
+
+    assert_success(result)
+    model = result.payload
+    assert_kind_of(UserModel, model)
+    model = T.cast(model, T.untyped)
+    assert_equal("Ada", model.name)
+    assert_equal(37, model.age)
+    assert_kind_of(LocationModel, model.location)
+    assert_equal("Florida", model.location.name)
   end
 
   def test_serialize_filters_to_model_columns

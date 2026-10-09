@@ -4,7 +4,7 @@ module Typed
   class ActiveRecordSerializer < Serializer
     Input = type_member { {fixed: T.untyped} }
     Output = type_member { {fixed: ActiveRecord::Base} }
-    StructT = type_member { {upper: T::Struct} }
+    StructT = type_member { {upper: T::InexactStruct} }
 
     sig { returns(T.class_of(ActiveRecord::Base)) }
     attr_reader :model_class
@@ -81,12 +81,11 @@ module Typed
       nested_result.success? ? nested_result.payload : value.attributes.transform_keys(&:to_sym)
     end
 
-    sig { params(type: T::Types::Base).returns(T.nilable(T.class_of(T::Struct))) }
+    sig { params(type: T::Types::Base).returns(T.nilable(StructClass)) }
     def struct_class_for(type)
-      return nil unless type.respond_to?(:raw_type)
+      return nil unless Coercion::StructCoercer.used_for_type?(type)
 
-      raw_type = T.cast(type, T::Types::Simple).raw_type
-      (raw_type < T::Struct) ? raw_type : nil
+      T.cast(T.cast(type, T::Types::Simple).raw_type, StructClass)
     end
   end
 end
