@@ -15,7 +15,7 @@ module Typed
 
     # How a nested struct's schema is found. Defaults to the struct's own `schema`,
     # which is what deserialization uses.
-    StructSchema = T.type_alias { T.proc.params(struct: T.class_of(T::Struct)).returns(Schema[T.untyped]) }
+    StructSchema = T.type_alias { T.proc.params(struct: StructClass).returns(Schema[T.untyped]) }
 
     # What a generation needs at every depth.
     class Options < T::Struct
@@ -94,7 +94,7 @@ module Typed
 
       case raw_type
       when T::Enum.singleton_class then enum(raw_type)
-      when T::Struct.singleton_class then object(options.struct_schema.call(raw_type), options)
+      when T::Struct.singleton_class, T::ImmutableStruct.singleton_class then object(options.struct_schema.call(raw_type), options)
       else raise UnsupportedTypeError, "#{raw_type} has no JSON Schema"
       end
     end
