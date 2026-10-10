@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0](https://github.com/maxveldink/sorbet-schema/compare/v0.10.0...v0.11.0) (2026-10-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* make Typed::Serializer and Typed::Schema generic over struct type ([#147](https://github.com/maxveldink/sorbet-schema/issues/147))
+
+### Features
+
+* make Typed::Serializer and Typed::Schema generic over struct type ([#147](https://github.com/maxveldink/sorbet-schema/issues/147)) ([086e867](https://github.com/maxveldink/sorbet-schema/commit/086e8671aeda7868e6dde98b8d23621918059e4b))
+* **typed:** generate a JSON Schema from a schema ([#152](https://github.com/maxveldink/sorbet-schema/issues/152)) ([575ae72](https://github.com/maxveldink/sorbet-schema/commit/575ae72eabd7f0a3ade6299732128a586041b5bf))
+* **typed:** honor the prop name: option as the serialized key ([#149](https://github.com/maxveldink/sorbet-schema/issues/149)) ([08490d2](https://github.com/maxveldink/sorbet-schema/commit/08490d26c04385cd00a651b9e10506ad75ce960f))
+* **typed:** support immutable nested JSON Schema ([#162](https://github.com/maxveldink/sorbet-schema/issues/162)) ([d74d6cd](https://github.com/maxveldink/sorbet-schema/commit/d74d6cdd63017a268f1ecd78f1e68314460767c9))
+* **typed:** support immutable structs ([#160](https://github.com/maxveldink/sorbet-schema/issues/160)) ([288c972](https://github.com/maxveldink/sorbet-schema/commit/288c972cd87cb194b19743d3eb5bb7c2e9f7f617))
+
 ## [0.10.0](https://github.com/maxveldink/sorbet-schema/compare/v0.9.3...v0.10.0) (2026-08-07)
 
 
