@@ -62,7 +62,7 @@ module Typed
 
             T.cast(field.type, T::Types::Union).types.each do |sub_type|
               # the if clause took care of cases where value is nil so we can skip NilClass
-              next if sub_type.raw_type.equal?(NilClass)
+              next if T.cast(sub_type, T::Types::Simple).raw_type.equal?(NilClass)
 
               coercion_result = Coercion.coerce(type: sub_type, value: value)
 

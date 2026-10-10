@@ -19,12 +19,13 @@ module Typed
 
         return Success.new(value) if type.recursively_valid?(value)
 
+        key_and_value_types = T.cast(T.cast(type, T::Types::TypedHash).type, T::Types::FixedArray)
         coerced_hash = {}
         errors = []
 
         value.each do |k, v|
-          key_result = Coercion.coerce(type: T::Utils.coerce(T.cast(type, T::Types::TypedHash).type.types.first), value: k)
-          value_result = Coercion.coerce(type: T::Utils.coerce(T.cast(type, T::Types::TypedHash).type.types.last), value: v)
+          key_result = Coercion.coerce(type: T::Utils.coerce(key_and_value_types.types.first), value: k)
+          value_result = Coercion.coerce(type: T::Utils.coerce(key_and_value_types.types.last), value: v)
 
           if key_result.success? && value_result.success?
             coerced_hash[key_result.payload] = value_result.payload

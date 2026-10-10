@@ -22,12 +22,11 @@ module Typed
 
         return Failure.new(CoercionError.new("Value of type '#{value.class}' cannot be coerced to #{type} Struct.")) unless value.is_a?(Hash)
 
-        deserialization_result = T.cast(type, T::Types::Simple)
-          .raw_type
-          .deserialize_from(:hash, value)
+        struct_class = T.cast(T.cast(type, T::Types::Simple).raw_type, StructClass)
+        deserialization_result = struct_class.deserialize_from(:hash, value)
 
         if deserialization_result.success?
-          deserialization_result
+          Success.new(deserialization_result.payload)
         else
           Failure.new(CoercionError.new(deserialization_result.error.message))
         end

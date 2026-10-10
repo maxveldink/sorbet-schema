@@ -305,7 +305,7 @@ class ActiveRecordSerializerTest < Minitest::Test
 
   def count_queries(&)
     count = 0
-    callback = ->(*, payload) { count += 1 unless payload[:name] == "SCHEMA" }
+    callback = ->(*_, payload) { count += 1 unless payload[:name] == "SCHEMA" }
 
     ActiveSupport::Notifications.subscribed(callback, "sql.active_record", &)
 
