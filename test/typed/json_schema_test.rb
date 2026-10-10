@@ -61,6 +61,20 @@ class JSONSchemaTest < Minitest::Test
     )
   end
 
+  def test_describes_nested_immutable_structs
+    properties = ImmutableCountry.schema.to_json_schema.fetch("properties")
+
+    assert_equal({"type" => "array", "items" => ImmutableCity.schema.to_json_schema}, properties.fetch("cities"))
+    assert_equal(
+      {"type" => "object", "additionalProperties" => ImmutableCity.schema.to_json_schema},
+      properties.fetch("cities_by_name")
+    )
+    assert_equal(
+      ImmutableCity.schema.to_json_schema.merge("type" => ["object", "null"]),
+      properties.fetch("capital")
+    )
+  end
+
   def test_keys_properties_by_serialized_name
     document = WebhookPayload.schema.to_json_schema
 

@@ -276,7 +276,7 @@ Job.schema.to_json_schema
 # }
 ```
 
-Properties are keyed by the serialized name, values are in serialized form (a `T::Enum` as the `enum` of its serialized values, a `Date` as a string), and a field is required when it is neither nilable nor defaulted. Deserialization ignores unknown keys, so objects are open by default; `to_json_schema(additional_properties: false)` closes every struct object, e.g. to catch typos in a config file or for LLM structured-output APIs that require it. Nested structs are described through their own `schema`; pass `struct_schema:` to `Typed::JSONSchema.generate` to resolve them differently. A type without a JSON form raises `Typed::JSONSchema::UnsupportedTypeError`.
+Properties are keyed by the serialized name, values are in serialized form (a `T::Enum` as the `enum` of its serialized values, a `Date` as a string), and a field is required when it is neither nilable nor defaulted. Deserialization ignores unknown keys, so objects are open by default; `to_json_schema(additional_properties: false)` closes every struct object, e.g. to catch typos in a config file or for LLM structured-output APIs that require it. Nested `T::Struct` and `T::ImmutableStruct` values are described through their own `schema`; pass `struct_schema:` to `Typed::JSONSchema.generate` to resolve them differently. A type without a JSON form raises `Typed::JSONSchema::UnsupportedTypeError`.
 
 ### Customization
 
@@ -295,13 +295,13 @@ class DateCoercer < Coercer
   Target = type_member { {fixed: Date} }
 
   sig { override.params(type: T::Types::Base).returns(T::Boolean) }
-  def used_for_type?(type)
+  def self.used_for_type?(type)
     T::Utils.coerce(type) == T::Utils.coerce(Date)
   end
 
   sig { override.params(type: T::Types::Base, value: Value).returns(Result[Target, CoercionError]) }
   def coerce(type:, value:)
-    return Failure.new(CoercionError.new("Type must be a Date.")) unless used_for_type?(type)
+    return Failure.new(CoercionError.new("Type must be a Date.")) unless self.class.used_for_type?(type)
 
     return Success.new(value) if value.is_a?(Date)
 
