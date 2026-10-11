@@ -23,7 +23,11 @@ module T
       when :msgpack
         Typed::MessagePackSerializer.new(schema:)
       when :activerecord
-        raise ArgumentError, "activerecord gem is required for ActiveRecord serialization" unless defined?(ActiveRecord)
+        begin
+          require "active_record" unless defined?(ActiveRecord::Base)
+        rescue LoadError
+          raise ArgumentError, "activerecord gem is required for ActiveRecord serialization - add it to your Gemfile"
+        end
 
         Typed::ActiveRecordSerializer.new(**T.unsafe({schema:, **options}))
       else

@@ -11,6 +11,7 @@ module Typed
     sig { override.params(source: Input).returns(Result[StructT, DeserializeError]) }
     def deserialize(source)
       parsed_json = JSON.parse(source)
+      return Failure.new(ParseError.new(format: :json)) unless parsed_json.is_a?(Hash)
 
       creation_params = schema.fields.each_with_object(T.let({}, Params)) do |field, hsh|
         hsh[field.serialized_name] = parsed_json[field.serialized_name.to_s]

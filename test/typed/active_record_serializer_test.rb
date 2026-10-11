@@ -1,6 +1,7 @@
 # typed: true
 
 require "test_helper"
+require "open3"
 
 class ActiveRecordSerializerTest < Minitest::Test
   class ImmutableARCountry < T::ImmutableStruct
@@ -16,6 +17,44 @@ class ActiveRecordSerializerTest < Minitest::Test
     const :name, String
     const :age, Integer
     const :location, T.nilable(ImmutableARLocation)
+  end
+
+  def test_eager_reflection_does_not_load_or_define_active_record
+    script = <<~RUBY
+      require "sorbet-schema"
+      raise "ActiveRecord loaded early" if defined?(ActiveRecord)
+      klass = Typed::ActiveRecordSerializer
+      klass.instance_methods(false).each do |name|
+        T::Utils.signature_for_method(klass.instance_method(name))
+      end
+      T::Utils.signature_for_method(klass.method(:new))
+      raise "ActiveRecord defined by reflection" if defined?(ActiveRecord)
+      require "active_record"
+      raise "ActiveRecord did not load correctly" unless ActiveRecord::Base.respond_to?(:reflect_on_all_associations)
+    RUBY
+    stdout, stderr, status = Open3.capture3(Gem.ruby, "-Ilib", "-e", script)
+
+    assert(status.success?, "#{stdout}\n#{stderr}")
+  end
+
+  def test_constructor_reports_missing_active_record
+    with_gem_unavailable("active_record", :ActiveRecord) do
+      error = assert_raises(ArgumentError) { Typed::ActiveRecordSerializer.new(schema: ARLocation.schema, model_class: LocationModel) }
+      assert_equal("activerecord gem is required for ActiveRecord serialization - add it to your Gemfile", error.message)
+    end
+  end
+
+  def test_factory_reports_missing_active_record
+    with_gem_unavailable("active_record", :ActiveRecord) do
+      error = assert_raises(ArgumentError) { ARLocation.serializer(:activerecord) }
+      assert_equal("activerecord gem is required for ActiveRecord serialization - add it to your Gemfile", error.message)
+    end
+  end
+
+  def test_constructor_rejects_non_model_classes
+    error = assert_raises(ArgumentError) { Typed::ActiveRecordSerializer.new(schema: ARLocation.schema, model_class: Object) }
+
+    assert_equal("model_class must inherit from ActiveRecord::Base", error.message)
   end
 
   # Deserialize Tests (AR model -> T::Struct)
@@ -254,7 +293,7 @@ class ActiveRecordSerializerTest < Minitest::Test
     location_struct = ARLocation.new(name: "Florida")
     serializer = Typed::ActiveRecordSerializer.new(schema: ARPost.schema, model_class: PostModel)
 
-    result = serializer.serialize(location_struct)
+    result = serializer.serialize(T.unsafe(location_struct))
 
     assert_failure(result)
     assert_error(Typed::SerializeError.new("'ARLocation' cannot be serialized to target type of 'ARPost'."), result)

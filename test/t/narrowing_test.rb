@@ -82,4 +82,13 @@ class NarrowingTest < Minitest::Test
 
     assert_payload("Ada", name)
   end
+  sig { void }
+  def test_active_record_serializer_preserves_both_model_and_struct_types
+    serializer = Typed::ActiveRecordSerializer.new(schema: ARLocation.schema, model_class: LocationModel)
+    model = T.assert_type!(serializer.serialize(ARLocation.new(name: "Florida")).payload, LocationModel)
+    struct = T.assert_type!(serializer.deserialize(model).payload, ARLocation)
+
+    assert_instance_of(LocationModel, model)
+    assert_equal("Florida", struct.name)
+  end
 end

@@ -210,10 +210,11 @@ Unlike `CSVSerializer`, MessagePack natively supports nested maps and arrays, so
 
 #### ActiveRecordSerializer
 
-Requires the `activerecord` gem to be available. This is only checked when going through `.serializer(:activerecord)`, which raises an `ArgumentError` if the gem isn't loaded; calling `Typed::ActiveRecordSerializer.new` directly without ActiveRecord loaded instead raises a `NameError`, since the class itself references the `ActiveRecord` constant. The `Typed::ActiveRecordSerializer` converts between `ActiveRecord::Base` model instances and either supported struct class, matching fields by attribute name and mapping associated records through the model's declared associations. It requires a `model_class` option, in addition to `schema`, so it knows which `ActiveRecord::Base` subclass to deserialize from and serialize to:
+Requires the `activerecord` gem in your application's Gemfile. The gem is loaded lazily when a serializer is constructed; both `.serializer(:activerecord)` and direct construction raise a clear `ArgumentError` if it is unavailable. Loading or reflecting on the serializer class does not require ActiveRecord to be installed. The `Typed::ActiveRecordSerializer` converts between `ActiveRecord::Base` model instances and either supported struct class, matching fields by attribute name and mapping associated records through the model's declared associations. It requires a `model_class` option, in addition to `schema`, so it knows which `ActiveRecord::Base` subclass to deserialize from and serialize to:
 
 ```ruby
 ar_serializer = Typed::ActiveRecordSerializer.new(schema: Person.schema, model_class: PersonModel)
+# Sorbet infers ActiveRecordSerializer[PersonModel, Person], retaining both result types.
 
 # Deserialize from target format
 result = ar_serializer.deserialize(PersonModel.new(name: "Max", age: 29))
@@ -343,7 +344,7 @@ Typed::Schema.from_struct(SchemaWithDateField).add_serializer(:date, my_date_ser
 Typed::Schema[SchemaWithDateField].new(
   target: SchemaWithDateField,
   fields: [
-    Typed::Field.new(name: :date, type: Date, serializer: my_date_serializer)
+    Typed::Field.new(name: :date, type: Date, inline_serializer: my_date_serializer)
   ]
 )
 
@@ -366,6 +367,7 @@ class JSONSerializer < Serializer
   sig { override.params(source: Input).returns(Result[StructT, DeserializeError]) }
   def deserialize(source)
     parsed_json = JSON.parse(source)
+    return Failure.new(ParseError.new(format: :json)) unless parsed_json.is_a?(Hash)
 
     creation_params = schema.fields.each_with_object(T.let({}, Params)) do |field, hsh|
       hsh[field.name] = parsed_json[field.name.to_s]

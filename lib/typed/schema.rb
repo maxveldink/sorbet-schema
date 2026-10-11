@@ -76,7 +76,15 @@ module Typed
         target: target,
         fields: fields.map do |field|
           if field.name == field_name
-            Field.new(name: field.name, type: field.type, default: field.default, inline_serializer: serializer, serialized_name: field.serialized_name)
+            Field.new(
+              name: field.name,
+              type: field.nilable ? T::Utils.coerce(T.nilable(T.unsafe(field.type))) : field.type,
+              optional: field.optional?,
+              default: field.default,
+              inline_serializer: serializer,
+              serialized_name: field.serialized_name,
+              description: field.description
+            )
           else
             field
           end
