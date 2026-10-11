@@ -9,35 +9,39 @@ module Typed
 
     Input = type_member
     Output = type_member
+    # `T::InexactStruct` is the common Sorbet superclass of the supported
+    # mutable and immutable struct classes. `Schema#target` enforces the
+    # narrower runtime set because Sorbet cannot propagate their union here.
+    StructT = type_member { {upper: T::InexactStruct} }
     Params = T.type_alias { T::Hash[Symbol, T.untyped] }
-    DeserializeResult = T.type_alias { Result[T::Struct, DeserializeError] }
+    DeserializeResult = T.type_alias { Result[StructValue, DeserializeError] }
 
-    sig { returns(Schema) }
+    sig { returns(Schema[StructT]) }
     attr_reader :schema
 
     sig { returns(T::Hash[T::Types::Base, T.untyped]) }
     attr_reader :coercer_cache
 
-    sig { params(schema: Schema).void }
+    sig { params(schema: Schema[StructT]).void }
     def initialize(schema:)
       @schema = schema
       @coercer_cache = T.let({}, T::Hash[T::Types::Base, T.untyped])
     end
 
-    sig { abstract.params(source: Input).returns(DeserializeResult) }
+    sig { abstract.params(source: Input).returns(Result[StructT, DeserializeError]) }
     def deserialize(source)
     end
 
-    sig { abstract.params(struct: T::Struct).returns(Result[Output, SerializeError]) }
+    sig { abstract.params(struct: StructT).returns(Result[Output, SerializeError]) }
     def serialize(struct)
     end
 
     private
 
-    sig { params(creation_params: Params).returns(DeserializeResult) }
+    sig { params(creation_params: Params).returns(Result[StructT, DeserializeError]) }
     def deserialize_from_creation_params(creation_params)
       results = schema.fields.map do |field|
-        value = creation_params.fetch(field.name, nil)
+        value = creation_params.fetch(key_for(field), nil)
 
         if value.nil? && !field.default.nil?
           Success.new(Validations::ValidatedValue.new(name: field.name, value: field.default))
@@ -58,7 +62,7 @@ module Typed
 
             T.cast(field.type, T::Types::Union).types.each do |sub_type|
               # the if clause took care of cases where value is nil so we can skip NilClass
-              next if sub_type.raw_type.equal?(NilClass)
+              next if T.cast(sub_type, T::Types::Simple).raw_type.equal?(NilClass)
 
               coercion_result = Coercion.coerce(type: sub_type, value: value)
 
@@ -86,15 +90,22 @@ module Typed
         end
     end
 
-    sig { params(struct: T::Struct, should_serialize_values: T::Boolean).returns(T::Hash[Symbol, T.untyped]) }
+    sig { params(struct: StructT, should_serialize_values: T::Boolean).returns(T::Hash[Symbol, T.untyped]) }
     def serialize_from_struct(struct:, should_serialize_values: false)
-      hsh = schema.fields.each_with_object({}) { |field, hsh| hsh[field.name] = field.serialize(struct.send(field.name)) }.compact
+      hsh = schema.fields.each_with_object({}) { |field, hsh| hsh[key_for(field)] = field.serialize(struct.send(field.name)) }.compact
 
       if should_serialize_values
         hsh = HashTransformer.serialize_values(hsh)
       end
 
       hsh
+    end
+
+    # The key a field is read from and written to. Wire formats use the serialized key;
+    # serializers that talk to Ruby objects (ActiveRecord) override it with the Ruby name.
+    sig { params(field: Field).returns(Symbol) }
+    def key_for(field)
+      field.serialized_name
     end
 
     sig { params(type: T::Types::Base).returns(T.untyped) }

@@ -1,8 +1,15 @@
 # typed: true
 
+require "test_helper"
 require "msgpack"
 
 class SchemaTest < Minitest::Test
+  class Profile < T::Struct
+    include ActsAsComparable
+
+    const :nickname, T.nilable(String), default: "guest", name: "displayName", extra: {description: "Public name"}
+  end
+
   def setup
     @schema = Typed::Schema.new(
       fields: [
@@ -17,6 +24,13 @@ class SchemaTest < Minitest::Test
 
   def test_from_struct_returns_schema
     assert_equal(@schema, Typed::Schema.from_struct(Person))
+  end
+
+  def test_from_struct_takes_serialized_name_from_prop_name_option
+    schema = Typed::Schema.from_struct(WebhookPayload)
+
+    assert_equal([:event_id, :email_address, :retries], schema.fields.map(&:name))
+    assert_equal([:eventId, :emailAddress, :retries], schema.fields.map(&:serialized_name))
   end
 
   def test_from_hash_create_struct
@@ -73,5 +87,24 @@ class SchemaTest < Minitest::Test
 
     assert_success(result)
     assert_payload(MAX_PERSON, result)
+  end
+
+  def test_add_serializer_preserves_field_metadata
+    original = Profile.schema
+    schema = original.add_serializer(:nickname, ->(value) { value.upcase })
+
+    assert_equal(original.to_json_schema, schema.to_json_schema)
+    assert(T.must(schema.fields.first).nilable)
+    assert(T.must(schema.fields.first).optional?)
+    assert_payload(Profile.new(nickname: "guest"), schema.from_hash({}))
+    assert_payload(Profile.new(nickname: "Ada"), schema.from_hash({displayName: "Ada"}))
+    assert_payload('{"displayName":"ADA"}', Typed::JSONSerializer.new(schema:).serialize(Profile.new(nickname: "Ada")))
+  end
+
+  # Guards against a regression where `const :target, T::Class[StructT]`
+  # (rather than `T.all(T::Class[StructT], T.class_of(T::Struct))`) erases to
+  # `T::Class[T.untyped]` at runtime and silently accepts a non-struct class.
+  def test_target_rejects_non_struct_class_at_runtime
+    assert_raises(TypeError) { Typed::Schema.new(target: T.unsafe(Integer), fields: []) }
   end
 end

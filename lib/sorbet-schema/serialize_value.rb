@@ -9,7 +9,7 @@ class SerializeValue
       HashTransformer.serialize_values(value)
     elsif value.is_a?(Array)
       value.map { |item| serialize(item) }
-    elsif value.is_a?(T::Struct)
+    elsif value.is_a?(T::Struct) || value.is_a?(T::ImmutableStruct)
       value.serialize_to(:hash, options: {should_serialize_values: true}).payload_or(value)
     elsif value.respond_to?(:serialize)
       value.serialize

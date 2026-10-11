@@ -1,8 +1,62 @@
 # typed: true
 
 require "test_helper"
+require "open3"
 
 class ActiveRecordSerializerTest < Minitest::Test
+  class ImmutableARCountry < T::ImmutableStruct
+    const :name, String
+  end
+
+  class ImmutableARLocation < T::ImmutableStruct
+    const :name, String
+    const :country, T.nilable(ImmutableARCountry)
+  end
+
+  class ImmutableARUser < T::ImmutableStruct
+    const :name, String
+    const :age, Integer
+    const :location, T.nilable(ImmutableARLocation)
+  end
+
+  def test_eager_reflection_does_not_load_or_define_active_record
+    script = <<~RUBY
+      require "sorbet-schema"
+      raise "ActiveRecord loaded early" if defined?(ActiveRecord)
+      klass = Typed::ActiveRecordSerializer
+      klass.instance_methods(false).each do |name|
+        T::Utils.signature_for_method(klass.instance_method(name))
+      end
+      T::Utils.signature_for_method(klass.method(:new))
+      raise "ActiveRecord defined by reflection" if defined?(ActiveRecord)
+      require "active_record"
+      raise "ActiveRecord did not load correctly" unless ActiveRecord::Base.respond_to?(:reflect_on_all_associations)
+    RUBY
+    stdout, stderr, status = Open3.capture3(Gem.ruby, "-Ilib", "-e", script)
+
+    assert(status.success?, "#{stdout}\n#{stderr}")
+  end
+
+  def test_constructor_reports_missing_active_record
+    with_gem_unavailable("active_record", :ActiveRecord) do
+      error = assert_raises(ArgumentError) { Typed::ActiveRecordSerializer.new(schema: ARLocation.schema, model_class: LocationModel) }
+      assert_equal("activerecord gem is required for ActiveRecord serialization - add it to your Gemfile", error.message)
+    end
+  end
+
+  def test_factory_reports_missing_active_record
+    with_gem_unavailable("active_record", :ActiveRecord) do
+      error = assert_raises(ArgumentError) { ARLocation.serializer(:activerecord) }
+      assert_equal("activerecord gem is required for ActiveRecord serialization - add it to your Gemfile", error.message)
+    end
+  end
+
+  def test_constructor_rejects_non_model_classes
+    error = assert_raises(ArgumentError) { Typed::ActiveRecordSerializer.new(schema: ARLocation.schema, model_class: Object) }
+
+    assert_equal("model_class must inherit from ActiveRecord::Base", error.message)
+  end
+
   # Deserialize Tests (AR model -> T::Struct)
 
   def test_deserialize_handles_simple_fields
@@ -51,6 +105,23 @@ class ActiveRecordSerializerTest < Minitest::Test
     )
   end
 
+  def test_deserialize_handles_arbitrary_depth_immutable_struct_fields
+    country_model = CountryModel.new(name: "US")
+    location_model = LocationModel.new(name: "Florida", country: country_model)
+    user_model = UserModel.new(name: "Ada", age: 37, location: location_model)
+    serializer = Typed::ActiveRecordSerializer.new(schema: ImmutableARUser.schema, model_class: UserModel)
+
+    result = serializer.deserialize(user_model)
+
+    assert_success(result)
+    user = result.payload
+    assert(user.frozen?)
+    assert_equal("Florida", T.must(user.location).name)
+    assert(T.must(user.location).frozen?)
+    assert_equal("US", T.must(T.must(user.location).country).name)
+    assert(T.must(T.must(user.location).country).frozen?)
+  end
+
   def test_deserialize_recurses_through_nilable_nested_struct_fields
     country_model = CountryModel.new(name: "US")
     location_model = LocationModel.new(name: "Florida", country: country_model)
@@ -74,6 +145,16 @@ class ActiveRecordSerializerTest < Minitest::Test
 
     assert_success(result)
     assert_payload(ARPet.new(name: "Sadie", breed: "Brittany"), result)
+  end
+
+  def test_deserialize_maps_model_attributes_to_renamed_fields
+    user_model = UserModel.new(name: "Max", age: 28, location: LocationModel.new(name: "Florida"))
+    serializer = Typed::ActiveRecordSerializer.new(schema: ARRenamedUser.schema, model_class: UserModel)
+
+    result = serializer.deserialize(user_model)
+
+    assert_success(result)
+    assert_payload(ARRenamedUser.new(name: "Max", age: 28, location: ARLocation.new(name: "Florida")), result)
   end
 
   def test_deserialize_fails_for_non_activerecord_object
@@ -140,6 +221,34 @@ class ActiveRecordSerializerTest < Minitest::Test
     assert_equal "Florida", model.location.name
   end
 
+  def test_serialize_maps_renamed_fields_to_model_attributes
+    user_struct = ARRenamedUser.new(name: "Max", age: 28, location: ARLocation.new(name: "Florida"))
+    serializer = Typed::ActiveRecordSerializer.new(schema: ARRenamedUser.schema, model_class: UserModel)
+
+    result = serializer.serialize(user_struct)
+
+    assert_success(result)
+    model = T.cast(result.payload, T.untyped)
+    assert_equal "Max", model.name
+    assert_equal "Florida", model.location.name
+  end
+
+  def test_serialize_handles_immutable_struct_via_association
+    user = ImmutableARUser.new(name: "Ada", age: 37, location: ImmutableARLocation.new(name: "Florida"))
+    serializer = Typed::ActiveRecordSerializer.new(schema: ImmutableARUser.schema, model_class: UserModel)
+
+    result = serializer.serialize(user)
+
+    assert_success(result)
+    model = result.payload
+    assert_kind_of(UserModel, model)
+    model = T.cast(model, T.untyped)
+    assert_equal("Ada", model.name)
+    assert_equal(37, model.age)
+    assert_kind_of(LocationModel, model.location)
+    assert_equal("Florida", model.location.name)
+  end
+
   def test_serialize_filters_to_model_columns
     pet_struct = ARPet.new(name: "Sadie", breed: "Brittany")
     serializer = Typed::ActiveRecordSerializer.new(schema: ARPet.schema, model_class: SimplePetModel)
@@ -184,7 +293,7 @@ class ActiveRecordSerializerTest < Minitest::Test
     location_struct = ARLocation.new(name: "Florida")
     serializer = Typed::ActiveRecordSerializer.new(schema: ARPost.schema, model_class: PostModel)
 
-    result = serializer.serialize(location_struct)
+    result = serializer.serialize(T.unsafe(location_struct))
 
     assert_failure(result)
     assert_error(Typed::SerializeError.new("'ARLocation' cannot be serialized to target type of 'ARPost'."), result)
@@ -235,7 +344,7 @@ class ActiveRecordSerializerTest < Minitest::Test
 
   def count_queries(&)
     count = 0
-    callback = ->(*, payload) { count += 1 unless payload[:name] == "SCHEMA" }
+    callback = ->(*_, payload) { count += 1 unless payload[:name] == "SCHEMA" }
 
     ActiveSupport::Notifications.subscribed(callback, "sql.active_record", &)
 

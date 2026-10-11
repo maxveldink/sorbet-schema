@@ -7,14 +7,15 @@ module Typed
   class YMLSerializer < Serializer
     Input = type_member { {fixed: String} }
     Output = type_member { {fixed: String} }
+    StructT = type_member { {upper: T::InexactStruct} }
 
-    sig { override.params(source: Input).returns(Result[T::Struct, DeserializeError]) }
+    sig { override.params(source: Input).returns(Result[StructT, DeserializeError]) }
     def deserialize(source)
       parsed_yaml = YAML.safe_load(source, permitted_classes: [Date, Time], symbolize_names: true)
       return Failure.new(ParseError.new(format: :yml)) unless parsed_yaml.is_a?(Hash)
 
       creation_params = schema.fields.each_with_object(T.let({}, Params)) do |field, hsh|
-        hsh[field.name] = parsed_yaml[field.name]
+        hsh[field.serialized_name] = parsed_yaml[field.serialized_name]
       end
 
       deserialize_from_creation_params(creation_params)
@@ -22,7 +23,7 @@ module Typed
       Failure.new(ParseError.new(format: :yml))
     end
 
-    sig { override.params(struct: T::Struct).returns(Result[Output, SerializeError]) }
+    sig { override.params(struct: StructT).returns(Result[Output, SerializeError]) }
     def serialize(struct)
       return Failure.new(SerializeError.new("'#{struct.class}' cannot be serialized to target type of '#{schema.target}'.")) if struct.class != schema.target
 

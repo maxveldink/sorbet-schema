@@ -9,6 +9,17 @@ class JSONSerializerTest < Minitest::Test
 
   # Serialize Tests
 
+  def test_it_round_trips_through_the_props_serialized_name
+    serializer = Typed::JSONSerializer.new(schema: Typed::Schema.from_struct(WebhookPayload))
+    payload = WebhookPayload.new(event_id: "evt-1", email_address: "user@example.com")
+
+    serialized = serializer.serialize(payload)
+
+    assert_success(serialized)
+    assert_equal('{"eventId":"evt-1","emailAddress":"user@example.com","retries":0}', serialized.payload)
+    assert_payload(payload, serializer.deserialize(serialized.payload))
+  end
+
   def test_it_can_simple_serialize
     result = @serializer.serialize(MAX_PERSON)
 

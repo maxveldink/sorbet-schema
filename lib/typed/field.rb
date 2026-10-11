@@ -9,6 +9,12 @@ module Typed
     sig { returns(Symbol) }
     attr_reader :name
 
+    # Key this field is read from and written to in serialized form. Defaults to
+    # `name`; `Schema.from_struct` fills it from the prop's `name:` option, so a
+    # struct can mirror an external payload without adopting its key casing.
+    sig { returns(Symbol) }
+    attr_reader :serialized_name
+
     sig { returns(T::Types::Base) }
     attr_reader :type
 
@@ -21,23 +27,39 @@ module Typed
     sig { returns(T.nilable(InlineSerializer)) }
     attr_reader :inline_serializer
 
+    # Whether the declared type accepts `nil`. `type` holds the unwrapped type,
+    # and `required` can't tell a nilable field from one that has a default.
+    sig { returns(T::Boolean) }
+    attr_reader :nilable
+
+    # Human-readable description of the field, e.g. for a generated JSON Schema.
+    # `Schema.from_struct` fills it from the prop's `extra: {description: ...}`.
+    sig { returns(T.nilable(String)) }
+    attr_reader :description
+
     sig do
       params(
         name: Symbol,
         type: T.any(T::Class[T.anything], T::Types::Base),
         optional: T::Boolean,
         default: T.untyped,
-        inline_serializer: T.nilable(InlineSerializer)
+        inline_serializer: T.nilable(InlineSerializer),
+        serialized_name: T.nilable(Symbol),
+        description: T.nilable(String)
       ).void
     end
-    def initialize(name:, type:, optional: false, default: nil, inline_serializer: nil)
+    def initialize(name:, type:, optional: false, default: nil, inline_serializer: nil, serialized_name: nil, description: nil)
       @name = name
+      @description = description
+      @serialized_name = T.let(serialized_name || name, Symbol)
       # TODO: Guarentee type signature of the serializer will be valid
       @inline_serializer = inline_serializer
 
       coerced_type = T::Utils.coerce(type)
 
-      if coerced_type.valid?(nil)
+      @nilable = T.let(coerced_type.valid?(nil), T::Boolean)
+
+      if @nilable
         @required = T.let(false, T::Boolean)
         @type = T.let(T.unsafe(coerced_type).unwrap_nilable, T::Types::Base)
       else
@@ -60,10 +82,12 @@ module Typed
     sig { params(other: Field).returns(T.nilable(T::Boolean)) }
     def ==(other)
       name == other.name &&
+        serialized_name == other.serialized_name &&
         type == other.type &&
         required == other.required &&
         default == other.default &&
-        inline_serializer == other.inline_serializer
+        inline_serializer == other.inline_serializer &&
+        description == other.description
     end
 
     sig { returns(T::Boolean) }
@@ -74,6 +98,11 @@ module Typed
     sig { returns(T::Boolean) }
     def optional?
       !required
+    end
+
+    sig { returns(T::Boolean) }
+    def nilable?
+      nilable
     end
 
     sig { params(value: Value).returns(Value) }

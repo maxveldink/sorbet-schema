@@ -21,6 +21,24 @@ class HashSerializerTest < Minitest::Test
 
   # Serialize Tests
 
+  def test_it_serializes_under_the_props_serialized_name
+    serializer = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(WebhookPayload))
+
+    result = serializer.serialize(WebhookPayload.new(event_id: "evt-1", email_address: "user@example.com"))
+
+    assert_success(result)
+    assert_payload({eventId: "evt-1", emailAddress: "user@example.com", retries: 0}, result)
+  end
+
+  def test_it_deserializes_from_the_props_serialized_name
+    serializer = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(WebhookPayload))
+
+    result = serializer.deserialize({eventId: "evt-1", emailAddress: "user@example.com"})
+
+    assert_success(result)
+    assert_payload(WebhookPayload.new(event_id: "evt-1", email_address: "user@example.com"), result)
+  end
+
   def test_it_can_simple_serialize
     result = @serializer.serialize(MAX_PERSON)
 
