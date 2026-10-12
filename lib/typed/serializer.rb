@@ -41,53 +41,68 @@ module Typed
     sig { params(creation_params: Params).returns(Result[StructT, DeserializeError]) }
     def deserialize_from_creation_params(creation_params)
       results = schema.fields.map do |field|
-        value = creation_params.fetch(key_for(field), nil)
-
-        if value.nil? && !field.default.nil?
-          Success.new(Validations::ValidatedValue.new(name: field.name, value: field.default))
-        elsif value.nil? || field.works_with?(value)
-          field.validate(value)
+        result = deserialize_field(field, creation_params.fetch(key_for(field), nil))
+        if result.failure?
+          Failure.new(result.error.prepend_path(key_for(field).to_s))
         else
-          coercer_instance = fetch_coercer(field.type)
-          if !coercer_instance.nil?
-            result = coercer_instance.coerce(type: field.type, value:)
-            if result.success?
-              field.validate(result.payload)
-            else
-              Failure.new(Validations::ValidationError.new(result.error.message))
-            end
-          elsif field.type.class <= T::Types::Union
-            errors = []
-            validated_value = T.let(nil, T.nilable(Typed::Result[Typed::Validations::ValidatedValue, Typed::Validations::ValidationError]))
-
-            T.cast(field.type, T::Types::Union).types.each do |sub_type|
-              # the if clause took care of cases where value is nil so we can skip NilClass
-              next if T.cast(sub_type, T::Types::Simple).raw_type.equal?(NilClass)
-
-              coercion_result = Coercion.coerce(type: sub_type, value: value)
-
-              if coercion_result.success?
-                validated_value = field.validate(coercion_result.payload)
-
-                break
-              else
-                errors << Validations::ValidationError.new(coercion_result.error.message)
-              end
-            end
-
-            validated_value.nil? ? Failure.new(Validations::ValidationError.new(errors.map(&:message).join(", "))) : validated_value
-          else
-            Failure.new(Validations::ValidationError.new("Coercer not found for type #{field.type}."))
-          end
+          result
         end
       end
 
+      deserialize_from_validation_results(results)
+    end
+
+    sig { params(results: T::Array[Validations::ValidationResult]).returns(Result[StructT, DeserializeError]) }
+    def deserialize_from_validation_results(results)
       Validations::ValidationResults
         .new(results:)
         .combine
         .and_then do |validated_params|
           Success.new(schema.target.new(**validated_params))
         end
+    end
+
+    # Issues here are relative to the field value; the caller adds the input key.
+    sig { params(field: Field, value: Value).returns(Validations::ValidationResult) }
+    def deserialize_field(field, value)
+      if value.nil? && !field.default.nil?
+        Success.new(Validations::ValidatedValue.new(name: field.name, value: field.default))
+      elsif value.nil? || field.works_with?(value)
+        field.validate(value)
+      else
+        coercer_instance = fetch_coercer(field.type)
+        if !coercer_instance.nil?
+          result = coercer_instance.coerce(type: field.type, value:)
+          if result.success?
+            field.validate(result.payload)
+          else
+            Failure.new(Validations::ValidationError.new(result.error.message, issues: result.error.issues))
+          end
+        elsif field.type.is_a?(T::Types::Union)
+          errors = T.let([], T::Array[Coercion::CoercionError])
+          validated_value = T.let(nil, T.nilable(Validations::ValidationResult))
+
+          T.cast(field.type, T::Types::Union).types.each do |sub_type|
+            # The nil branch above already handled NilClass.
+            next if sub_type == T::Utils.coerce(NilClass)
+
+            coercion_result = Coercion.coerce(type: sub_type, value: value)
+            if coercion_result.success?
+              validated_value = field.validate(coercion_result.payload)
+              break
+            else
+              errors << coercion_result.error
+            end
+          end
+
+          validated_value || Failure.new(Validations::ValidationError.new(
+            errors.map(&:message).join(", "), issues: errors.flat_map(&:issues)
+          ))
+        else
+          error = Coercion::CoercionNotSupportedError.new(type: field.type)
+          Failure.new(Validations::ValidationError.new(error.message, issues: error.issues))
+        end
+      end
     end
 
     sig { params(struct: StructT, should_serialize_values: T::Boolean).returns(T::Hash[Symbol, T.untyped]) }

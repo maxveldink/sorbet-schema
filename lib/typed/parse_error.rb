@@ -6,7 +6,7 @@ module Typed
 
     sig { params(format: Symbol).void }
     def initialize(format:)
-      super("#{format} could not be parsed. Check for typos.")
+      super("#{format} could not be parsed. Check for typos.", code: :parse_error)
     end
   end
 end

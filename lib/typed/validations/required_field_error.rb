@@ -7,7 +7,7 @@ module Typed
 
       sig { params(field_name: Symbol).void }
       def initialize(field_name:)
-        super("#{field_name} is required.")
+        super("#{field_name} is required.", code: :required_field)
       end
     end
   end

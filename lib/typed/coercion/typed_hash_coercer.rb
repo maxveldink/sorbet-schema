@@ -22,8 +22,10 @@ module Typed
         key_and_value_types = T.cast(T.cast(type, T::Types::TypedHash).type, T::Types::FixedArray)
         coerced_hash = {}
         errors = []
+        issues = T.let([], T::Array[ValidationIssue])
 
         value.each do |k, v|
+          segment = k.is_a?(Integer) ? k : k.to_s
           key_result = Coercion.coerce(type: T::Utils.coerce(key_and_value_types.types.first), value: k)
           value_result = Coercion.coerce(type: T::Utils.coerce(key_and_value_types.types.last), value: v)
 
@@ -32,10 +34,12 @@ module Typed
           else
             if key_result.failure?
               errors << key_result.error
+              issues.concat(key_result.error.issues.map { |issue| issue.prepend(segment) })
             end
 
             if value_result.failure?
               errors << value_result.error
+              issues.concat(value_result.error.issues.map { |issue| issue.prepend(segment) })
             end
           end
         end
@@ -43,7 +47,7 @@ module Typed
         if errors.empty?
           Success.new(coerced_hash)
         else
-          Failure.new(CoercionError.new(errors.map(&:message).join(" | ")))
+          Failure.new(CoercionError.new(errors.map(&:message).join(" | "), issues: issues))
         end
       end
     end

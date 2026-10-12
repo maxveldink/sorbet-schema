@@ -52,14 +52,17 @@ module Typed
 
       return Failure.new(DeserializeError.new("'#{source.class}' is not an instance of '#{model_class}'.")) unless source.class <= model_class
 
-      creation_params = schema.fields.each_with_object(T.let({}, Params)) do |field, hsh|
-        if source.respond_to?(field.name)
-          value = source.send(field.name)
-          hsh[key_for(field)] = coerce_ar_value(field:, value:)
+      results = schema.fields.map do |field|
+        value = source.respond_to?(field.name) ? source.send(field.name) : nil
+        result = coerce_ar_value(field:, value:).and_then { |coerced_value| deserialize_field(field, coerced_value) }
+        if result.failure?
+          Failure.new(result.error.prepend_path(key_for(field).to_s))
+        else
+          result
         end
       end
 
-      deserialize_from_creation_params(creation_params)
+      deserialize_from_validation_results(results)
     end
 
     sig { override.params(struct: StructT).returns(Result[Output, SerializeError]) }
@@ -95,15 +98,19 @@ module Typed
       field.name
     end
 
-    sig { params(field: Field, value: T.untyped).returns(T.untyped) }
+    sig { params(field: Field, value: T.untyped).returns(Result[Value, Validations::ValidationError]) }
     def coerce_ar_value(field:, value:)
-      return value unless value.is_a?(ActiveRecord::Base)
+      return Success.new(value) unless value.is_a?(ActiveRecord::Base)
 
       nested_struct_class = struct_class_for(field.type)
-      return value.attributes.transform_keys(&:to_sym) unless nested_struct_class
+      return Success.new(value.attributes.transform_keys(&:to_sym)) unless nested_struct_class
 
       nested_result = ActiveRecordSerializer.new(schema: T.cast(nested_struct_class.schema, Schema[T::InexactStruct]), model_class: value.class).deserialize(value)
-      nested_result.success? ? nested_result.payload : value.attributes.transform_keys(&:to_sym)
+      if nested_result.success?
+        Success.new(nested_result.payload)
+      else
+        Failure.new(Validations::ValidationError.new(nested_result.error.message, issues: nested_result.error.issues))
+      end
     end
 
     sig { params(type: T::Types::Base).returns(T.nilable(StructClass)) }

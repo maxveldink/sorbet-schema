@@ -7,7 +7,7 @@ module Typed
 
       sig { params(type: T::Types::Base).void }
       def initialize(type:)
-        super("Coercer not found for type #{type}.")
+        super("Coercer not found for type #{type}.", code: :coercion_not_supported)
       end
     end
   end
