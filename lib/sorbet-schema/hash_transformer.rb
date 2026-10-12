@@ -20,5 +20,17 @@ class HashTransformer
         result[key] = SerializeValue.serialize(value)
       end
     end
+
+    sig { params(value: T.untyped).returns(T.untyped) }
+    def stringify_keys(value)
+      case value
+      when Hash
+        value.each_with_object({}) { |(key, val), result| result[key.to_s] = stringify_keys(val) }
+      when Array
+        value.map { |item| stringify_keys(item) }
+      else
+        value
+      end
+    end
   end
 end

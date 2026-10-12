@@ -91,4 +91,18 @@ class NarrowingTest < Minitest::Test
     assert_instance_of(LocationModel, model)
     assert_equal("Florida", struct.name)
   end
+
+  sig { void }
+  def test_array_serializer_infers_mutable_element_type
+    result = Typed::ArraySerializer.new(schema: City.schema, format: :hash).deserialize([{name: "Ada", capital: false}])
+    cities = T.assert_type!(result.payload, T::Array[City])
+    assert_equal("Ada", T.must(cities.first).name)
+  end
+
+  sig { void }
+  def test_array_serializer_infers_immutable_element_type
+    result = Typed::ArraySerializer.new(schema: ImmutableCity.schema, format: :json).deserialize('[{"name":"Ada","capital":false}]')
+    cities = T.assert_type!(result.payload, T::Array[ImmutableCity])
+    assert_equal("Ada", T.must(cities.first).name)
+  end
 end
