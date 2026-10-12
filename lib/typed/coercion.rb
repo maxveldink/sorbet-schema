@@ -13,7 +13,7 @@ module Typed
     def self.coerce(type:, value:)
       coercer = CoercerRegistry.instance.select_coercer_by(type:)
 
-      return Failure.new(CoercionNotSupportedError.new(type:)) unless coercer
+      return Failure.new(CoercionNotSupportedError.new(type:, value:)) unless coercer
 
       coercer.new.coerce(type:, value:)
     end

@@ -55,7 +55,7 @@ module Typed
             if result.success?
               field.validate(result.payload)
             else
-              Failure.new(Validations::ValidationError.new(result.error.message))
+              coercion_failure(field: field, value: value, message: result.error.message)
             end
           elsif field.type.class <= T::Types::Union
             errors = []
@@ -76,9 +76,9 @@ module Typed
               end
             end
 
-            validated_value.nil? ? Failure.new(Validations::ValidationError.new(errors.map(&:message).join(", "))) : validated_value
+            validated_value.nil? ? coercion_failure(field: field, value: value, message: errors.map(&:message).join(", ")) : validated_value
           else
-            Failure.new(Validations::ValidationError.new("Coercer not found for type #{field.type}."))
+            coercion_failure(field: field, value: value, message: "Coercer not found for type #{field.type}.")
           end
         end
       end
@@ -89,6 +89,11 @@ module Typed
         .and_then do |validated_params|
           Success.new(schema.target.new(**validated_params))
         end
+    end
+
+    sig { params(field: Field, value: Value, message: String).returns(Failure[Validations::ValidationError]) }
+    def coercion_failure(field:, value:, message:)
+      Failure.new(Validations::ValidationError.new("Failed to coerce field '#{field.name}' from #{value.class} to #{field.type} with value #{value.inspect}: #{message}"))
     end
 
     sig { params(struct: StructT, should_serialize_values: T::Boolean).returns(T::Hash[Symbol, T.untyped]) }
