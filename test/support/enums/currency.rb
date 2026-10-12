@@ -1,8 +1,8 @@
 # typed: true
 
-# A single value is sufficient for this serialization fixture.
-class Currency < T::Enum # standard:disable Sorbet/MultipleTEnumValues
+class Currency < T::Enum
   enums do
     USD = new("USD")
+    EUR = new("EUR")
   end
 end

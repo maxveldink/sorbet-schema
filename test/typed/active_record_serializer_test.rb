@@ -70,13 +70,16 @@ class ActiveRecordSerializerTest < Minitest::Test
   end
 
   def test_deserialize_handles_enum_fields
-    post_model = PostModel.new(title: "Testing 123", status: "draft")
     serializer = Typed::ActiveRecordSerializer.new(schema: ARPost.schema, model_class: PostModel)
 
-    result = serializer.deserialize(post_model)
+    [ARPostStatus::Draft, ARPostStatus::Published].each do |status|
+      post_model = PostModel.new(title: "Testing 123", status: status.serialize)
 
-    assert_success(result)
-    assert_payload(ARPost.new(title: "Testing 123", status: ARPostStatus::Draft), result)
+      result = serializer.deserialize(post_model)
+
+      assert_success(result)
+      assert_payload(ARPost.new(title: "Testing 123", status: status), result)
+    end
   end
 
   def test_deserialize_handles_nested_struct_fields
@@ -192,17 +195,20 @@ class ActiveRecordSerializerTest < Minitest::Test
   end
 
   def test_serialize_handles_enum_fields
-    post_struct = ARPost.new(title: "Testing 123", status: ARPostStatus::Draft)
     serializer = Typed::ActiveRecordSerializer.new(schema: ARPost.schema, model_class: PostModel)
 
-    result = serializer.serialize(post_struct)
+    [ARPostStatus::Draft, ARPostStatus::Published].each do |status|
+      post_struct = ARPost.new(title: "Testing 123", status: status)
 
-    assert_success(result)
-    model = result.payload
-    assert_kind_of PostModel, model
-    model = T.cast(model, T.untyped)
-    assert_equal "Testing 123", model.title
-    assert_equal "draft", model.status
+      result = serializer.serialize(post_struct)
+
+      assert_success(result)
+      model = result.payload
+      assert_kind_of PostModel, model
+      model = T.cast(model, T.untyped)
+      assert_equal "Testing 123", model.title
+      assert_equal status.serialize, model.status
+    end
   end
 
   def test_serialize_handles_nested_struct_via_association

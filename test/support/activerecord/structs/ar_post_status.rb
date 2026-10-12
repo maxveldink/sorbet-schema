@@ -1,9 +1,9 @@
 # typed: strict
 # frozen_string_literal: true
 
-# A single value is sufficient for this serialization fixture.
-class ARPostStatus < T::Enum # standard:disable Sorbet/MultipleTEnumValues
+class ARPostStatus < T::Enum
   enums do
     Draft = new("draft")
+    Published = new("published")
   end
 end
