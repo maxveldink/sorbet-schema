@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0](https://github.com/maxveldink/sorbet-schema/compare/v0.10.0...v0.11.0) (2026-10-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* **typed:** ActiveRecord serializer annotations now take the model type first and struct type second: `Typed::ActiveRecordSerializer[PersonModel, Person]`. Direct `.new(schema: Person.schema, model_class: PersonModel)` infers both types. Regenerate consumer gem RBIs after upgrading.
+* **typed:** `Typed::Serializer::DeserializeResult` and `Typed::Coercion::StructCoercer::Target` now accept immutable as well as mutable structs. `DeserializeResult` is `Typed::Result[Typed::StructValue, Typed::DeserializeError]`, where `Typed::StructValue` is the union of `T::Struct` and `T::ImmutableStruct`. Update annotations that assume these aliases only contain `T::Struct`; use `Typed::StructValue` when handling both, or obtain a concrete struct result through a parameterized schema or serializer.
+* **typed:** Props with a `name:` option now use that name for both input and output in Hash, JSON, CSV, YAML, and MessagePack. For `const :event_id, String, name: "eventId"`, migrate payload keys and CSV headers from `event_id` to `eventId`. The old key no longer populates the field: required fields fail validation, while optional fields may use their default or nil. ActiveRecord continues to use Ruby attribute names.
+* **typed:** Schema and serializers now require a struct type argument in Sorbet annotations. Use `Typed::Schema[Person]`, `Typed::HashSerializer[Person]` (and the equivalent JSON, CSV, YML, and MessagePack types), and `Typed::Serializer[Input, Output, Person]` instead of the former unparameterized classes or two-argument base serializer. Custom serializer subclasses must redeclare `StructT = type_member { {upper: T::InexactStruct} }` and use it in their schema, serialize, and deserialize signatures (including `Typed::Schema[StructT]` and `Typed::Result[StructT, Typed::DeserializeError]`). Regenerate consumer gem RBIs and update custom `.schema` overrides to return a parameterized schema. Prefer `Schema.from_struct(Person)` or `Typed::Schema[Person].new(...)` to preserve concrete type inference.
+
+### Features
+
+* **typed:** generate a JSON Schema from a schema ([#152](https://github.com/maxveldink/sorbet-schema/issues/152)) ([575ae72](https://github.com/maxveldink/sorbet-schema/commit/575ae72eabd7f0a3ade6299732128a586041b5bf))
+* **typed:** honor the prop name: option as the serialized key ([08490d2](https://github.com/maxveldink/sorbet-schema/commit/08490d26c04385cd00a651b9e10506ad75ce960f))
+* **typed:** make Serializer and Schema generic over struct type ([086e867](https://github.com/maxveldink/sorbet-schema/commit/086e8671aeda7868e6dde98b8d23621918059e4b))
+* **typed:** support immutable nested JSON Schema ([#162](https://github.com/maxveldink/sorbet-schema/issues/162)) ([d74d6cd](https://github.com/maxveldink/sorbet-schema/commit/d74d6cdd63017a268f1ecd78f1e68314460767c9))
+* **typed:** support immutable structs ([288c972](https://github.com/maxveldink/sorbet-schema/commit/288c972cd87cb194b19743d3eb5bb7c2e9f7f617))
+
+
+### Bug Fixes
+
+* **activerecord:** load the optional gem lazily and raise `ArgumentError` when unavailable, including direct construction that previously raised `NameError` ([bf7e894](https://github.com/maxveldink/sorbet-schema/commit/bf7e8948353b58a692f9ad7d115440edc7b1ebb5))
+* **json:** return `Failure(ParseError)` for non-object JSON roots (arrays, scalars, and null); update callers that rescue exceptions for these inputs ([bf7e894](https://github.com/maxveldink/sorbet-schema/commit/bf7e8948353b58a692f9ad7d115440edc7b1ebb5))
+* **schema:** preserve optionality, nullability, defaults, serialized names, and descriptions when updating a field with `add_serializer` ([bf7e894](https://github.com/maxveldink/sorbet-schema/commit/bf7e8948353b58a692f9ad7d115440edc7b1ebb5))
+* **typed:** harden JSON parsing, field updates, and ActiveRecord loading ([bf7e894](https://github.com/maxveldink/sorbet-schema/commit/bf7e8948353b58a692f9ad7d115440edc7b1ebb5))
+
 ## [0.10.0](https://github.com/maxveldink/sorbet-schema/compare/v0.9.3...v0.10.0) (2026-08-07)
 
 
