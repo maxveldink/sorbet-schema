@@ -5,6 +5,7 @@ module Typed
     extend T::Sig
     extend T::Helpers
     extend T::Generic
+
     abstract!
 
     Input = type_member

@@ -5,28 +5,24 @@
 # Please instead update this file by running `bin/tapioca gem standard-sorbet`.
 
 
-# source://standard-sorbet//lib/standard/sorbet/version.rb#1
+# pkg:gem/standard-sorbet#lib/standard/sorbet/version.rb:1
 module Standard; end
 
-# source://standard-sorbet//lib/standard/sorbet/version.rb#2
+# pkg:gem/standard-sorbet#lib/standard/sorbet/version.rb:2
 module Standard::Sorbet; end
 
-# source://standard-sorbet//lib/standard/sorbet/plugin.rb#2
+# pkg:gem/standard-sorbet#lib/standard/sorbet/plugin.rb:2
 class Standard::Sorbet::Plugin < ::LintRoller::Plugin
-  # @return [Plugin] a new instance of Plugin
-  #
-  # source://standard-sorbet//lib/standard/sorbet/plugin.rb#3
+  # pkg:gem/standard-sorbet#lib/standard/sorbet/plugin.rb:3
   def initialize(config); end
 
-  # source://standard-sorbet//lib/standard/sorbet/plugin.rb#8
+  # pkg:gem/standard-sorbet#lib/standard/sorbet/plugin.rb:8
   def about; end
 
-  # source://standard-sorbet//lib/standard/sorbet/plugin.rb#21
+  # pkg:gem/standard-sorbet#lib/standard/sorbet/plugin.rb:21
   def rules(context); end
 
-  # @return [Boolean]
-  #
-  # source://standard-sorbet//lib/standard/sorbet/plugin.rb#17
+  # pkg:gem/standard-sorbet#lib/standard/sorbet/plugin.rb:17
   def supported?(context); end
 
   private
@@ -45,9 +41,9 @@ class Standard::Sorbet::Plugin < ::LintRoller::Plugin
   # meant to be mutated externally, but it's better than the `Inject` monkey
   # patching that rubocop-sorbet does (and many other RuboCop plugins do)
   #
-  # source://standard-sorbet//lib/standard/sorbet/plugin.rb#51
+  # pkg:gem/standard-sorbet#lib/standard/sorbet/plugin.rb:51
   def trick_rubocop_into_thinking_we_required_rubocop_sorbet!; end
 end
 
-# source://standard-sorbet//lib/standard/sorbet/version.rb#3
+# pkg:gem/standard-sorbet#lib/standard/sorbet/version.rb:3
 Standard::Sorbet::VERSION = T.let(T.unsafe(nil), String)
