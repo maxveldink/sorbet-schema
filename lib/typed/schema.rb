@@ -96,32 +96,27 @@ module Typed
 
     sig { returns(Typed::HashSerializer[StructT]) }
     def hash_serializer
-      @hash_serializer = T.let(@hash_serializer, T.nilable(Typed::HashSerializer[StructT]))
-      @hash_serializer ||= Typed::HashSerializer[StructT].new(schema: self)
+      @hash_serializer ||= T.let(Typed::HashSerializer[StructT].new(schema: self), T.nilable(Typed::HashSerializer[StructT]))
     end
 
     sig { returns(Typed::JSONSerializer[StructT]) }
     def json_serializer
-      @json_serializer = T.let(@json_serializer, T.nilable(Typed::JSONSerializer[StructT]))
-      @json_serializer ||= Typed::JSONSerializer[StructT].new(schema: self)
+      @json_serializer ||= T.let(Typed::JSONSerializer[StructT].new(schema: self), T.nilable(Typed::JSONSerializer[StructT]))
     end
 
     sig { returns(Typed::CSVSerializer[StructT]) }
     def csv_serializer
-      @csv_serializer = T.let(@csv_serializer, T.nilable(Typed::CSVSerializer[StructT]))
-      @csv_serializer ||= Typed::CSVSerializer[StructT].new(schema: self)
+      @csv_serializer ||= T.let(Typed::CSVSerializer[StructT].new(schema: self), T.nilable(Typed::CSVSerializer[StructT]))
     end
 
     sig { returns(Typed::YMLSerializer[StructT]) }
     def yml_serializer
-      @yml_serializer = T.let(@yml_serializer, T.nilable(Typed::YMLSerializer[StructT]))
-      @yml_serializer ||= Typed::YMLSerializer[StructT].new(schema: self)
+      @yml_serializer ||= T.let(Typed::YMLSerializer[StructT].new(schema: self), T.nilable(Typed::YMLSerializer[StructT]))
     end
 
     sig { returns(Typed::MessagePackSerializer[StructT]) }
     def message_pack_serializer
-      @message_pack_serializer = T.let(@message_pack_serializer, T.nilable(Typed::MessagePackSerializer[StructT]))
-      @message_pack_serializer ||= Typed::MessagePackSerializer[StructT].new(schema: self)
+      @message_pack_serializer ||= T.let(Typed::MessagePackSerializer[StructT].new(schema: self), T.nilable(Typed::MessagePackSerializer[StructT]))
     end
   end
 end

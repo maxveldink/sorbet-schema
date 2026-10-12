@@ -24,7 +24,7 @@ class JSONSchemaTest < Minitest::Test
           "type" => "object",
           "properties" => {
             "cents" => {"type" => "integer"},
-            "currency" => {"enum" => ["USD"], "type" => "string"}
+            "currency" => {"enum" => ["USD", "EUR"], "type" => "string"}
           },
           "required" => ["cents"]
         },

@@ -5,11 +5,32 @@
 # Please instead update this file by running `bin/tapioca gem timeout`.
 
 
-# source://timeout//lib/timeout.rb#21
+# Timeout long-running blocks
+#
+# == Synopsis
+#
+#   require 'timeout'
+#   status = Timeout.timeout(5) {
+#     # Something that should be interrupted if it takes more than 5 seconds...
+#   }
+#
+# == Description
+#
+# Timeout provides a way to auto-terminate a potentially long-running
+# operation if it hasn't finished in a fixed amount of time.
+#
+# == Copyright
+#
+# Copyright:: (C) 2000  Network Applied Communication Laboratory, Inc.
+# Copyright:: (C) 2000  Information-technology Promotion Agency, Japan
+#
+# pkg:gem/timeout#lib/timeout.rb:21
 module Timeout
   private
 
-  # source://timeout//lib/timeout.rb#308
+  # See Timeout.timeout
+  #
+  # pkg:gem/timeout#lib/timeout.rb:311
   def timeout(*args, &block); end
 
   class << self
@@ -21,17 +42,17 @@ module Timeout
     #         value of 0 or +nil+ will execute the block without any timeout.
     #         Any negative number will raise an ArgumentError.
     # +klass+:: Exception Class to raise if the block fails to terminate
-    #           in +sec+ seconds.  Omitting will use the default, Timeout::Error
+    #           in +sec+ seconds.  Omitting will use the default, Timeout::Error.
     # +message+:: Error message to raise with Exception Class.
-    #             Omitting will use the default, "execution expired"
+    #             Omitting will use the default, <tt>"execution expired"</tt>.
     #
     # Returns the result of the block *if* the block completed before
     # +sec+ seconds, otherwise raises an exception, based on the value of +klass+.
     #
     # The exception raised to terminate the given block is the given +klass+, or
     # Timeout::ExitException if +klass+ is not given. The reason for that behavior
-    # is that Timeout::Error inherits from RuntimeError and might be caught unexpectedly by `rescue`.
-    # Timeout::ExitException inherits from Exception so it will only be rescued by `rescue Exception`.
+    # is that Timeout::Error inherits from RuntimeError and might be caught unexpectedly by +rescue+.
+    # Timeout::ExitException inherits from Exception so it will only be rescued by <tt>rescue Exception</tt>.
     # Note that the Timeout::ExitException is translated to a Timeout::Error once it reaches the Timeout.timeout call,
     # so outside that call it will be a Timeout::Error.
     #
@@ -40,7 +61,7 @@ module Timeout
     # For those reasons, this method cannot be relied on to enforce timeouts for untrusted blocks.
     #
     # If a scheduler is defined, it will be used to handle the timeout by invoking
-    # Scheduler#timeout_after.
+    # Fiber::Scheduler#timeout_after.
     #
     # Note that this is both a method of module Timeout, so you can <tt>include
     # Timeout</tt> into your classes so they have a #timeout method, as well as
@@ -48,13 +69,13 @@ module Timeout
     #
     # ==== Ensuring the exception does not fire inside ensure blocks
     #
-    # When using Timeout.timeout it can be desirable to ensure the timeout exception does not fire inside an +ensure+ block.
-    # The simplest and best way to do so it to put the Timeout.timeout call inside the body of the begin/ensure/end:
+    # When using Timeout.timeout, it can be desirable to ensure the timeout exception does not fire inside an +ensure+ block.
+    # The simplest and best way to do so is to put the Timeout.timeout call inside the body of the +begin+/+ensure+/+end+:
     #
     #     begin
     #       Timeout.timeout(sec) { some_long_operation }
     #     ensure
-    #       cleanup # safe, cannot be interrupt by timeout
+    #       cleanup # safe, cannot be interrupted by timeout
     #     end
     #
     # If that is not feasible, e.g. if there are +ensure+ blocks inside +some_long_operation+,
@@ -72,96 +93,84 @@ module Timeout
     #       end
     #     }
     #
-    # An important thing to note is the need to pass an exception klass to Timeout.timeout,
-    # otherwise it does not work. Specifically, using +Thread.handle_interrupt(Timeout::ExitException => ...)+
+    # An important thing to note is the need to pass an exception +klass+ to Timeout.timeout,
+    # otherwise it does not work. Specifically, using <tt>Thread.handle_interrupt(Timeout::ExitException => ...)</tt>
     # is unsupported and causes subtle errors like raising the wrong exception outside the block, do not use that.
     #
     # Note that Thread.handle_interrupt is somewhat dangerous because if setup or cleanup hangs
     # then the current thread will hang too and the timeout will never fire.
     # Also note the block might run for longer than +sec+ seconds:
-    # e.g. some_long_operation executes for +sec+ seconds + whatever time cleanup takes.
+    # e.g. +some_long_operation+ executes for +sec+ seconds + whatever time cleanup takes.
     #
-    # If you want the timeout to only happen on blocking operations one can use :on_blocking
-    # instead of :immediate. However, that means if the block uses no blocking operations after +sec+ seconds,
+    # If you want the timeout to only happen on blocking operations, one can use +:on_blocking+
+    # instead of +:immediate+. However, that means if the block uses no blocking operations after +sec+ seconds,
     # the block will not be interrupted.
     #
-    # @raise [ArgumentError]
-    #
-    # source://timeout//lib/timeout.rb#278
+    # pkg:gem/timeout#lib/timeout.rb:278
     def timeout(sec, klass = T.unsafe(nil), message = T.unsafe(nil), &block); end
   end
 end
 
 # Raised by Timeout.timeout when the block times out.
 #
-# source://timeout//lib/timeout.rb#33
+# pkg:gem/timeout#lib/timeout.rb:33
 class Timeout::Error < ::RuntimeError
   class << self
-    # source://timeout//lib/timeout.rb#34
+    # pkg:gem/timeout#lib/timeout.rb:34
     def handle_timeout(message); end
   end
 end
 
 # Internal exception raised to when a timeout is triggered.
 #
-# source://timeout//lib/timeout.rb#26
+# pkg:gem/timeout#lib/timeout.rb:26
 class Timeout::ExitException < ::Exception
-  # source://timeout//lib/timeout.rb#27
-  def exception(*_arg0); end
+  # pkg:gem/timeout#lib/timeout.rb:27
+  def exception(*); end
 end
 
 # We keep a private reference so that time mocking libraries won't break Timeout.
 #
-# source://timeout//lib/timeout.rb#49
+# pkg:gem/timeout#lib/timeout.rb:49
 Timeout::GET_TIME = T.let(T.unsafe(nil), Method)
 
-# source://timeout//lib/timeout.rb#143
+# pkg:gem/timeout#lib/timeout.rb:143
 class Timeout::Request
-  # @return [Request] a new instance of Request
-  #
-  # source://timeout//lib/timeout.rb#146
+  # pkg:gem/timeout#lib/timeout.rb:146
   def initialize(thread, timeout, exception_class, message); end
 
-  # Returns the value of attribute deadline.
-  #
-  # source://timeout//lib/timeout.rb#144
+  # pkg:gem/timeout#lib/timeout.rb:144
   def deadline; end
 
   # Only called by the timeout thread, so does not need Sync.synchronize
   #
-  # @return [Boolean]
-  #
-  # source://timeout//lib/timeout.rb#157
+  # pkg:gem/timeout#lib/timeout.rb:157
   def done?; end
 
-  # @return [Boolean]
-  #
-  # source://timeout//lib/timeout.rb#163
+  # pkg:gem/timeout#lib/timeout.rb:163
   def expired?(now); end
 
-  # source://timeout//lib/timeout.rb#177
+  # pkg:gem/timeout#lib/timeout.rb:177
   def finished; end
 
   # Only called by the timeout thread, so does not need Sync.synchronize
   #
-  # source://timeout//lib/timeout.rb#168
+  # pkg:gem/timeout#lib/timeout.rb:168
   def interrupt; end
 end
 
-# source://timeout//lib/timeout.rb#56
+# pkg:gem/timeout#lib/timeout.rb:56
 class Timeout::State
-  # @return [State] a new instance of State
-  #
-  # source://timeout//lib/timeout.rb#57
+  # pkg:gem/timeout#lib/timeout.rb:57
   def initialize; end
 
-  # source://timeout//lib/timeout.rb#134
+  # pkg:gem/timeout#lib/timeout.rb:134
   def add_request(request); end
 
-  # source://timeout//lib/timeout.rb#83
+  # pkg:gem/timeout#lib/timeout.rb:83
   def create_timeout_thread; end
 
-  # source://timeout//lib/timeout.rb#120
+  # pkg:gem/timeout#lib/timeout.rb:120
   def ensure_timeout_thread_created; end
 
   class << self
@@ -169,26 +178,26 @@ class Timeout::State
     # 1. Ractor.store_if_absent is available
     # 2. Method object can be shareable (4.0~)
     #
-    # source://timeout//lib/timeout.rb#78
+    # pkg:gem/timeout#lib/timeout.rb:78
     def instance; end
   end
 end
 
-# source://timeout//lib/timeout.rb#76
+# pkg:gem/timeout#lib/timeout.rb:76
 Timeout::State::GLOBAL_STATE = T.let(T.unsafe(nil), Timeout::State)
 
-# source://timeout//lib/timeout.rb#185
+# pkg:gem/timeout#lib/timeout.rb:185
 module Timeout::Sync
   class << self
     # Calls mutex.synchronize(&block) but if that fails on CRuby due to being in a trap handler,
     # run mutex.synchronize(&block) in a separate Thread instead.
     #
-    # source://timeout//lib/timeout.rb#188
+    # pkg:gem/timeout#lib/timeout.rb:188
     def synchronize(mutex, &block); end
   end
 end
 
 # The version
 #
-# source://timeout//lib/timeout.rb#23
+# pkg:gem/timeout#lib/timeout.rb:23
 Timeout::VERSION = T.let(T.unsafe(nil), String)
