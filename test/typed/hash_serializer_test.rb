@@ -1,8 +1,17 @@
 # typed: true
 
 require "test_helper"
+require "bigdecimal"
 
 class HashSerializerTest < Minitest::Test
+  class Payment < T::Struct
+    const :amount, BigDecimal
+  end
+
+  class Payments < T::Struct
+    const :payments, T::Array[Payment]
+  end
+
   class StructWithBooleanDefaultSetToTrue < T::Struct
     include ActsAsComparable
 
@@ -106,6 +115,28 @@ class HashSerializerTest < Minitest::Test
 
   # Deserialize Tests
 
+  def test_missing_coercer_reports_field_value_and_types
+    result = Payment.deserialize_from(:hash, {amount: "12.50"})
+
+    assert_failure(result)
+    assert_equal('Failed to coerce field \'amount\' from String to BigDecimal with value "12.50": Coercer not found for type BigDecimal.', result.error.message)
+  end
+
+  def test_failed_coercer_reports_field_value_and_types
+    result = @serializer.deserialize({name: "Max", age: "invalid", stone_rank: RubyRank::Luminary})
+
+    assert_failure(result)
+    assert_equal('Failed to coerce field \'age\' from String to Integer with value "invalid": \'invalid\' cannot be coerced into Integer.', result.error.message)
+  end
+
+  def test_nested_coercion_errors_preserve_inner_and_outer_fields
+    result = Payments.deserialize_from(:hash, {payments: [{amount: "12.50"}]})
+
+    assert_failure(result)
+    assert_includes(result.error.message, "Failed to coerce field 'payments' from Array to T::Array[HashSerializerTest::Payment]")
+    assert_includes(result.error.message, 'Failed to coerce field \'amount\' from String to BigDecimal with value "12.50"')
+  end
+
   def test_it_can_simple_deserialize
     result = @serializer.deserialize({name: "Max", age: 29, stone_rank: RubyRank::Luminary})
 
@@ -180,7 +211,7 @@ class HashSerializerTest < Minitest::Test
     result = Typed::HashSerializer.new(schema: Typed::Schema.from_struct(Person)).deserialize({name: "Max", age: 29, stone_rank: "not valid"})
 
     assert_failure(result)
-    assert_error(Typed::Validations::ValidationError.new('Enum RubyRank key not found: "not valid", Enum DiamondRank key not found: "not valid"'), result)
+    assert_error(Typed::Validations::ValidationError.new('Failed to coerce field \'stone_rank\' from String to T.any(DiamondRank, RubyRank) with value "not valid": Enum RubyRank key not found: "not valid", Enum DiamondRank key not found: "not valid"'), result)
   end
 
   def test_it_can_deserialize_with_default_value_boolean_true

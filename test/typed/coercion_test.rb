@@ -55,6 +55,13 @@ class CoercionTest < Minitest::Test
     result = Typed::Coercion.coerce(type: T::Utils.coerce(BigDecimal), value: "testing")
 
     assert_failure(result)
-    assert_error(Typed::Coercion::CoercionNotSupportedError.new(type: T::Utils.coerce(BigDecimal)), result)
+    assert_error(Typed::Coercion::CoercionNotSupportedError.new(type: T::Utils.coerce(BigDecimal), value: "testing"), result)
+  end
+
+  def test_unsupported_nil_coercion_reports_the_value_and_source_type
+    result = Typed::Coercion.coerce(type: T::Utils.coerce(BigDecimal), value: nil)
+
+    assert_failure(result)
+    assert_equal("Coercer not found for type BigDecimal. Value: nil (NilClass).", result.error.message)
   end
 end
