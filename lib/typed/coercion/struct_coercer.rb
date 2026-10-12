@@ -28,7 +28,7 @@ module Typed
         if deserialization_result.success?
           Success.new(deserialization_result.payload)
         else
-          Failure.new(CoercionError.new(deserialization_result.error.message))
+          Failure.new(CoercionError.new(deserialization_result.error.message, issues: deserialization_result.error.issues))
         end
       rescue ArgumentError, RuntimeError
         Failure.new(CoercionError.new("Given hash could not be coerced to #{type}."))

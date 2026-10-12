@@ -26,7 +26,10 @@ module Typed
         if coerced_results.all?(&:success?)
           Success.new(coerced_results.map(&:payload))
         else
-          Failure.new(CoercionError.new(coerced_results.select(&:failure?).map(&:error).map(&:message).join(" | ")))
+          issues = coerced_results.each_with_index.flat_map do |result, index|
+            result.failure? ? result.error.issues.map { |issue| issue.prepend(index) } : []
+          end
+          Failure.new(CoercionError.new(coerced_results.select(&:failure?).map(&:error).map(&:message).join(" | "), issues: issues))
         end
       end
     end

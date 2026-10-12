@@ -83,6 +83,61 @@ result = json_serializer.deserialize('{"name":"Max","age":"29"}')
 max = result.payload # == Person.new(name: "Max", age: 29)
 ```
 
+### Structured validation errors
+
+Deserialization failures expose `error.issues`, a typed array of
+`Typed::ValidationIssue` objects. Each issue has a `path`, a stable symbol `code`,
+and a human-readable `message`. Nested failures retain every individual issue:
+
+```ruby
+class Address < T::Struct
+  const :zip, Integer
+end
+
+class Contact < T::Struct
+  const :address, Address
+  const :scores, T::Array[Integer]
+end
+
+result = Contact.deserialize_from(
+  :json,
+  '{"address":{"zip":"oops"},"scores":[1,"bad"]}'
+)
+
+result.error.issues.map(&:to_h)
+# => [
+#   {path: ["address", "zip"], code: :coercion_failed,
+#    message: "'oops' cannot be coerced into Integer."},
+#   {path: ["scores", 1], code: :coercion_failed,
+#    message: "'bad' cannot be coerced into Integer."}
+# ]
+```
+
+Paths use serialized field names and zero-based array indexes. Typed hash
+failures include the original input key (integers stay integers; other keys
+become strings); key and value failures can share a path. ActiveRecord paths use
+model attribute and association names. A root failure, such as a parse error,
+has an empty path. Issues from standalone field validators and coercers are
+relative to the supplied value; serializers prepend the field's input key.
+When every union alternative fails, issues from each alternative are retained.
+
+| Code | Meaning |
+| --- | --- |
+| `:required_field` | A required field has no value. |
+| `:type_mismatch` | Field validation rejected the value's type. |
+| `:coercion_failed` | Conversion to the requested type failed. |
+| `:coercion_not_supported` | No coercer is registered for the requested type. |
+| `:parse_error` | The document could not be parsed into the expected shape. |
+| `:validation_failed` | A general or custom validation failure. |
+| `:deserialization_failed` | Another deserialization failure. |
+
+Existing `error.message`, `error.to_h`, and `error.to_json` retain their summary
+format (`{error: "..."}`). To serialize individual issues explicitly, use
+`JSON.generate(error.issues.map(&:to_h))`. Custom errors can supply `issues:` to
+`Typed::DeserializeError`, `Typed::Validations::ValidationError`, or
+`Typed::Coercion::CoercionError`; otherwise, the error provides one root issue.
+Custom codes can be set with `code:` or on an individual `ValidationIssue`.
+
 ### Immutable structs
 
 Use `T::ImmutableStruct` when deserialization must create a frozen struct:
