@@ -2,6 +2,8 @@
 
 Serialize and deserialize Sorbet `T::Struct` and `T::ImmutableStruct` values.
 
+Requires Ruby 3.3 or newer. CI tests Ruby 3.3, 3.4, and 4.0.
+
 ## Installation
 
 Install the gem and add to the application's Gemfile by executing:
